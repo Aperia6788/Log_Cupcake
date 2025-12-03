@@ -600,14 +600,34 @@
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
             border-radius: 12px;
-            padding: 20px;
+            padding: 0;
             z-index: 1000;
             min-width: 300px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
-        .char-color-popup h3 {
-            margin: 0 0 15px 0;
+        .char-color-popup .popup-drag-header {
+            padding: 15px 20px;
+            background: var(--input-bg);
+            border-radius: 12px 12px 0 0;
+            cursor: move;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--panel-border);
+        }
+        .char-color-popup .popup-drag-header h3 {
+            margin: 0;
             color: var(--text-primary);
+            font-size: 16px;
+        }
+        .char-color-popup .popup-drag-header .drag-hint {
+            font-size: 11px;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+        .char-color-popup .popup-content {
+            padding: 20px;
         }
         .char-color-popup .color-row {
             margin-bottom: 10px;
@@ -1168,15 +1188,18 @@
         }
 
         /* ========== 반응형 ========== */
-        @media (max-width: 900px) {
-            body {
+        @media (max-width: 1024px) {
+            .app-body {
                 flex-direction: column;
             }
             
             .sidebar {
                 width: 100%;
-                height: auto;
+                min-width: unset;
+                max-width: unset;
                 max-height: 50vh;
+                border-right: none;
+                border-bottom: 1px solid var(--panel-border);
             }
             
             .preview-wrapper {
@@ -1184,8 +1207,149 @@
             }
             
             #log-preview {
-                width: 100%;
+                width: 100% !important;
                 max-width: 100%;
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 10px 12px;
+                height: auto;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .app-header h1 {
+                font-size: 16px;
+            }
+            
+            .app-header .header-actions {
+                gap: 4px;
+            }
+            
+            .app-header .header-actions .btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            .app-header .header-divider {
+                display: none;
+            }
+            
+            .app-header .header-right {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .sidebar {
+                max-height: 60vh;
+            }
+            
+            .sidebar-content {
+                padding: 12px;
+            }
+            
+            .section {
+                padding: 12px;
+            }
+            
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .color-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .theme-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            .tabs {
+                gap: 2px;
+            }
+            
+            .tab {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+            
+            .preview-wrapper {
+                padding: 12px;
+            }
+            
+            #log-preview {
+                padding: 16px;
+                font-size: 14px !important;
+                border-radius: 12px !important;
+            }
+            
+            .log-title h2 {
+                font-size: 18px;
+            }
+            
+            .bubble {
+                padding: 10px 12px;
+                max-width: 90%;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .log-block-header {
+                padding: 8px 10px;
+            }
+            
+            .log-block-actions button {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .app-header {
+                padding: 8px 10px;
+            }
+            
+            .app-header .header-left {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .app-header .header-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .mode-toggle {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            
+            .theme-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 4px;
+            }
+            
+            .theme-btn {
+                min-height: 40px;
+            }
+            
+            .theme-btn span {
+                font-size: 7px;
+            }
+            
+            .extra-char-item {
+                flex-wrap: wrap;
+            }
+            
+            .extra-char-item input[type="text"] {
+                min-width: 100px;
             }
         }
 
@@ -1424,6 +1588,178 @@
         .mode-toggle:hover {
             background: var(--panel-border);
         }
+        
+        /* ========== 프리셋 패널 ========== */
+        .preset-panel {
+            position: fixed;
+            top: 56px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            max-height: calc(100vh - 80px);
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .preset-panel.show {
+            display: block;
+        }
+        
+        .preset-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--panel-border);
+            cursor: move;
+            user-select: none;
+        }
+        
+        .preset-panel-header .drag-hint {
+            font-size: 11px;
+            color: var(--text-secondary);
+            opacity: 0.7;
+            margin-left: 8px;
+        }
+        
+        .preset-panel-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+        
+        .preset-panel-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preset-panel-close:hover {
+            background: var(--panel-border);
+        }
+        
+        .preset-panel-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .preset-panel-actions .btn {
+            flex: 1;
+        }
+        
+        .preset-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 8px;
+        }
+        
+        .preset-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            background: var(--input-bg);
+            border-radius: 8px;
+            border: 1px solid var(--input-border);
+        }
+        
+        .preset-item-name {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text-primary);
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .preset-item-name:hover {
+            color: var(--accent);
+        }
+        
+        .preset-item-actions {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .preset-item-btn {
+            width: 26px;
+            height: 26px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preset-item-btn.edit {
+            background: #228be6;
+            color: white;
+        }
+        
+        .preset-item-btn.delete {
+            background: #e03131;
+            color: white;
+        }
+        
+        .preset-panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .preset-panel-overlay.show {
+            display: block;
+        }
+        
+        .preset-empty {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .preset-panel {
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                transform: none;
+                width: 100%;
+                max-width: 100%;
+                border-radius: 16px 16px 0 0;
+                max-height: 70vh;
+            }
+            
+            .preset-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
@@ -1434,6 +1770,7 @@
             <button class="mode-toggle" onclick="toggleDarkMode()" title="라이트/다크 모드 전환">🌙</button>
         </div>
         <div class="header-actions">
+            <button class="btn btn-secondary" onclick="togglePresetPanel()" title="프리셋 관리">📁 프리셋</button>
             <button class="btn btn-primary" onclick="generateLog()">🔄 생성</button>
             <button class="btn btn-success" onclick="saveImage()">📷 저장</button>
         </div>
@@ -1444,6 +1781,29 @@
             <button class="btn btn-secondary" onclick="resetAll()" title="모든 입력 초기화">🔄 초기화</button>
         </div>
     </header>
+    
+    <!-- 프리셋 패널 오버레이 -->
+    <div class="preset-panel-overlay" onclick="closePresetPanel()"></div>
+    
+    <!-- 프리셋 패널 -->
+    <div class="preset-panel" id="preset-panel">
+        <div class="preset-panel-header" id="preset-panel-header">
+            <div style="display:flex; align-items:center;">
+                <h3>📁 프리셋 관리</h3>
+                <span class="drag-hint">드래그하여 이동</span>
+            </div>
+            <button class="preset-panel-close" onclick="closePresetPanel()">×</button>
+        </div>
+        <div class="preset-panel-actions">
+            <button class="btn btn-primary" onclick="savePresetFromPanel()">💾 저장</button>
+            <button class="btn btn-secondary" onclick="exportPreset()">📤 내보내기</button>
+            <input type="file" id="import-preset-panel" accept=".json" style="display:none;">
+            <button class="btn btn-secondary" onclick="document.getElementById('import-preset-panel').click()">📥 가져오기</button>
+        </div>
+        <div class="preset-list" id="preset-list-panel">
+            <!-- 프리셋 목록이 여기에 렌더링됨 -->
+        </div>
+    </div>
     
     <!-- 앱 바디 (사이드바 + 메인) -->
     <div class="app-body">
@@ -1699,6 +2059,7 @@ USER: "반가워요."
                         </div>
                     </div>
                     <div class="btn-group" style="margin-top: 12px;">
+                        <button class="btn btn-secondary" onclick="randomizeCustomColors()">🎲 랜덤</button>
                         <button class="btn btn-primary" onclick="saveCustomTheme()">💾 테마 저장</button>
                     </div>
                     <div id="saved-themes" style="margin-top: 12px;"></div>
@@ -1781,19 +2142,6 @@ USER: "반가워요."
                     </div>
                 </div>
 
-                <!-- 전체 프리셋 저장/불러오기 -->
-                <div class="section">
-                    <div class="section-title">프리셋 저장/불러오기</div>
-                    <div class="btn-group">
-                        <button class="btn btn-primary" onclick="savePreset()">💾 프리셋 저장</button>
-                        <button class="btn btn-secondary" onclick="exportPreset()">📤 내보내기</button>
-                    </div>
-                    <div class="input-group" style="margin-top:12px;">
-                        <input type="file" id="import-preset" accept=".json" style="display:none;">
-                        <button class="btn btn-secondary" onclick="document.getElementById('import-preset').click()" style="width:100%;">📥 프리셋 불러오기</button>
-                    </div>
-                    <div id="saved-presets" style="margin-top: 12px;"></div>
-                </div>
             </div>
 
             <!-- 스타일 탭 -->
@@ -2067,6 +2415,104 @@ USER: "반가워요."
             // 테마 버튼 선택 해제
             document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
         }
+        
+        // ========== 커스텀 색상 랜덤 생성 ==========
+        function randomizeCustomColors() {
+            // 밝은 테마 vs 어두운 테마 랜덤 선택
+            const isDark = Math.random() > 0.5;
+            
+            // 기본 Hue 선택
+            const baseHue = Math.floor(Math.random() * 360);
+            // 보색/유사색 Hue
+            const accentHue = (baseHue + 120 + Math.floor(Math.random() * 120)) % 360;
+            const secondaryHue = (baseHue + 30 + Math.floor(Math.random() * 60)) % 360;
+            
+            let colors = {};
+            
+            if (isDark) {
+                // 어두운 테마
+                // 배경: 어두운 색
+                const bgColor = hslToHex(baseHue, 15 + Math.floor(Math.random() * 20), 12 + Math.floor(Math.random() * 10));
+                
+                // 봇 말풍선: 약간 밝은 어두운 색
+                colors.aiBg = hslToHex(baseHue, 20 + Math.floor(Math.random() * 15), 20 + Math.floor(Math.random() * 10));
+                colors.aiText = hslToHex(baseHue, 10, 90 + Math.floor(Math.random() * 8));
+                
+                // 퍼소 말풍선: 포인트 색상
+                colors.userBg = hslToHex(accentHue, 50 + Math.floor(Math.random() * 30), 45 + Math.floor(Math.random() * 15));
+                colors.userText = '#ffffff';
+                
+                // 나레이션/제목: 밝은 색
+                colors.text = hslToHex(baseHue, 10, 85 + Math.floor(Math.random() * 10));
+                colors.title = hslToHex(baseHue, 15, 90 + Math.floor(Math.random() * 8));
+                
+                // 생각/통신: 포인트 컬러
+                colors.thought = hslToHex(secondaryHue, 50 + Math.floor(Math.random() * 30), 60 + Math.floor(Math.random() * 15));
+                colors.comm = hslToHex((accentHue + 60) % 360, 50 + Math.floor(Math.random() * 30), 55 + Math.floor(Math.random() * 15));
+                
+                // 이름표
+                colors.nameAi = hslToHex(baseHue, 15, 85 + Math.floor(Math.random() * 10));
+                colors.nameUser = hslToHex(accentHue, 60, 60 + Math.floor(Math.random() * 15));
+                
+                // 배경색도 적용
+                document.getElementById('bg-solid-color').value = bgColor;
+                document.getElementById('bg-solid-color-text').value = bgColor;
+            } else {
+                // 밝은 테마
+                // 배경: 밝은 색
+                const bgColor = hslToHex(baseHue, 20 + Math.floor(Math.random() * 30), 95 + Math.floor(Math.random() * 4));
+                
+                // 봇 말풍선: 연한 색
+                colors.aiBg = hslToHex(baseHue, 15 + Math.floor(Math.random() * 25), 92 + Math.floor(Math.random() * 6));
+                colors.aiText = hslToHex(baseHue, 30, 15 + Math.floor(Math.random() * 15));
+                
+                // 퍼소 말풍선: 포인트 색상
+                colors.userBg = hslToHex(accentHue, 60 + Math.floor(Math.random() * 30), 50 + Math.floor(Math.random() * 15));
+                colors.userText = '#ffffff';
+                
+                // 나레이션/제목: 어두운 색
+                colors.text = hslToHex(baseHue, 25, 15 + Math.floor(Math.random() * 15));
+                colors.title = hslToHex(baseHue, 30, 20 + Math.floor(Math.random() * 15));
+                
+                // 생각/통신: 포인트 컬러
+                colors.thought = hslToHex(secondaryHue, 50 + Math.floor(Math.random() * 35), 50 + Math.floor(Math.random() * 15));
+                colors.comm = hslToHex((accentHue + 60) % 360, 55 + Math.floor(Math.random() * 30), 45 + Math.floor(Math.random() * 15));
+                
+                // 이름표
+                colors.nameAi = hslToHex(baseHue, 20, 30 + Math.floor(Math.random() * 15));
+                colors.nameUser = hslToHex(accentHue, 70, 45 + Math.floor(Math.random() * 15));
+                
+                // 배경색도 적용
+                document.getElementById('bg-solid-color').value = bgColor;
+                document.getElementById('bg-solid-color-text').value = bgColor;
+            }
+            
+            // 색상 입력 필드에 적용
+            document.getElementById('color-text').value = colors.text;
+            document.getElementById('color-text-text').value = colors.text;
+            document.getElementById('color-ai-bg').value = colors.aiBg;
+            document.getElementById('color-ai-bg-text').value = colors.aiBg;
+            document.getElementById('color-user-bg').value = colors.userBg;
+            document.getElementById('color-user-bg-text').value = colors.userBg;
+            document.getElementById('color-ai-text').value = colors.aiText;
+            document.getElementById('color-ai-text-text').value = colors.aiText;
+            document.getElementById('color-user-text').value = colors.userText;
+            document.getElementById('color-user-text-text').value = colors.userText;
+            document.getElementById('color-thought').value = colors.thought;
+            document.getElementById('color-thought-text').value = colors.thought;
+            document.getElementById('color-comm').value = colors.comm;
+            document.getElementById('color-comm-text').value = colors.comm;
+            document.getElementById('color-name-ai').value = colors.nameAi;
+            document.getElementById('color-name-ai-text').value = colors.nameAi;
+            document.getElementById('color-name-user').value = colors.nameUser;
+            document.getElementById('color-name-user-text').value = colors.nameUser;
+            document.getElementById('color-title').value = colors.title;
+            document.getElementById('color-title-text').value = colors.title;
+            
+            // 미리보기에 적용
+            applyCustomColors();
+            applyBackground();
+        }
 
         // ========== 커스텀 테마 저장 ==========
         function saveCustomTheme() {
@@ -2298,31 +2744,115 @@ USER: "반가워요."
             popup.className = 'char-color-popup';
             popup.id = 'char-color-popup';
             popup.innerHTML = `
-                <h3>🎨 ${char.name} 색상 설정</h3>
-                <div class="input-group">
-                    <label class="input-label">말풍선 배경</label>
-                    <div class="color-row">
-                        <input type="color" value="${char.bgColor}" onchange="updateCharColor(${index}, 'bgColor', this.value)">
-                        <input type="text" value="${char.bgColor}" onchange="updateCharColor(${index}, 'bgColor', this.value)">
+                <div class="popup-drag-header" id="char-popup-drag-header">
+                    <h3>🎨 ${char.name} 색상 설정</h3>
+                    <span class="drag-hint">드래그하여 이동</span>
+                </div>
+                <div class="popup-content">
+                    <div class="input-group">
+                        <label class="input-label">말풍선 배경</label>
+                        <div class="color-row">
+                            <input type="color" id="char-bg-color" value="${char.bgColor}" onchange="updateCharColor(${index}, 'bgColor', this.value)">
+                            <input type="text" id="char-bg-text" value="${char.bgColor}" onchange="updateCharColor(${index}, 'bgColor', this.value)">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">말풍선 글자</label>
+                        <div class="color-row">
+                            <input type="color" id="char-text-color" value="${char.textColor}" onchange="updateCharColor(${index}, 'textColor', this.value)">
+                            <input type="text" id="char-text-text" value="${char.textColor}" onchange="updateCharColor(${index}, 'textColor', this.value)">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">이름 색상</label>
+                        <div class="color-row">
+                            <input type="color" id="char-name-color" value="${char.nameColor}" onchange="updateCharColor(${index}, 'nameColor', this.value)">
+                            <input type="text" id="char-name-text" value="${char.nameColor}" onchange="updateCharColor(${index}, 'nameColor', this.value)">
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-top:15px;">
+                        <button class="btn btn-secondary" onclick="randomizeCharColors(${index})" style="flex:1;">🎲 랜덤</button>
+                        <button class="btn btn-primary" onclick="closeCharColorPopup()" style="flex:1;">확인</button>
                     </div>
                 </div>
-                <div class="input-group">
-                    <label class="input-label">말풍선 글자</label>
-                    <div class="color-row">
-                        <input type="color" value="${char.textColor}" onchange="updateCharColor(${index}, 'textColor', this.value)">
-                        <input type="text" value="${char.textColor}" onchange="updateCharColor(${index}, 'textColor', this.value)">
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label class="input-label">이름 색상</label>
-                    <div class="color-row">
-                        <input type="color" value="${char.nameColor}" onchange="updateCharColor(${index}, 'nameColor', this.value)">
-                        <input type="text" value="${char.nameColor}" onchange="updateCharColor(${index}, 'nameColor', this.value)">
-                    </div>
-                </div>
-                <button class="btn btn-primary" onclick="closeCharColorPopup()" style="width:100%; margin-top:15px;">확인</button>
             `;
             document.body.appendChild(popup);
+            
+            // 드래그 기능 초기화
+            initDraggable(popup, document.getElementById('char-popup-drag-header'));
+        }
+        
+        // 캐릭터 색상 랜덤 생성
+        function randomizeCharColors(index) {
+            // 조화로운 색상 팔레트 생성
+            const colors = generateHarmoniousColors();
+            
+            // 색상 적용
+            extraCharacters[index].bgColor = colors.bgColor;
+            extraCharacters[index].textColor = colors.textColor;
+            extraCharacters[index].nameColor = colors.nameColor;
+            
+            // 팝업 내 입력 필드 업데이트
+            document.getElementById('char-bg-color').value = colors.bgColor;
+            document.getElementById('char-bg-text').value = colors.bgColor;
+            document.getElementById('char-text-color').value = colors.textColor;
+            document.getElementById('char-text-text').value = colors.textColor;
+            document.getElementById('char-name-color').value = colors.nameColor;
+            document.getElementById('char-name-text').value = colors.nameColor;
+            
+            generateLog();
+        }
+        
+        // 조화로운 색상 팔레트 생성 함수
+        function generateHarmoniousColors() {
+            // 랜덤 Hue 선택 (0-360)
+            const baseHue = Math.floor(Math.random() * 360);
+            
+            // 밝은 배경 vs 어두운 배경 랜덤 선택
+            const isDarkBg = Math.random() > 0.5;
+            
+            let bgColor, textColor, nameColor;
+            
+            if (isDarkBg) {
+                // 어두운 배경: 채도 낮고 명도 낮은 색상
+                const bgSat = 30 + Math.floor(Math.random() * 40); // 30-70
+                const bgLight = 15 + Math.floor(Math.random() * 20); // 15-35
+                bgColor = hslToHex(baseHue, bgSat, bgLight);
+                
+                // 밝은 글자색
+                textColor = hslToHex(baseHue, 10, 90 + Math.floor(Math.random() * 10)); // 거의 흰색
+                
+                // 포인트 이름 색상 (밝고 채도 높은)
+                const nameHue = (baseHue + 30 + Math.floor(Math.random() * 60)) % 360; // 유사색 또는 보색
+                nameColor = hslToHex(nameHue, 60 + Math.floor(Math.random() * 30), 60 + Math.floor(Math.random() * 20));
+            } else {
+                // 밝은 배경: 채도 낮고 명도 높은 색상
+                const bgSat = 20 + Math.floor(Math.random() * 40); // 20-60
+                const bgLight = 85 + Math.floor(Math.random() * 12); // 85-97
+                bgColor = hslToHex(baseHue, bgSat, bgLight);
+                
+                // 어두운 글자색
+                textColor = hslToHex(baseHue, 20, 15 + Math.floor(Math.random() * 15)); // 거의 검정
+                
+                // 포인트 이름 색상 (어둡고 채도 높은)
+                const nameHue = (baseHue + 30 + Math.floor(Math.random() * 60)) % 360;
+                nameColor = hslToHex(nameHue, 50 + Math.floor(Math.random() * 40), 35 + Math.floor(Math.random() * 25));
+            }
+            
+            return { bgColor, textColor, nameColor };
+        }
+        
+        // HSL을 HEX로 변환
+        function hslToHex(h, s, l) {
+            s /= 100;
+            l /= 100;
+            const a = s * Math.min(l, 1 - l);
+            const f = n => {
+                const k = (n + h / 30) % 12;
+                const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                return Math.round(255 * color).toString(16).padStart(2, '0');
+            };
+            return `#${f(0)}${f(8)}${f(4)}`;
         }
         
         function updateCharColor(index, colorType, value) {
@@ -2592,26 +3122,12 @@ USER: "반가워요."
             let savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
             savedPresets.push(preset);
             localStorage.setItem('logPresets', JSON.stringify(savedPresets));
-            renderSavedPresets();
+            renderPresetListPanel();
         }
 
         function renderSavedPresets() {
-            const container = document.getElementById('saved-presets');
-            const savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
-            
-            if (savedPresets.length === 0) {
-                container.innerHTML = '';
-                return;
-            }
-            
-            container.innerHTML = '<div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">저장된 프리셋:</div>' +
-                savedPresets.map((p, i) => `
-                    <div style="display:flex; gap:6px; margin-bottom:6px;">
-                        <button class="btn btn-secondary" style="flex:1; padding:8px;" onclick="loadPreset(${i})">${p.name}</button>
-                        <button style="padding:8px 10px; background:#228be6; color:white; border:none; border-radius:8px; cursor:pointer;" onclick="updatePreset(${i})" title="현재 설정으로 수정">✏️</button>
-                        <button style="padding:8px 10px; background:#e03131; color:white; border:none; border-radius:8px; cursor:pointer;" onclick="deletePreset(${i})" title="삭제">×</button>
-                    </div>
-                `).join('');
+            // 더 이상 사용되지 않음 - renderPresetListPanel()로 대체
+            renderPresetListPanel();
         }
 
         function loadPreset(index) {
@@ -2619,115 +3135,15 @@ USER: "반가워요."
             const preset = savedPresets[index];
             if (!preset) return;
             
-            // 배경 색상 적용
-            if (preset.colors.bg) {
-                document.getElementById('bg-solid-color').value = preset.colors.bg;
-                document.getElementById('bg-solid-color-text').value = preset.colors.bg;
-            }
-            if (preset.bgType) {
-                document.getElementById('bg-type').value = preset.bgType;
-                document.getElementById('bg-type').dispatchEvent(new Event('change'));
-            }
-            
-            // 커스텀 색상 적용
-            document.getElementById('color-text').value = preset.colors.text;
-            document.getElementById('color-text-text').value = preset.colors.text;
-            document.getElementById('color-ai-bg').value = preset.colors.aiBg;
-            document.getElementById('color-ai-bg-text').value = preset.colors.aiBg;
-            document.getElementById('color-user-bg').value = preset.colors.userBg;
-            document.getElementById('color-user-bg-text').value = preset.colors.userBg;
-            document.getElementById('color-ai-text').value = preset.colors.aiText || '#1d2129';
-            document.getElementById('color-ai-text-text').value = preset.colors.aiText || '#1d2129';
-            document.getElementById('color-user-text').value = preset.colors.userText || '#ffffff';
-            document.getElementById('color-user-text-text').value = preset.colors.userText || '#ffffff';
-            document.getElementById('color-thought').value = preset.colors.thought;
-            document.getElementById('color-thought-text').value = preset.colors.thought;
-            document.getElementById('color-comm').value = preset.colors.comm;
-            document.getElementById('color-comm-text').value = preset.colors.comm;
-            document.getElementById('color-name-ai').value = preset.colors.nameAi;
-            document.getElementById('color-name-ai-text').value = preset.colors.nameAi;
-            document.getElementById('color-name-user').value = preset.colors.nameUser;
-            document.getElementById('color-name-user-text').value = preset.colors.nameUser;
-            document.getElementById('color-title').value = preset.colors.title;
-            document.getElementById('color-title-text').value = preset.colors.title;
-            
-            // 그라데이션
-            document.getElementById('gradient-select').value = preset.gradient || 'custom';
-            if (preset.gradientStart) document.getElementById('gradient-start').value = preset.gradientStart;
-            if (preset.gradientEnd) document.getElementById('gradient-end').value = preset.gradientEnd;
-            if (preset.gradientAngle) document.getElementById('gradient-angle').value = preset.gradientAngle;
-            
-            // 프레임
-            document.getElementById('frame-select').value = preset.frame || 'none';
-            
-            // 스타일
-            if (preset.style) {
-                document.getElementById('style-width').value = preset.style.width;
-                document.getElementById('style-radius').value = preset.style.radius;
-                document.getElementById('style-font-size').value = preset.style.fontSize;
-                document.getElementById('style-line-height').value = preset.style.lineHeight;
-            }
-            
-            // 입력값 로드
-            if (preset.input) {
-                document.getElementById('ai-model-input').value = preset.input.aiModel || '';
-                document.getElementById('prompt-name').value = preset.input.promptName || '';
-                document.getElementById('translation-input').value = preset.input.translation || '';
-                document.getElementById('name-ai').value = preset.input.nameAi || 'AI';
-                document.getElementById('name-user').value = preset.input.nameUser || 'USER';
-            }
-            
-            // 정규식 규칙 로드
-            if (preset.regexRules && preset.regexRules.length > 0) {
-                // 기존 규칙 삭제
-                document.getElementById('rule-list').innerHTML = '';
-                // 새 규칙 추가
-                preset.regexRules.forEach(rule => {
-                    addRule(rule.find, rule.replace);
-                });
-            }
-            
-            // 블록 접기 옵션 로드
-            document.getElementById('block-folding').checked = preset.blockFolding !== false; // 기본값 true
-            
-            // 추가 캐릭터 로드
-            if (preset.extraCharacters && Array.isArray(preset.extraCharacters)) {
-                extraCharacters = JSON.parse(JSON.stringify(preset.extraCharacters));
-            } else {
-                extraCharacters = [];
-            }
-            renderExtraCharacters();
-            updateAddCharButton();
-            
-            applyCustomColors();
-            applyBackground();
-            applyStyles();
-            document.getElementById('gradient-select').dispatchEvent(new Event('change'));
-            document.getElementById('frame-select').dispatchEvent(new Event('change'));
-            generateLog();
+            applyPresetData(preset);
         }
 
         function updatePreset(index) {
-            const savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
-            const oldPreset = savedPresets[index];
-            if (!oldPreset) return;
-            
-            if (!confirm(`"${oldPreset.name}" 프리셋을 지금 셋팅으로 수정하시겠습니까?`)) return;
-            
-            const newPreset = collectPresetData();
-            newPreset.name = oldPreset.name;
-            savedPresets[index] = newPreset;
-            
-            localStorage.setItem('logPresets', JSON.stringify(savedPresets));
-            renderSavedPresets();
-            alert('프리셋이 수정되었습니다!');
+            updatePresetFromPanel(index);
         }
 
         function deletePreset(index) {
-            let savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
-            savedPresets.splice(index, 1);
-            localStorage.setItem('logPresets', JSON.stringify(savedPresets));
-            renderSavedPresets();
+            deletePresetFromPanel(index);
         }
 
         function exportPreset() {
@@ -2739,93 +3155,6 @@ USER: "반가워요."
             link.href = URL.createObjectURL(blob);
             link.click();
         }
-
-        document.getElementById('import-preset').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                try {
-                    const preset = JSON.parse(event.target.result);
-                    
-                    // 배경 색상 적용
-                    if (preset.colors) {
-                        document.getElementById('bg-solid-color').value = preset.colors.bg || '#ffffff';
-                        document.getElementById('bg-solid-color-text').value = preset.colors.bg || '#ffffff';
-                        document.getElementById('color-text').value = preset.colors.text || '#1d2129';
-                        document.getElementById('color-text-text').value = preset.colors.text || '#1d2129';
-                        document.getElementById('color-ai-bg').value = preset.colors.aiBg || '#f1f3f5';
-                        document.getElementById('color-ai-bg-text').value = preset.colors.aiBg || '#f1f3f5';
-                        document.getElementById('color-user-bg').value = preset.colors.userBg || '#339af0';
-                        document.getElementById('color-user-bg-text').value = preset.colors.userBg || '#339af0';
-                        document.getElementById('color-ai-text').value = preset.colors.aiText || '#1d2129';
-                        document.getElementById('color-ai-text-text').value = preset.colors.aiText || '#1d2129';
-                        document.getElementById('color-user-text').value = preset.colors.userText || '#ffffff';
-                        document.getElementById('color-user-text-text').value = preset.colors.userText || '#ffffff';
-                        document.getElementById('color-thought').value = preset.colors.thought || '#748ffc';
-                        document.getElementById('color-thought-text').value = preset.colors.thought || '#748ffc';
-                        document.getElementById('color-comm').value = preset.colors.comm || '#20c997';
-                        document.getElementById('color-comm-text').value = preset.colors.comm || '#20c997';
-                        document.getElementById('color-name-ai').value = preset.colors.nameAi || '#495057';
-                        document.getElementById('color-name-ai-text').value = preset.colors.nameAi || '#495057';
-                        document.getElementById('color-name-user').value = preset.colors.nameUser || '#339af0';
-                        document.getElementById('color-name-user-text').value = preset.colors.nameUser || '#339af0';
-                        document.getElementById('color-title').value = preset.colors.title || '#1d2129';
-                        document.getElementById('color-title-text').value = preset.colors.title || '#1d2129';
-                    }
-                    
-                    // 배경 타입
-                    if (preset.bgType) {
-                        document.getElementById('bg-type').value = preset.bgType;
-                        document.getElementById('bg-type').dispatchEvent(new Event('change'));
-                    }
-                    
-                    if (preset.gradient) document.getElementById('gradient-select').value = preset.gradient;
-                    if (preset.gradientStart) document.getElementById('gradient-start').value = preset.gradientStart;
-                    if (preset.gradientEnd) document.getElementById('gradient-end').value = preset.gradientEnd;
-                    if (preset.gradientAngle) document.getElementById('gradient-angle').value = preset.gradientAngle;
-                    if (preset.frame) document.getElementById('frame-select').value = preset.frame;
-                    
-                    if (preset.style) {
-                        document.getElementById('style-width').value = preset.style.width || 1000;
-                        document.getElementById('style-radius').value = preset.style.radius || 16;
-                        document.getElementById('style-font-size').value = preset.style.fontSize || 15;
-                        document.getElementById('style-line-height').value = preset.style.lineHeight || 1.7;
-                    }
-                    
-                    // 입력값 로드
-                    if (preset.input) {
-                        document.getElementById('ai-model-input').value = preset.input.aiModel || '';
-                        document.getElementById('prompt-name').value = preset.input.promptName || '';
-                        document.getElementById('translation-input').value = preset.input.translation || '';
-                        document.getElementById('name-ai').value = preset.input.nameAi || 'AI';
-                        document.getElementById('name-user').value = preset.input.nameUser || 'USER';
-                    }
-                    
-                    // 정규식 규칙 로드
-                    if (preset.regexRules && preset.regexRules.length > 0) {
-                        document.getElementById('rule-list').innerHTML = '';
-                        preset.regexRules.forEach(rule => {
-                            addRule(rule.find, rule.replace);
-                        });
-                    }
-                    
-                    applyCustomColors();
-                    applyBackground();
-                    applyStyles();
-                    document.getElementById('gradient-select').dispatchEvent(new Event('change'));
-                    document.getElementById('frame-select').dispatchEvent(new Event('change'));
-                    generateLog();
-                    
-                    alert('프리셋을 불러왔습니다!');
-                } catch (e) {
-                    alert('프리셋 파일을 읽는 중 오류가 발생했습니다.');
-                }
-            };
-            reader.readAsText(file);
-            e.target.value = ''; // 같은 파일 다시 선택 가능하도록
-        });
 
         // ========== 초기화 함수 ==========
         function resetAll() {
@@ -3687,6 +4016,91 @@ USER: "반가워요."
             htmlView.innerHTML = escaped;
         }
 
+        // ========== 팝업 드래그 기능 ==========
+        function initDraggable(element, dragHandle) {
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+            
+            // transform 초기화 - 처음에는 가운데 정렬 유지
+            let hasBeenDragged = false;
+            
+            dragHandle.addEventListener('mousedown', startDrag);
+            dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+            
+            function startDrag(e) {
+                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+                
+                isDragging = true;
+                
+                if (e.type === 'touchstart') {
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                } else {
+                    startX = e.clientX;
+                    startY = e.clientY;
+                }
+                
+                // 처음 드래그할 때 transform을 실제 위치로 변환
+                if (!hasBeenDragged) {
+                    const rect = element.getBoundingClientRect();
+                    element.style.transform = 'none';
+                    element.style.left = rect.left + 'px';
+                    element.style.top = rect.top + 'px';
+                    hasBeenDragged = true;
+                }
+                
+                initialX = element.offsetLeft;
+                initialY = element.offsetTop;
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+                document.addEventListener('touchmove', drag, { passive: false });
+                document.addEventListener('touchend', stopDrag);
+                
+                e.preventDefault();
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                
+                let currentX, currentY;
+                if (e.type === 'touchmove') {
+                    currentX = e.touches[0].clientX;
+                    currentY = e.touches[0].clientY;
+                } else {
+                    currentX = e.clientX;
+                    currentY = e.clientY;
+                }
+                
+                const deltaX = currentX - startX;
+                const deltaY = currentY - startY;
+                
+                let newX = initialX + deltaX;
+                let newY = initialY + deltaY;
+                
+                // 화면 경계 체크
+                const rect = element.getBoundingClientRect();
+                const maxX = window.innerWidth - rect.width;
+                const maxY = window.innerHeight - rect.height;
+                
+                newX = Math.max(0, Math.min(newX, maxX));
+                newY = Math.max(0, Math.min(newY, maxY));
+                
+                element.style.left = newX + 'px';
+                element.style.top = newY + 'px';
+                
+                e.preventDefault();
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('touchend', stopDrag);
+            }
+        }
+
         // ========== 실시간 미리보기 ==========
         // 첫 번째 블록의 textarea에 이벤트 리스너 추가
         document.querySelectorAll('.log-block-input').forEach(textarea => {
@@ -3716,7 +4130,7 @@ AI: 빙그레 웃는다`;
             applyStyles(); // 스타일 먼저 적용
             generateLog();
             renderSavedThemes();
-            renderSavedPresets();
+            renderPresetListPanel(); // 프리셋 패널 렌더링
             
             // 저장된 모드 설정 불러오기
             const savedMode = localStorage.getItem('logmaker-mode');
@@ -3724,7 +4138,210 @@ AI: 빙그레 웃는다`;
                 document.body.classList.add('light-mode');
                 document.querySelector('.mode-toggle').textContent = '☀️';
             }
+            
+            // 프리셋 패널 파일 불러오기 이벤트
+            document.getElementById('import-preset-panel').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const preset = JSON.parse(event.target.result);
+                        applyPresetData(preset);
+                        closePresetPanel();
+                        alert('프리셋을 불러왔습니다!');
+                    } catch (e) {
+                        alert('프리셋 파일을 읽는 중 오류가 발생했습니다.');
+                    }
+                };
+                reader.readAsText(file);
+                e.target.value = '';
+            });
         };
+        
+        // ========== 프리셋 패널 함수들 ==========
+        function togglePresetPanel() {
+            const panel = document.getElementById('preset-panel');
+            const overlay = document.querySelector('.preset-panel-overlay');
+            panel.classList.toggle('show');
+            overlay.classList.toggle('show');
+            if (panel.classList.contains('show')) {
+                renderPresetListPanel();
+                // 드래그 기능 초기화 (처음 열릴 때만)
+                if (!panel.dataset.dragInitialized) {
+                    initDraggable(panel, document.getElementById('preset-panel-header'));
+                    panel.dataset.dragInitialized = 'true';
+                }
+            }
+        }
+        
+        function closePresetPanel() {
+            const panel = document.getElementById('preset-panel');
+            const overlay = document.querySelector('.preset-panel-overlay');
+            panel.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+        
+        function savePresetFromPanel() {
+            const name = prompt('프리셋 이름을 입력하세요:');
+            if (!name) return;
+            
+            const preset = collectPresetData();
+            preset.name = name;
+            
+            let savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
+            savedPresets.push(preset);
+            localStorage.setItem('logPresets', JSON.stringify(savedPresets));
+            renderPresetListPanel();
+            alert('프리셋이 저장되었습니다!');
+        }
+        
+        function renderPresetListPanel() {
+            const container = document.getElementById('preset-list-panel');
+            const savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
+            
+            if (savedPresets.length === 0) {
+                container.innerHTML = '<div class="preset-empty">저장된 프리셋이 없습니다.<br>상단의 "저장" 버튼으로 현재 설정을 저장하세요.</div>';
+                return;
+            }
+            
+            container.innerHTML = savedPresets.map((p, i) => `
+                <div class="preset-item">
+                    <span class="preset-item-name" onclick="loadPresetFromPanel(${i})" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</span>
+                    <div class="preset-item-actions">
+                        <button class="preset-item-btn edit" onclick="updatePresetFromPanel(${i})" title="현재 설정으로 수정">✏️</button>
+                        <button class="preset-item-btn delete" onclick="deletePresetFromPanel(${i})" title="삭제">×</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function loadPresetFromPanel(index) {
+            const savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
+            const preset = savedPresets[index];
+            if (!preset) return;
+            
+            applyPresetData(preset);
+            closePresetPanel();
+        }
+        
+        function applyPresetData(preset) {
+            // 배경 색상 적용
+            if (preset.colors) {
+                if (preset.colors.bg) {
+                    document.getElementById('bg-solid-color').value = preset.colors.bg;
+                    document.getElementById('bg-solid-color-text').value = preset.colors.bg;
+                }
+                document.getElementById('color-text').value = preset.colors.text || '#1d2129';
+                document.getElementById('color-text-text').value = preset.colors.text || '#1d2129';
+                document.getElementById('color-ai-bg').value = preset.colors.aiBg || '#f1f3f5';
+                document.getElementById('color-ai-bg-text').value = preset.colors.aiBg || '#f1f3f5';
+                document.getElementById('color-user-bg').value = preset.colors.userBg || '#339af0';
+                document.getElementById('color-user-bg-text').value = preset.colors.userBg || '#339af0';
+                document.getElementById('color-ai-text').value = preset.colors.aiText || '#1d2129';
+                document.getElementById('color-ai-text-text').value = preset.colors.aiText || '#1d2129';
+                document.getElementById('color-user-text').value = preset.colors.userText || '#ffffff';
+                document.getElementById('color-user-text-text').value = preset.colors.userText || '#ffffff';
+                document.getElementById('color-thought').value = preset.colors.thought || '#748ffc';
+                document.getElementById('color-thought-text').value = preset.colors.thought || '#748ffc';
+                document.getElementById('color-comm').value = preset.colors.comm || '#20c997';
+                document.getElementById('color-comm-text').value = preset.colors.comm || '#20c997';
+                document.getElementById('color-name-ai').value = preset.colors.nameAi || '#495057';
+                document.getElementById('color-name-ai-text').value = preset.colors.nameAi || '#495057';
+                document.getElementById('color-name-user').value = preset.colors.nameUser || '#339af0';
+                document.getElementById('color-name-user-text').value = preset.colors.nameUser || '#339af0';
+                document.getElementById('color-title').value = preset.colors.title || '#1d2129';
+                document.getElementById('color-title-text').value = preset.colors.title || '#1d2129';
+            }
+            
+            // 배경 타입
+            if (preset.bgType) {
+                document.getElementById('bg-type').value = preset.bgType;
+                document.getElementById('bg-type').dispatchEvent(new Event('change'));
+            }
+            
+            if (preset.gradient) document.getElementById('gradient-select').value = preset.gradient;
+            if (preset.gradientStart) {
+                document.getElementById('gradient-start').value = preset.gradientStart;
+                document.getElementById('gradient-start-text').value = preset.gradientStart;
+            }
+            if (preset.gradientEnd) {
+                document.getElementById('gradient-end').value = preset.gradientEnd;
+                document.getElementById('gradient-end-text').value = preset.gradientEnd;
+            }
+            if (preset.gradientAngle) document.getElementById('gradient-angle').value = preset.gradientAngle;
+            if (preset.frame) document.getElementById('frame-select').value = preset.frame;
+            
+            if (preset.style) {
+                document.getElementById('style-width').value = preset.style.width || 1000;
+                document.getElementById('style-radius').value = preset.style.radius || 16;
+                document.getElementById('style-font-size').value = preset.style.fontSize || 15;
+                document.getElementById('style-line-height').value = preset.style.lineHeight || 1.7;
+            }
+            
+            // 입력값 로드
+            if (preset.input) {
+                document.getElementById('ai-model-input').value = preset.input.aiModel || '';
+                document.getElementById('prompt-name').value = preset.input.promptName || '';
+                document.getElementById('translation-input').value = preset.input.translation || '';
+                document.getElementById('name-ai').value = preset.input.nameAi || 'AI';
+                document.getElementById('name-user').value = preset.input.nameUser || 'USER';
+            }
+            
+            // 정규식 규칙 로드
+            if (preset.regexRules && preset.regexRules.length > 0) {
+                document.getElementById('rule-list').innerHTML = '';
+                preset.regexRules.forEach(rule => {
+                    addRule(rule.find, rule.replace);
+                });
+            }
+            
+            // 블록 접기 옵션 로드
+            document.getElementById('block-folding').checked = preset.blockFolding !== false;
+            
+            // 추가 캐릭터 로드
+            if (preset.extraCharacters && Array.isArray(preset.extraCharacters)) {
+                extraCharacters = JSON.parse(JSON.stringify(preset.extraCharacters));
+            } else {
+                extraCharacters = [];
+            }
+            renderExtraCharacters();
+            updateAddCharButton();
+            
+            applyCustomColors();
+            applyBackground();
+            applyStyles();
+            document.getElementById('gradient-select').dispatchEvent(new Event('change'));
+            document.getElementById('frame-select').dispatchEvent(new Event('change'));
+            generateLog();
+        }
+        
+        function updatePresetFromPanel(index) {
+            const savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
+            const oldPreset = savedPresets[index];
+            if (!oldPreset) return;
+            
+            if (!confirm(`"${oldPreset.name}" 프리셋을 현재 설정으로 수정하시겠습니까?`)) return;
+            
+            const newPreset = collectPresetData();
+            newPreset.name = oldPreset.name;
+            savedPresets[index] = newPreset;
+            
+            localStorage.setItem('logPresets', JSON.stringify(savedPresets));
+            renderPresetListPanel();
+            alert('프리셋이 수정되었습니다!');
+        }
+        
+        function deletePresetFromPanel(index) {
+            const savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
+            const preset = savedPresets[index];
+            if (!confirm(`"${preset.name}" 프리셋을 삭제하시겠습니까?`)) return;
+            
+            savedPresets.splice(index, 1);
+            localStorage.setItem('logPresets', JSON.stringify(savedPresets));
+            renderPresetListPanel();
+        }
         
         // ========== 다크/라이트 모드 토글 ==========
         function toggleDarkMode() {
