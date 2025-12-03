@@ -1213,6 +1213,11 @@
             }
         }
         
+        /* 모바일 뷰 전환 버튼 - 기본값 (데스크탑에서 숨김) */
+        .mobile-view-toggle {
+            display: none;
+        }
+        
         @media (max-width: 768px) {
             .app-header {
                 padding: 10px 12px;
@@ -1308,6 +1313,76 @@
                 height: 28px;
                 font-size: 14px;
             }
+            
+            /* 모바일 뷰 전환 버튼 */
+            .mobile-view-toggle {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: var(--panel-bg);
+                border-top: 1px solid var(--panel-border);
+                padding: 8px 12px;
+                gap: 8px;
+                z-index: 100;
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .mobile-view-toggle .mobile-view-btn {
+                flex: 1;
+                padding: 12px;
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+            }
+            
+            .mobile-view-toggle .mobile-view-btn.settings-btn {
+                background: var(--input-bg);
+                color: var(--text-primary);
+            }
+            
+            .mobile-view-toggle .mobile-view-btn.preview-btn {
+                background: var(--accent);
+                color: white;
+            }
+            
+            .mobile-view-toggle .mobile-view-btn.active {
+                box-shadow: inset 0 0 0 2px var(--accent);
+            }
+            
+            /* 모바일 뷰 모드 */
+            body.mobile-settings-view .sidebar {
+                display: block;
+                max-height: calc(100vh - 56px - 60px);
+                height: calc(100vh - 56px - 60px);
+            }
+            
+            body.mobile-settings-view .main-content {
+                display: none;
+            }
+            
+            body.mobile-preview-view .sidebar {
+                display: none;
+            }
+            
+            body.mobile-preview-view .main-content {
+                display: flex;
+                height: calc(100vh - 56px - 60px);
+            }
+            
+            body.mobile-settings-view .app-body,
+            body.mobile-preview-view .app-body {
+                flex-direction: column;
+                padding-bottom: 60px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -1351,8 +1426,13 @@
             .extra-char-item input[type="text"] {
                 min-width: 100px;
             }
+            
+            .mobile-view-toggle .mobile-view-btn {
+                padding: 10px;
+                font-size: 13px;
+            }
         }
-
+        
         /* ========== 스크롤바 커스텀 ========== */
         ::-webkit-scrollbar {
             width: 8px;
@@ -1781,6 +1861,16 @@
             <button class="btn btn-secondary" onclick="resetAll()" title="모든 입력 초기화">🔄 초기화</button>
         </div>
     </header>
+    
+    <!-- 모바일 뷰 전환 버튼 -->
+    <div class="mobile-view-toggle" id="mobile-view-toggle">
+        <button class="mobile-view-btn settings-btn active" onclick="switchMobileView('settings')">
+            ⚙️ 설정
+        </button>
+        <button class="mobile-view-btn preview-btn" onclick="switchMobileView('preview')">
+            👁️ 로그 보기
+        </button>
+    </div>
     
     <!-- 프리셋 패널 오버레이 -->
     <div class="preset-panel-overlay" onclick="closePresetPanel()"></div>
@@ -4357,6 +4447,30 @@ AI: 빙그레 웃는다`;
                 btn.textContent = '🌙';
                 localStorage.setItem('logmaker-mode', 'dark');
             }
+        }
+        
+        // ========== 모바일 뷰 전환 ==========
+        function switchMobileView(view) {
+            const body = document.body;
+            const settingsBtn = document.querySelector('.mobile-view-toggle .settings-btn');
+            const previewBtn = document.querySelector('.mobile-view-toggle .preview-btn');
+            
+            if (view === 'settings') {
+                body.classList.remove('mobile-preview-view');
+                body.classList.add('mobile-settings-view');
+                settingsBtn.classList.add('active');
+                previewBtn.classList.remove('active');
+            } else {
+                body.classList.remove('mobile-settings-view');
+                body.classList.add('mobile-preview-view');
+                settingsBtn.classList.remove('active');
+                previewBtn.classList.add('active');
+            }
+        }
+        
+        // 모바일 뷰 초기화
+        if (window.innerWidth <= 768) {
+            document.body.classList.add('mobile-settings-view');
         }
     </script>
 </body>
