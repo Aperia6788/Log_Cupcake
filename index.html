@@ -552,6 +552,76 @@
             background: #37b24d;
         }
 
+        /* 추가 캐릭터 스타일 */
+        .extra-char-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: var(--input-bg);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .extra-char-item input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            background: var(--panel-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+        .extra-char-item .char-id {
+            font-size: 11px;
+            color: var(--text-secondary);
+            min-width: 60px;
+        }
+        .extra-char-item .btn-color-edit {
+            padding: 6px 10px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .extra-char-item .btn-delete-char {
+            padding: 6px 10px;
+            background: #e03131;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .char-color-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 1000;
+            min-width: 300px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .char-color-popup h3 {
+            margin: 0 0 15px 0;
+            color: var(--text-primary);
+        }
+        .char-color-popup .color-row {
+            margin-bottom: 10px;
+        }
+        .char-color-popup .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
         .btn-group {
             display: flex;
             gap: 8px;
@@ -1469,17 +1539,24 @@
 
                 <!-- 캐릭터 이름 -->
                 <div class="section">
-                    <div class="section-title">캐릭터 이름</div>
+                    <div class="section-title">캐릭터 설정</div>
+                    <div style="font-size:11px; color:var(--text-secondary); margin-bottom:10px;">
+                        기본 캐릭터 (AI/USER)와 추가 캐릭터를 설정합니다. 추가 캐릭터는 CHAR-01:, CHAR-02: 형식으로 사용합니다.
+                    </div>
                     <div class="input-row">
                         <div class="input-group">
                             <label class="input-label">AI 이름</label>
-                            <input type="text" id="name-ai" value="AI" placeholder="AI 캐릭터 이름">
+                            <input type="text" id="name-ai" value="AI" placeholder="AI 캐릭터 이름" oninput="generateLog()">
                         </div>
                         <div class="input-group">
                             <label class="input-label">USER 이름</label>
-                            <input type="text" id="name-user" value="USER" placeholder="사용자 이름">
+                            <input type="text" id="name-user" value="USER" placeholder="사용자 이름" oninput="generateLog()">
                         </div>
                     </div>
+                    <div id="extra-characters-container" style="margin-top:10px;"></div>
+                    <button class="btn btn-secondary" onclick="addExtraCharacter()" style="width:100%; margin-top:10px;" id="add-char-btn">
+                        ➕ 캐릭터 추가 (최대 10명)
+                    </button>
                 </div>
 
                 <!-- 이미지 삽입 -->
@@ -1504,7 +1581,7 @@
                         <span style="font-size:11px; color:var(--text-secondary);">(아카라이브용)</span>
                     </div>
                     <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.6;">
-                        <b>화자:</b> AI: / USER: | <b>대사:</b> "대사" | <b>생각:</b> '생각'<br>
+                        <b>화자:</b> AI: / USER: / CHAR-01: | <b>대사:</b> "대사" | <b>생각:</b> '생각'<br>
                         <b>통신:</b> &gt; 메시지 | <b>속삭임:</b> ((메시지)) | <b>외침:</b> ! 메시지<br>
                         <b>나레이션:</b> - 텍스트 | <b>구분선:</b> ---<br>
                         <b>마크다운:</b> **굵게** *기울임* ^<span></span>하이라이트^ ~~취소~~
@@ -2147,6 +2224,119 @@ USER: "반가워요."
             preview.style.lineHeight = document.getElementById('style-line-height').value;
         }
 
+        // ========== 추가 캐릭터 관리 ==========
+        let extraCharacters = []; // {id: 'CHAR-01', name: '캐릭터1', bgColor: '#...', textColor: '#...', nameColor: '#...'}
+        
+        function addExtraCharacter() {
+            if (extraCharacters.length >= 10) {
+                alert('최대 10명까지만 추가할 수 있습니다.');
+                return;
+            }
+            
+            const charNum = String(extraCharacters.length + 1).padStart(2, '0');
+            const charId = `CHAR-${charNum}`;
+            
+            extraCharacters.push({
+                id: charId,
+                name: `캐릭터${extraCharacters.length + 1}`,
+                bgColor: '#e9ecef',
+                textColor: '#1d2129',
+                nameColor: '#868e96'
+            });
+            
+            renderExtraCharacters();
+            updateAddCharButton();
+            generateLog();
+        }
+        
+        function removeExtraCharacter(index) {
+            extraCharacters.splice(index, 1);
+            // ID 재정렬
+            extraCharacters.forEach((char, i) => {
+                char.id = `CHAR-${String(i + 1).padStart(2, '0')}`;
+            });
+            renderExtraCharacters();
+            updateAddCharButton();
+            generateLog();
+        }
+        
+        function updateAddCharButton() {
+            const btn = document.getElementById('add-char-btn');
+            if (extraCharacters.length >= 10) {
+                btn.style.display = 'none';
+            } else {
+                btn.style.display = 'block';
+            }
+        }
+        
+        function renderExtraCharacters() {
+            const container = document.getElementById('extra-characters-container');
+            container.innerHTML = extraCharacters.map((char, index) => `
+                <div class="extra-char-item" data-char-index="${index}">
+                    <span class="char-id">${char.id}:</span>
+                    <input type="text" value="${char.name}" placeholder="캐릭터 이름" 
+                           onchange="updateExtraCharName(${index}, this.value)" oninput="generateLog()">
+                    <button class="btn-color-edit" onclick="openCharColorPopup(${index})" title="색상 설정">🎨</button>
+                    <button class="btn-delete-char" onclick="removeExtraCharacter(${index})" title="삭제">×</button>
+                </div>
+            `).join('');
+        }
+        
+        function updateExtraCharName(index, name) {
+            extraCharacters[index].name = name;
+            generateLog();
+        }
+        
+        function openCharColorPopup(index) {
+            const char = extraCharacters[index];
+            const overlay = document.createElement('div');
+            overlay.className = 'popup-overlay';
+            overlay.onclick = () => closeCharColorPopup();
+            document.body.appendChild(overlay);
+            
+            const popup = document.createElement('div');
+            popup.className = 'char-color-popup';
+            popup.id = 'char-color-popup';
+            popup.innerHTML = `
+                <h3>🎨 ${char.name} 색상 설정</h3>
+                <div class="input-group">
+                    <label class="input-label">말풍선 배경</label>
+                    <div class="color-row">
+                        <input type="color" value="${char.bgColor}" onchange="updateCharColor(${index}, 'bgColor', this.value)">
+                        <input type="text" value="${char.bgColor}" onchange="updateCharColor(${index}, 'bgColor', this.value)">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">말풍선 글자</label>
+                    <div class="color-row">
+                        <input type="color" value="${char.textColor}" onchange="updateCharColor(${index}, 'textColor', this.value)">
+                        <input type="text" value="${char.textColor}" onchange="updateCharColor(${index}, 'textColor', this.value)">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">이름 색상</label>
+                    <div class="color-row">
+                        <input type="color" value="${char.nameColor}" onchange="updateCharColor(${index}, 'nameColor', this.value)">
+                        <input type="text" value="${char.nameColor}" onchange="updateCharColor(${index}, 'nameColor', this.value)">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="closeCharColorPopup()" style="width:100%; margin-top:15px;">확인</button>
+            `;
+            document.body.appendChild(popup);
+        }
+        
+        function updateCharColor(index, colorType, value) {
+            extraCharacters[index][colorType] = value;
+            generateLog();
+        }
+        
+        function closeCharColorPopup() {
+            const popup = document.getElementById('char-color-popup');
+            const overlay = document.querySelector('.popup-overlay');
+            if (popup) popup.remove();
+            if (overlay) overlay.remove();
+        }
+
         // ========== 이미지 업로드 ==========
         let uploadedImages = []; // {data: base64, blockNumber: number}
         
@@ -2387,7 +2577,8 @@ USER: "반가워요."
                     nameUser: document.getElementById('name-user').value
                 },
                 regexRules: regexRules,
-                blockFolding: document.getElementById('block-folding').checked
+                blockFolding: document.getElementById('block-folding').checked,
+                extraCharacters: JSON.parse(JSON.stringify(extraCharacters)) // 깊은 복사
             };
         }
         
@@ -2498,6 +2689,15 @@ USER: "반가워요."
             
             // 블록 접기 옵션 로드
             document.getElementById('block-folding').checked = preset.blockFolding !== false; // 기본값 true
+            
+            // 추가 캐릭터 로드
+            if (preset.extraCharacters && Array.isArray(preset.extraCharacters)) {
+                extraCharacters = JSON.parse(JSON.stringify(preset.extraCharacters));
+            } else {
+                extraCharacters = [];
+            }
+            renderExtraCharacters();
+            updateAddCharButton();
             
             applyCustomColors();
             applyBackground();
@@ -2845,15 +3045,31 @@ USER: "반가워요."
                 
                 const lines = blockText.split('\n');
                 let currentSpeaker = null;
+                let currentSpeakerType = null; // 'AI', 'USER', or char index
                 let currentBubbles = [];
 
                 function flushBubbles() {
                     if (currentSpeaker && currentBubbles.length > 0) {
-                        const speakerClass = currentSpeaker === 'AI' ? 'ai' : 'user';
-                        const displayName = currentSpeaker === 'AI' ? aiName : userName;
+                        let speakerClass = '';
+                        let displayName = '';
+                        let customStyle = '';
                         
-                        html += `<div class="chat-block ${speakerClass}">`;
-                        html += `<div class="speaker-name">${escapeHtml(displayName)}</div>`;
+                        if (currentSpeakerType === 'AI') {
+                            speakerClass = 'ai';
+                            displayName = aiName;
+                        } else if (currentSpeakerType === 'USER') {
+                            speakerClass = 'user';
+                            displayName = userName;
+                        } else if (typeof currentSpeakerType === 'number') {
+                            // 추가 캐릭터
+                            const char = extraCharacters[currentSpeakerType];
+                            speakerClass = 'ai'; // 왼쪽 정렬
+                            displayName = char.name;
+                            customStyle = `--extra-char-bg:${char.bgColor};--extra-char-text:${char.textColor};--extra-char-name:${char.nameColor};`;
+                        }
+                        
+                        html += `<div class="chat-block ${speakerClass}" ${customStyle ? `style="${customStyle}"` : ''}>`;
+                        html += `<div class="speaker-name" ${typeof currentSpeakerType === 'number' ? `style="color:${extraCharacters[currentSpeakerType].nameColor}"` : ''}>${escapeHtml(displayName)}</div>`;
                         html += '<div class="bubbles">';
                         currentBubbles.forEach(bubble => {
                             html += bubble;
@@ -2861,6 +3077,83 @@ USER: "반가워요."
                         html += '</div></div>';
                         
                         currentBubbles = [];
+                    }
+                }
+                
+                // AI/USER용 말풍선 처리
+                function processBubbleContent(content) {
+                    // 통신 메시지 (> 로 시작)
+                    if (content.startsWith('>')) {
+                        content = content.substring(1).trim();
+                        currentBubbles.push(`<div class="bubble comm">${processMarkdown(content)}</div>`);
+                    }
+                    // 속삭임 ((...) 로 감싸진 경우)
+                    else if (content.startsWith('((') && content.endsWith('))')) {
+                        content = content.slice(2, -2).trim();
+                        currentBubbles.push(`<div class="bubble whisper">${processMarkdown(content)}</div>`);
+                    }
+                    // 외침 (! 로 시작)
+                    else if (content.startsWith('!')) {
+                        content = content.substring(1).trim();
+                        currentBubbles.push(`<div class="bubble shout">${processMarkdown(content)}</div>`);
+                    }
+                    // 생각 ('...' 로 감싸진 경우)
+                    else if ((content.startsWith("'") && content.endsWith("'")) || 
+                             (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
+                        content = content.slice(1, -1);
+                        currentBubbles.push(`<div class="bubble thought">${processMarkdown(content)}</div>`);
+                    }
+                    // 대사 ("..." 로 감싸진 경우)
+                    else if ((content.startsWith('"') && content.endsWith('"')) ||
+                            (content.startsWith("\u201c") && content.endsWith("\u201d"))) {
+                        content = content.slice(1, -1);
+                        currentBubbles.push(`<div class="bubble dialogue">${processMarkdown(content)}</div>`);
+                    }
+                    // 그 외 (아무 표시 없으면 생각 스타일로)
+                    else {
+                        currentBubbles.push(`<div class="bubble thought">${processMarkdown(content)}</div>`);
+                    }
+                }
+                
+                // 추가 캐릭터용 말풍선 처리
+                function processBubbleContentForChar(content, charIndex) {
+                    const char = extraCharacters[charIndex];
+                    const bgColor = char.bgColor;
+                    const textColor = char.textColor;
+                    
+                    // 기본 스타일
+                    const baseStyle = `background:${bgColor};color:${textColor};`;
+                    
+                    // 통신 메시지 (> 로 시작)
+                    if (content.startsWith('>')) {
+                        content = content.substring(1).trim();
+                        currentBubbles.push(`<div class="bubble comm" style="${baseStyle}border-left-color:var(--comm-color);">${processMarkdown(content)}</div>`);
+                    }
+                    // 속삭임 ((...) 로 감싸진 경우)
+                    else if (content.startsWith('((') && content.endsWith('))')) {
+                        content = content.slice(2, -2).trim();
+                        currentBubbles.push(`<div class="bubble whisper" style="${baseStyle}opacity:0.7;">${processMarkdown(content)}</div>`);
+                    }
+                    // 외침 (! 로 시작)
+                    else if (content.startsWith('!')) {
+                        content = content.substring(1).trim();
+                        currentBubbles.push(`<div class="bubble shout" style="${baseStyle}">${processMarkdown(content)}</div>`);
+                    }
+                    // 생각 ('...' 로 감싸진 경우)
+                    else if ((content.startsWith("'") && content.endsWith("'")) || 
+                             (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
+                        content = content.slice(1, -1);
+                        currentBubbles.push(`<div class="bubble thought" style="background:transparent;color:${char.nameColor};border:1px dashed ${char.nameColor};">${processMarkdown(content)}</div>`);
+                    }
+                    // 대사 ("..." 로 감싸진 경우)
+                    else if ((content.startsWith('"') && content.endsWith('"')) ||
+                            (content.startsWith("\u201c") && content.endsWith("\u201d"))) {
+                        content = content.slice(1, -1);
+                        currentBubbles.push(`<div class="bubble dialogue" style="${baseStyle}">${processMarkdown(content)}</div>`);
+                    }
+                    // 그 외 (아무 표시 없으면 생각 스타일로)
+                    else {
+                        currentBubbles.push(`<div class="bubble thought" style="background:transparent;color:${char.nameColor};border:1px dashed ${char.nameColor};">${processMarkdown(content)}</div>`);
                     }
                 }
 
@@ -2892,43 +3185,36 @@ USER: "반가워요."
                         let content = match[2].trim();
 
                         // 새로운 화자면 이전 말풍선들 출력
-                        if (speaker !== currentSpeaker) {
+                        if (speaker !== currentSpeaker || currentSpeakerType !== speaker) {
                             flushBubbles();
                             currentSpeaker = speaker;
+                            currentSpeakerType = speaker;
                         }
 
-                        // 통신 메시지 (> 로 시작)
-                        if (content.startsWith('>')) {
-                            content = content.substring(1).trim();
-                            currentBubbles.push(`<div class="bubble comm">${processMarkdown(content)}</div>`);
-                        }
-                        // 속삭임 ((...) 로 감싸진 경우)
-                        else if (content.startsWith('((') && content.endsWith('))')) {
-                            content = content.slice(2, -2).trim();
-                            currentBubbles.push(`<div class="bubble whisper">${processMarkdown(content)}</div>`);
-                        }
-                        // 외침 (! 로 시작)
-                        else if (content.startsWith('!')) {
-                            content = content.substring(1).trim();
-                            currentBubbles.push(`<div class="bubble shout">${processMarkdown(content)}</div>`);
-                        }
-                        // 생각 ('...' 로 감싸진 경우)
-                        else if ((content.startsWith("'") && content.endsWith("'")) || 
-                                 (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
-                            content = content.slice(1, -1);
-                            currentBubbles.push(`<div class="bubble thought">${processMarkdown(content)}</div>`);
-                        }
-                        // 대사 ("..." 로 감싸진 경우)
-                        else if ((content.startsWith('"') && content.endsWith('"')) ||
-                                (content.startsWith("\u201c") && content.endsWith("\u201d"))) {
-                            content = content.slice(1, -1);
-                            currentBubbles.push(`<div class="bubble dialogue">${processMarkdown(content)}</div>`);
-                        }
-                        // 그 외 (아무 표시 없으면 생각 스타일로)
-                        else {
-                            currentBubbles.push(`<div class="bubble thought">${processMarkdown(content)}</div>`);
-                        }
+                        // 말풍선 유형 처리
+                        processBubbleContent(content);
                         return;
+                    }
+                    
+                    // 추가 캐릭터 대화 (CHAR-01:, CHAR-02: 등)
+                    const charMatch = line.match(/^CHAR-(\d{2})\s*:\s*(.+)$/i);
+                    if (charMatch) {
+                        const charNum = parseInt(charMatch[1], 10);
+                        const charIndex = charNum - 1;
+                        let content = charMatch[2].trim();
+                        
+                        if (charIndex >= 0 && charIndex < extraCharacters.length) {
+                            // 새로운 화자면 이전 말풍선들 출력
+                            if (currentSpeakerType !== charIndex) {
+                                flushBubbles();
+                                currentSpeaker = `CHAR-${charMatch[1]}`;
+                                currentSpeakerType = charIndex;
+                            }
+                            
+                            // 말풍선 유형 처리 (추가 캐릭터용 스타일 적용)
+                            processBubbleContentForChar(content, charIndex);
+                            return;
+                        }
                     }
 
                     // 그 외 일반 텍스트는 나레이션으로 처리
@@ -3157,6 +3443,7 @@ USER: "반가워요."
                 
                 const lines = blockText.split('\n');
                 let currentSpeaker = null;
+                let currentSpeakerType = null; // 'AI', 'USER', or char index for Arca
                 let currentBubbles = [];
                 let narrationBuffer = []; // 나레이션 모으기
                 
@@ -3174,12 +3461,29 @@ USER: "반가워요."
                 
                 function flushBubblesOnlyArca() {
                     if (currentSpeaker && currentBubbles.length > 0) {
-                        const isAI = currentSpeaker === 'AI';
-                        const bgC = isAI ? aiBgColor : userBgColor;
-                        const txtC = isAI ? aiTextColor : userTextColor;
-                        const nameC = isAI ? nameAiColor : nameUserColor;
-                        const displayName = isAI ? aiName : userName;
-                        const align = isAI ? 'left' : 'right';
+                        let bgC, txtC, nameC, displayName, align;
+                        
+                        if (currentSpeakerType === 'AI') {
+                            bgC = aiBgColor;
+                            txtC = aiTextColor;
+                            nameC = nameAiColor;
+                            displayName = aiName;
+                            align = 'left';
+                        } else if (currentSpeakerType === 'USER') {
+                            bgC = userBgColor;
+                            txtC = userTextColor;
+                            nameC = nameUserColor;
+                            displayName = userName;
+                            align = 'right';
+                        } else if (typeof currentSpeakerType === 'number') {
+                            // 추가 캐릭터
+                            const char = extraCharacters[currentSpeakerType];
+                            bgC = char.bgColor;
+                            txtC = char.textColor;
+                            nameC = char.nameColor;
+                            displayName = char.name;
+                            align = 'left'; // 추가 캐릭터는 항상 왼쪽 정렬
+                        }
                         
                         html += `<div style="margin:12px 0;text-align:${align};">`;
                         html += `<div style="font-size:0.85em;font-weight:600;color:${nameC};margin-bottom:6px;">${escapeHtml(displayName)}</div>`;
@@ -3223,10 +3527,11 @@ USER: "반가워요."
                         const bgC = isAI ? aiBgColor : userBgColor;
                         const txtC = isAI ? aiTextColor : userTextColor;
                         
-                        if (speaker !== currentSpeaker) {
+                        if (speaker !== currentSpeaker || currentSpeakerType !== speaker) {
                             flushNarrationArca();
                             flushBubblesOnlyArca();
                             currentSpeaker = speaker;
+                            currentSpeakerType = speaker;
                         }
                         
                         let bubbleStyle = `background:${bgC};color:${txtC};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;`;
@@ -3263,6 +3568,60 @@ USER: "반가워요."
                         
                         currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
                         return;
+                    }
+                    
+                    // 추가 캐릭터 대화 (CHAR-01:, CHAR-02: 등)
+                    const charMatch = line.match(/^CHAR-(\d{2})\s*:\s*(.+)$/i);
+                    if (charMatch) {
+                        const charNum = parseInt(charMatch[1], 10);
+                        const charIndex = charNum - 1;
+                        let content = charMatch[2].trim();
+                        
+                        if (charIndex >= 0 && charIndex < extraCharacters.length) {
+                            const char = extraCharacters[charIndex];
+                            
+                            if (currentSpeakerType !== charIndex) {
+                                flushNarrationArca();
+                                flushBubblesOnlyArca();
+                                currentSpeaker = `CHAR-${charMatch[1]}`;
+                                currentSpeakerType = charIndex;
+                            }
+                            
+                            let bubbleStyle = `background:${char.bgColor};color:${char.textColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;`;
+                            let bubbleContent = content;
+                            
+                            // 통신 메시지
+                            if (content.startsWith('>')) {
+                                bubbleContent = content.substring(1).trim();
+                                bubbleStyle = `background:${char.bgColor};color:${commColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border-left:3px solid ${commColor};font-family:monospace;`;
+                            }
+                            // 속삭임
+                            else if (content.startsWith('((') && content.endsWith('))')) {
+                                bubbleContent = content.slice(2, -2).trim();
+                                bubbleStyle = `background:${char.bgColor};color:${char.textColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;opacity:0.7;font-size:0.9em;`;
+                            }
+                            // 외침
+                            else if (content.startsWith('!')) {
+                                bubbleContent = content.substring(1).trim();
+                                bubbleStyle = `background:${char.bgColor};color:${char.textColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-weight:bold;font-size:1.1em;`;
+                            }
+                            // 생각
+                            else if ((content.startsWith("'") && content.endsWith("'")) || (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
+                                bubbleContent = content.slice(1, -1);
+                                bubbleStyle = `background:transparent;color:${char.nameColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
+                            }
+                            // 대사
+                            else if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith('\u201c') && content.endsWith('\u201d'))) {
+                                bubbleContent = content.slice(1, -1);
+                            }
+                            // 그 외 (아무 표시 없으면 생각 스타일로)
+                            else {
+                                bubbleStyle = `background:transparent;color:${char.nameColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
+                            }
+                            
+                            currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
+                            return;
+                        }
                     }
                     
                     // 그 외 텍스트 (나레이션으로 처리)
