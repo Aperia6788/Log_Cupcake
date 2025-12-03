@@ -1,0 +1,2899 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧁 Log Cupcake</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        /* ========== CSS 변수 (테마 시스템) ========== */
+        :root {
+            /* 앱 UI 색상 - 다크모드 기본 */
+            --app-bg: #1a1b1e;
+            --panel-bg: #25262b;
+            --panel-border: #373a40;
+            --input-bg: #2c2e33;
+            --input-border: #495057;
+            --text-primary: #f1f3f5;
+            --text-secondary: #adb5bd;
+            --accent: #339af0;
+            --accent-hover: #228be6;
+            
+            /* 로그 프리뷰 기본값 - 다크모드 기본 */
+            --log-bg: #2c2e33;
+            --log-text: #e9ecef;
+            --log-width: 1000px;
+            --log-radius: 16px;
+            --log-font-size: 15px;
+            --log-line-height: 1.7;
+            
+            /* 말풍선 색상 - 다크모드 기본 */
+            --bubble-ai-bg: #3d4047;
+            --bubble-ai-text: #e9ecef;
+            --bubble-user-bg: #339af0;
+            --bubble-user-text: #ffffff;
+            --bubble-narration-bg: transparent;
+            --bubble-narration-text: #868e96;
+            
+            /* 대사/생각/통신 색상 */
+            --dialogue-color: inherit;
+            --thought-color: #748ffc;
+            --comm-color: #20c997;
+            
+            /* 이름 색상 */
+            --name-ai-color: #495057;
+            --name-user-color: #339af0;
+            
+            /* 제목 색상 */
+            --title-color: inherit;
+            
+            /* 그라데이션 */
+            --log-gradient: none;
+            
+            /* 외곽 테마 */
+            --frame-style: none;
+        }
+        
+        /* 라이트모드 */
+        body.light-mode {
+            --app-bg: #edf0f2;
+            --panel-bg: #f5f6f7;
+            --panel-border: #d5d9dd;
+            --input-bg: #e8ebee;
+            --input-border: #c5ccd3;
+            --text-primary: #2d3436;
+            --text-secondary: #555e66;
+            
+            /* 라이트모드 로그 기본값 */
+            --log-bg: #f8f9fa;
+            --log-text: #2d3436;
+            --bubble-ai-bg: #e9ecef;
+            --bubble-ai-text: #2d3436;
+        }
+        
+        body.light-mode .preview-wrapper {
+            background-color: #e0e4e8;
+            background-image: 
+                linear-gradient(45deg, #d0d5da 25%, transparent 25%),
+                linear-gradient(-45deg, #d0d5da 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #d0d5da 75%),
+                linear-gradient(-45deg, transparent 75%, #d0d5da 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        /* ========== 프리셋 테마들 ========== */
+        /* 기본 테마 (밝은 배경) */
+        .theme-default {
+            --log-bg: #ffffff;
+            --log-text: #1d2129;
+            --bubble-ai-bg: #f1f3f5;
+            --bubble-ai-text: #1d2129;
+            --bubble-user-bg: #339af0;
+            --bubble-user-text: #ffffff;
+            --thought-color: #748ffc;
+            --comm-color: #20c997;
+            --name-ai-color: #495057;
+            --name-user-color: #339af0;
+            --title-color: #1d2129;
+        }
+        
+        .theme-ocean {
+            --log-bg: #e7f5ff;
+            --log-text: #1864ab;
+            --bubble-ai-bg: #d0ebff;
+            --bubble-ai-text: #1864ab;
+            --bubble-user-bg: #228be6;
+            --bubble-user-text: #ffffff;
+            --thought-color: #4dabf7;
+            --comm-color: #15aabf;
+            --name-ai-color: #1864ab;
+            --name-user-color: #228be6;
+            --title-color: #1864ab;
+        }
+        
+        .theme-forest {
+            --log-bg: #ebfbee;
+            --log-text: #2b8a3e;
+            --bubble-ai-bg: #d3f9d8;
+            --bubble-ai-text: #2b8a3e;
+            --bubble-user-bg: #40c057;
+            --bubble-user-text: #ffffff;
+            --thought-color: #69db7c;
+            --comm-color: #38d9a9;
+            --name-ai-color: #2b8a3e;
+            --name-user-color: #40c057;
+            --title-color: #2b8a3e;
+        }
+        
+        .theme-sunset {
+            --log-bg: #fff4e6;
+            --log-text: #d9480f;
+            --bubble-ai-bg: #ffe8cc;
+            --bubble-ai-text: #d9480f;
+            --bubble-user-bg: #fd7e14;
+            --bubble-user-text: #ffffff;
+            --thought-color: #ffa94d;
+            --comm-color: #ff922b;
+            --name-ai-color: #d9480f;
+            --name-user-color: #fd7e14;
+            --title-color: #d9480f;
+        }
+        
+        .theme-rose {
+            --log-bg: #fff0f6;
+            --log-text: #c2255c;
+            --bubble-ai-bg: #ffdeeb;
+            --bubble-ai-text: #c2255c;
+            --bubble-user-bg: #f06595;
+            --bubble-user-text: #ffffff;
+            --thought-color: #f783ac;
+            --comm-color: #e64980;
+            --name-ai-color: #c2255c;
+            --name-user-color: #f06595;
+            --title-color: #c2255c;
+        }
+        
+        .theme-lavender {
+            --log-bg: #f3f0ff;
+            --log-text: #5f3dc4;
+            --bubble-ai-bg: #e5dbff;
+            --bubble-ai-text: #5f3dc4;
+            --bubble-user-bg: #7950f2;
+            --bubble-user-text: #ffffff;
+            --thought-color: #9775fa;
+            --comm-color: #845ef7;
+            --name-ai-color: #5f3dc4;
+            --name-user-color: #7950f2;
+            --title-color: #5f3dc4;
+        }
+        
+        /* 미드나잇 - 딥 퍼플/블루 계열 */
+        .theme-midnight {
+            --log-bg: #0f0e17;
+            --log-text: #a7a9be;
+            --bubble-ai-bg: #1a1825;
+            --bubble-ai-text: #fffffe;
+            --bubble-user-bg: #7f5af0;
+            --bubble-user-text: #fffffe;
+            --thought-color: #9d8cff;
+            --comm-color: #2cb67d;
+            --name-ai-color: #fffffe;
+            --name-user-color: #7f5af0;
+            --title-color: #fffffe;
+        }
+        
+        /* 그래파이트 - 워미/브라운 계열 */
+        .theme-graphite {
+            --log-bg: #1c1917;
+            --log-text: #d6d3d1;
+            --bubble-ai-bg: #292524;
+            --bubble-ai-text: #fafaf9;
+            --bubble-user-bg: #c2410c;
+            --bubble-user-text: #ffffff;
+            --thought-color: #fb923c;
+            --comm-color: #4ade80;
+            --name-ai-color: #fafaf9;
+            --name-user-color: #fb923c;
+            --title-color: #fafaf9;
+        }
+
+        /* 디스코드 - 실제 디스코드 색상 */
+        .theme-discord {
+            --log-bg: #313338;
+            --log-text: #dbdee1;
+            --bubble-ai-bg: #2b2d31;
+            --bubble-ai-text: #f2f3f5;
+            --bubble-user-bg: #5865f2;
+            --bubble-user-text: #ffffff;
+            --thought-color: #949ba4;
+            --comm-color: #23a559;
+            --name-ai-color: #f2f3f5;
+            --name-user-color: #5865f2;
+            --title-color: #f2f3f5;
+        }
+
+        .theme-kakao {
+            --log-bg: #b2c7d9;
+            --log-text: #1e1e1e;
+            --bubble-ai-bg: #ffffff;
+            --bubble-ai-text: #1e1e1e;
+            --bubble-user-bg: #fee500;
+            --bubble-user-text: #1e1e1e;
+            --thought-color: #5a5a5a;
+            --comm-color: #3182f6;
+            --name-ai-color: #1e1e1e;
+            --name-user-color: #3182f6;
+            --title-color: #1e1e1e;
+        }
+
+        /* ========== 기본 리셋 & 레이아웃 ========== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--app-bg);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ========== 통합 헤더 ========== */
+        .app-header {
+            padding: 12px 24px;
+            height: 56px;
+            border-bottom: 1px solid var(--panel-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background: var(--panel-bg);
+            flex-shrink: 0;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+        
+        .app-header .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .app-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff9a9e, #fecfef, #a18cd1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+        
+        .app-header .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .app-header .header-actions .btn {
+            padding: 8px 14px;
+            font-size: 13px;
+        }
+        
+        .app-header .header-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--panel-border);
+            margin: 0 8px;
+        }
+        
+        .app-header .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .app-header .preview-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* ========== 앱 바디 (사이드바 + 메인) ========== */
+        .app-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ========== 사이드바 (설정 패널) ========== */
+        .sidebar {
+            width: 40%;
+            min-width: 400px;
+            max-width: 600px;
+            background: var(--panel-bg);
+            border-right: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 16px;
+        }
+
+        /* ========== 섹션 스타일 ========== */
+        .section {
+            background: var(--input-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        /* ========== 테마 선택 그리드 ========== */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .theme-btn {
+            aspect-ratio: 1;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            min-height: 50px;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-btn.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(51, 154, 240, 0.3);
+        }
+
+        .theme-btn span {
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 8px;
+            color: rgba(0,0,0,0.7);
+            background: rgba(255,255,255,0.85);
+            padding: 1px 4px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        /* 테마 버튼 개별 색상 */
+        .theme-btn[data-theme="default"] { background: linear-gradient(135deg, #339af0, #748ffc); }
+        .theme-btn[data-theme="ocean"] { background: linear-gradient(135deg, #228be6, #15aabf); }
+        .theme-btn[data-theme="forest"] { background: linear-gradient(135deg, #40c057, #38d9a9); }
+        .theme-btn[data-theme="sunset"] { background: linear-gradient(135deg, #fd7e14, #ffc078); }
+        .theme-btn[data-theme="rose"] { background: linear-gradient(135deg, #f06595, #e64980); }
+        .theme-btn[data-theme="lavender"] { background: linear-gradient(135deg, #7950f2, #9775fa); }
+        .theme-btn[data-theme="midnight"] { background: linear-gradient(135deg, #25262b, #4c6ef5); }
+        .theme-btn[data-theme="graphite"] { background: linear-gradient(135deg, #343a40, #495057); }
+        .theme-btn[data-theme="discord"] { background: linear-gradient(135deg, #5865f2, #36393f); }
+        .theme-btn[data-theme="kakao"] { background: linear-gradient(135deg, #fee500, #b2c7d9); }
+
+        /* ========== 입력 필드 스타일 ========== */
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .input-row .input-group {
+            margin-bottom: 0;
+        }
+        
+        /* 색상 그리드 (3열) */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .color-grid .color-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .color-grid .color-item label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .color-grid input[type="color"] {
+            width: 100%;
+            height: 32px;
+        }
+        
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            background: var(--panel-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+            line-height: 1.6;
+        }
+
+        input[type="color"] {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .color-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-row input[type="text"] {
+            flex: 1;
+        }
+
+        /* ========== 버튼 스타일 ========== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--input-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--input-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--panel-border);
+        }
+
+        .btn-success {
+            background: #40c057;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #37b24d;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        /* ========== 메인 컨텐츠 영역 ========== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .preview-wrapper {
+            flex: 1;
+            overflow: auto;
+            padding: 40px;
+            /* 투명 체크보드 패턴 - 다크모드 */
+            background-color: #1a1b1e;
+            background-image: 
+                linear-gradient(45deg, #252629 25%, transparent 25%),
+                linear-gradient(-45deg, #252629 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #252629 75%),
+                linear-gradient(-45deg, transparent 75%, #252629 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        .preview-wrapper.html-mode {
+            background: var(--input-bg);
+            background-image: none;
+        }
+        
+        .html-code-view {
+            display: none;
+            width: 100%;
+            max-width: 1000px;
+            height: 100%;
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            border: 1px solid var(--panel-border);
+        }
+        
+        .preview-wrapper.html-mode .html-code-view {
+            display: block;
+        }
+        
+        .preview-wrapper.html-mode #log-preview {
+            display: none;
+        }
+        
+        .preview-toggle.active {
+            background: var(--accent) !important;
+            color: white !important;
+        }
+
+        /* ========== 로그 프리뷰 영역 ========== */
+        #log-preview {
+            width: var(--log-width);
+            min-height: 400px;
+            background: var(--log-bg);
+            color: var(--log-text);
+            border-radius: var(--log-radius);
+            padding: 32px;
+            font-size: var(--log-font-size);
+            line-height: var(--log-line-height);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        /* 외곽 테마 스타일 - 색상 영향 없이 테두리만 */
+        
+        /* 편지지 - 우아한 더블 테두리 + 꽃무늬 코너 */
+        #log-preview.frame-letter {
+            border: 3px double rgba(180, 140, 100, 0.5);
+            box-shadow: 
+                0 0 0 8px rgba(180, 140, 100, 0.08),
+                0 0 0 12px rgba(180, 140, 100, 0.15),
+                0 8px 32px rgba(0,0,0,0.12);
+            position: relative;
+        }
+        #log-preview.frame-letter::before,
+        #log-preview.frame-letter::after {
+            content: '🌸';
+            position: absolute;
+            font-size: 20px;
+            opacity: 0.6;
+        }
+        #log-preview.frame-letter::before { top: 12px; left: 12px; }
+        #log-preview.frame-letter::after { bottom: 12px; right: 12px; content: '🌼'; }
+        
+        /* 다이어리 - 깨끗한 줄무늬 + 스프링 바인더 */
+        #log-preview.frame-diary {
+            border-left: none;
+            border-radius: 4px 16px 16px 4px;
+            box-shadow: 
+                -4px 0 0 #e8e0d5,
+                -8px 0 0 #dc8a78,
+                0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        #log-preview.frame-diary::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, rgba(220,138,120,0.3) 10%, rgba(220,138,120,0.3) 90%, transparent);
+        }
+        
+        /* 메모지 - 포스트잇 스타일 */
+        #log-preview.frame-memo {
+            border: none;
+            border-radius: 2px;
+            box-shadow: 
+                0 1px 3px rgba(0,0,0,0.12),
+                0 4px 8px rgba(0,0,0,0.06);
+            position: relative;
+            clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+        }
+        #log-preview.frame-memo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(225deg, transparent 50%, rgba(0,0,0,0.06) 50%);
+        }
+        #log-preview.frame-memo::after {
+            content: '📌';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+        }
+        
+        /* 금박 - 고급 액자 프레임 */
+        #log-preview.frame-gold {
+            border: none;
+            box-shadow: 
+                inset 0 0 0 1px rgba(212,175,55,0.5),
+                inset 0 0 0 4px rgba(255,248,220,0.4),
+                inset 0 0 0 5px rgba(212,175,55,0.6),
+                inset 0 0 0 8px rgba(255,248,220,0.3),
+                inset 0 0 0 9px rgba(184,134,11,0.5),
+                0 10px 40px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        #log-preview.frame-gold::before {
+            content: '';
+            position: absolute;
+            inset: 16px;
+            border: 1px solid rgba(212,175,55,0.3);
+            pointer-events: none;
+        }
+        #log-preview.frame-gold::after {
+            content: '';
+            position: absolute;
+            top: 12px; left: 12px; right: 12px; bottom: 12px;
+            border: 1px solid rgba(212,175,55,0.15);
+            pointer-events: none;
+        }
+        
+        /* 장식 - 아르데코 코너 패턴 */
+        #log-preview.frame-ornate {
+            border: 1px solid rgba(120, 80, 200, 0.3);
+            box-shadow: 
+                0 0 0 6px transparent,
+                0 8px 32px rgba(120, 80, 200, 0.15);
+            position: relative;
+        }
+        #log-preview.frame-ornate::before,
+        #log-preview.frame-ornate::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(120, 80, 200, 0.4);
+        }
+        #log-preview.frame-ornate::before {
+            top: 8px; left: 8px;
+            border-right: none; border-bottom: none;
+            border-radius: 8px 0 0 0;
+        }
+        #log-preview.frame-ornate::after {
+            bottom: 8px; right: 8px;
+            border-left: none; border-top: none;
+            border-radius: 0 0 8px 0;
+        }
+        
+        /* 체크무늬 - 마름모 */
+        #log-preview.frame-check {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: relative;
+        }
+        #log-preview.frame-check::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(45deg, rgba(0,0,0,0.02) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(0,0,0,0.02) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.02) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.02) 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+        
+        /* 테이프 - 귀여운 마스키 테이프 */
+        #log-preview.frame-tape {
+            position: relative;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+        }
+        #log-preview.frame-tape::before,
+        #log-preview.frame-tape::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 24px;
+            background: linear-gradient(135deg, rgba(255,220,180,0.9), rgba(255,235,200,0.9));
+            border: 1px dashed rgba(180,140,100,0.3);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #log-preview.frame-tape::before {
+            top: -12px; left: 20px;
+            transform: rotate(-3deg);
+        }
+        #log-preview.frame-tape::after {
+            bottom: -12px; right: 20px;
+            transform: rotate(2deg);
+        }
+        
+        /* 빈티지 - 세피아 액자 */
+        #log-preview.frame-vintage {
+            border: none;
+            box-shadow: 
+                inset 0 0 0 2px rgba(120,90,60,0.2),
+                inset 0 0 0 6px rgba(255,250,240,0.5),
+                inset 0 0 0 8px rgba(120,90,60,0.15),
+                inset 0 0 100px rgba(120,90,60,0.03),
+                0 4px 20px rgba(60,40,20,0.15);
+            position: relative;
+        }
+        #log-preview.frame-vintage::before,
+        #log-preview.frame-vintage::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(120,90,60,0.25);
+        }
+        #log-preview.frame-vintage::before {
+            top: 16px; left: 16px;
+            border-right: none; border-bottom: none;
+        }
+        #log-preview.frame-vintage::after {
+            bottom: 16px; right: 16px;
+            border-left: none; border-top: none;
+        }
+        
+        /* 폴라로이드 - 인스타 스타일 */
+        #log-preview.frame-polaroid {
+            padding-bottom: 48px !important;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 
+                0 2px 4px rgba(0,0,0,0.06),
+                0 8px 24px rgba(0,0,0,0.1),
+                0 16px 48px rgba(0,0,0,0.06);
+            position: relative;
+        }
+        #log-preview.frame-polaroid::after {
+            content: '♡';
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            color: rgba(200,100,100,0.4);
+        }
+        
+        /* ========== 마크다운 강조 ========== */ */
+        .md-bold {
+            font-weight: 700;
+        }
+        
+        .md-italic {
+            font-style: italic;
+        }
+        
+        .md-highlight {
+            background: linear-gradient(120deg, #ffd54f 0%, #ffeb3b 100%);
+            padding: 0 4px;
+            border-radius: 3px;
+            color: #1d2129;
+        }
+        
+        .md-emphasis {
+            color: #e03131;
+            font-weight: 600;
+        }
+        
+        .md-underline {
+            text-decoration: underline;
+            text-decoration-color: currentColor;
+            text-underline-offset: 2px;
+        }
+        
+        .md-strike {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        
+        /* ========== 말풍선 추가 스타일 ========== */
+        .bubble.whisper {
+            background: rgba(0,0,0,0.05) !important;
+            color: var(--log-text) !important;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+        
+        .bubble.shout {
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        /* ========== 로그 제목 ========== */
+        .log-title {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--title-color);
+        }
+
+        .log-title h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--title-color);
+        }
+
+        .log-title p {
+            font-size: 14px;
+            opacity: 0.7;
+            color: var(--title-color);
+        }
+
+        .log-meta {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 12px;
+            font-size: 12px;
+        }
+
+        .log-meta-item {
+            background: rgba(0,0,0,0.05);
+            padding: 4px 10px;
+            border-radius: 12px;
+            color: var(--log-text);
+            opacity: 0.8;
+        }
+
+        .log-meta-item a {
+            color: inherit;
+            text-decoration: underline;
+        }
+
+        /* ========== 삽입된 이미지 ========== */
+        .log-image {
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .log-image img {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* ========== 대화 블록 ========== */
+        .chat-block {
+            margin-bottom: 12px;
+        }
+
+        .chat-block:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 화자 이름 */
+        .speaker-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            opacity: 0.8;
+        }
+
+        .chat-block.ai .speaker-name {
+            color: var(--name-ai-color);
+        }
+
+        .chat-block.user .speaker-name {
+            color: var(--name-user-color);
+            text-align: right;
+        }
+
+        /* 말풍선 컨테이너 */
+        .bubbles {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .chat-block.user .bubbles {
+            align-items: flex-end;
+        }
+
+        .chat-block.ai .bubbles {
+            align-items: flex-start;
+        }
+
+        /* 개별 말풍선 */
+        .bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        /* AI 말풍선 */
+        .chat-block.ai .bubble {
+            background: var(--bubble-ai-bg);
+            color: var(--bubble-ai-text);
+            border-bottom-left-radius: 6px;
+        }
+
+        /* USER 말풍선 */
+        .chat-block.user .bubble {
+            background: var(--bubble-user-bg);
+            color: var(--bubble-user-text);
+            border-bottom-right-radius: 6px;
+        }
+
+        /* 대사 말풍선 (기본) */
+        .bubble.dialogue {
+            /* 기본 스타일 유지 */
+            display: block;
+        }
+
+        /* 생각 말풍선 */
+        .bubble.thought {
+            background: transparent !important;
+            border: 2px dashed var(--thought-color);
+            color: var(--thought-color) !important;
+            font-style: italic;
+        }
+
+        /* 통신 말풍선 */
+        .bubble.comm {
+            background: transparent !important;
+            border: 2px solid var(--comm-color);
+            color: var(--comm-color) !important;
+            position: relative;
+            padding-left: 36px;
+        }
+
+        .bubble.comm::before {
+            content: '📡';
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+
+        /* ========== 나레이션 (지문) ========== */
+        .narration {
+            text-align: center;
+            padding: 6px 16px;
+            margin: 4px 0;
+            color: var(--log-text);
+            font-style: italic;
+            position: relative;
+        }
+        
+        /* 나레이션 앞에 말풍선이 있을 때만 위쪽 선 표시 */
+        .chat-block + .narration::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: -4px;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 1px;
+            background: currentColor;
+            opacity: 0.2;
+        }
+        
+        /* 나레이션 뒤에 말풍선이 있을 때만 아래쪽 선 표시 */
+        .narration:has(+ .chat-block)::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -4px;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 1px;
+            background: currentColor;
+            opacity: 0.2;
+        }
+
+        /* ========== 구분선 ========== */
+        .divider {
+            text-align: center;
+            margin: 12px 0;
+            opacity: 0.3;
+        }
+
+        .divider::before {
+            content: '• • •';
+            letter-spacing: 8px;
+        }
+
+        /* ========== 반응형 ========== */
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 50vh;
+            }
+            
+            .preview-wrapper {
+                padding: 20px;
+            }
+            
+            #log-preview {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+
+        /* ========== 스크롤바 커스텀 ========== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--input-border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* ========== 탭 시스템 ========== */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            background: var(--panel-border);
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ========== 정규식 규칙 리스트 ========== */
+        .rule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .rule-item {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .rule-item input {
+            flex: 1;
+        }
+
+        .rule-item .btn-remove {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            background: #e03131;
+            color: white;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .btn-add-rule {
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            border: 2px dashed var(--input-border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-add-rule:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        /* ========== 로그 블록 관리 ========== */
+        .log-block {
+            background: var(--panel-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        
+        .log-block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: var(--input-bg);
+            border-bottom: 1px solid var(--input-border);
+            cursor: pointer;
+        }
+        
+        .log-block-header:hover {
+            background: var(--panel-border);
+        }
+        
+        .log-block-title {
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .log-block-title input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 13px;
+            width: 150px;
+            padding: 4px;
+        }
+        
+        .log-block-title input:focus {
+            outline: none;
+            background: var(--panel-bg);
+            border-radius: 4px;
+        }
+        
+        .log-block-actions {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .log-block-actions button {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s, opacity 0.1s;
+        }
+        
+        .log-block-actions button:hover {
+            transform: scale(1.1);
+            opacity: 0.9;
+        }
+        
+        .log-block-actions .btn-toggle {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .log-block-actions .btn-delete {
+            background: #e03131;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .log-block-actions .btn-move {
+            background: var(--panel-border);
+            color: var(--text-primary);
+        }
+        
+        .log-block-content {
+            padding: 12px;
+        }
+        
+        .log-block-content.collapsed {
+            display: none;
+        }
+        
+        .log-block textarea {
+            min-height: 100px;
+        }
+        
+        .btn-add-block {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 2px dashed var(--accent);
+            border-radius: 8px;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-add-block:hover {
+            background: rgba(51, 154, 240, 0.1);
+        }
+        
+        /* 모드 토글 버튼 */
+        .mode-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .mode-toggle:hover {
+            background: var(--panel-border);
+        }
+    </style>
+</head>
+<body>
+    <!-- 통합 헤더 -->
+    <header class="app-header">
+        <div class="header-left">
+            <h1>🧁 Log Cupcake</h1>
+            <button class="mode-toggle" onclick="toggleDarkMode()" title="라이트/다크 모드 전환">🌙</button>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="generateLog()">🔄 생성</button>
+            <button class="btn btn-success" onclick="saveImage()">📷 저장</button>
+        </div>
+        <div class="header-divider"></div>
+        <div class="header-right">
+            <button class="btn btn-secondary preview-toggle" onclick="togglePreviewMode()">📄 미리보기</button>
+            <button class="btn btn-secondary" onclick="copyHTML()">📋 HTML 복사</button>
+        </div>
+    </header>
+    
+    <!-- 앱 바디 (사이드바 + 메인) -->
+    <div class="app-body">
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+            <div class="sidebar-content">
+            <!-- 탭 네비게이션 -->
+            <div class="tabs">
+                <button class="tab active" data-tab="input">📝 입력</button>
+                <button class="tab" data-tab="theme">🎨 테마</button>
+                <button class="tab" data-tab="style">⚙️ 스타일</button>
+            </div>
+
+            <!-- 입력 탭 -->
+            <div id="tab-input" class="tab-content active">
+                <!-- 제목 섹션 -->
+                <div class="section">
+                    <div class="section-title">제목 설정</div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">로그 제목</label>
+                            <input type="text" id="log-title" placeholder="예: Chapter 1. 시작">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">부제목</label>
+                            <input type="text" id="log-subtitle" placeholder="예: 2025년 어느 날">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">AI 모델</label>
+                            <input type="text" id="ai-model-input" placeholder="직접 입력">
+                            <select id="ai-model" style="width:100%; padding:8px; background:var(--panel-bg); border:1px solid var(--input-border); border-radius:6px; color:var(--text-primary); margin-top:4px; font-size:12px;">
+                            <option value="">-- 모델 선택 --</option>
+                            <option value="Gemini 2.5 Pro">Gemini 2.5 Pro</option>
+                            <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
+                            <option value="Gemini 2.0 Flash">Gemini 2.0 Flash</option>
+                            <option value="Gemini 3 Pro">Gemini 3 Pro</option>
+                            <option value="Claude Sonnet 4">Claude Sonnet 4</option>
+                            <option value="Claude Sonnet 4.5">Claude Sonnet 4.5</option>
+                            <option value="Claude Haiku 4.5">Claude Haiku 4.5</option>
+                            <option value="Claude Opus 4.5">Claude Opus 4.5</option>
+                            <option value="Claude Opus 4.1">Claude Opus 4.1</option>
+                            <option value="Claude Opus 4">Claude Opus 4</option>
+                            <option value="GPT-4.1">GPT-4.1</option>
+                            <option value="GPT-4o-latest">GPT-4o-latest</option>
+                            <option value="GPT-5">GPT-5</option>
+                            <option value="GPT-5-latest">GPT-5-latest</option>
+                            <option value="GPT-5.1">GPT-5.1</option>
+                            <option value="GPT-5.1-latest">GPT-5.1-latest</option>
+                            <option value="DeepSeek">DeepSeek</option>
+                        </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">프롬프트 이름</label>
+                            <input type="text" id="prompt-name" placeholder="예: MyPrompt v2.0">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">번역</label>
+                            <input type="text" id="translation-input" placeholder="직접 입력">
+                            <select id="translation" style="width:100%; padding:8px; background:var(--panel-bg); border:1px solid var(--input-border); border-radius:6px; color:var(--text-primary); margin-top:4px; font-size:12px;">
+                                <option value="">-- 번역기 선택 --</option>
+                                <option value="Gemini 2.5 Pro">Gemini 2.5 Pro</option>
+                                <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
+                                <option value="Gemini 2.0 Flash">Gemini 2.0 Flash</option>
+                                <option value="Gemini 3 Pro">Gemini 3 Pro</option>
+                                <option value="Claude Sonnet 4">Claude Sonnet 4</option>
+                                <option value="Claude Sonnet 4.5">Claude Sonnet 4.5</option>
+                                <option value="Claude Haiku 4.5">Claude Haiku 4.5</option>
+                                <option value="Claude Opus 4.5">Claude Opus 4.5</option>
+                                <option value="Claude Opus 4.1">Claude Opus 4.1</option>
+                                <option value="Claude Opus 4">Claude Opus 4</option>
+                                <option value="GPT-4.1">GPT-4.1</option>
+                                <option value="GPT-4o-latest">GPT-4o-latest</option>
+                                <option value="GPT-5">GPT-5</option>
+                                <option value="GPT-5-latest">GPT-5-latest</option>
+                                <option value="GPT-5.1">GPT-5.1</option>
+                                <option value="GPT-5.1-latest">GPT-5.1-latest</option>
+                                <option value="DeepSeek">DeepSeek</option>
+                                <option value="DeepL">DeepL</option>
+                                <option value="Papago">Papago</option>
+                                <option value="Google 번역">Google 번역</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">캐릭터 링크</label>
+                            <input type="text" id="char-link" placeholder="https://...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 캐릭터 이름 -->
+                <div class="section">
+                    <div class="section-title">캐릭터 이름</div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">AI 이름</label>
+                            <input type="text" id="name-ai" value="AI" placeholder="AI 캐릭터 이름">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">USER 이름</label>
+                            <input type="text" id="name-user" value="USER" placeholder="사용자 이름">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 이미지 삽입 -->
+                <div class="section">
+                    <div class="section-title">이미지 삽입</div>
+                    <div class="input-group">
+                        <label class="input-label">이미지 파일 업로드 (블록 번호 지정)</label>
+                        <input type="file" id="image-file-input" accept="image/*" style="display:none;" multiple>
+                        <button class="btn btn-secondary" onclick="document.getElementById('image-file-input').click()" style="width:100%;">📁 이미지 추가</button>
+                        <div id="image-list" style="margin-top:10px;"></div>
+                    </div>
+                </div>
+
+                <!-- 로그 블록 관리 -->
+                <div class="section">
+                    <div class="section-title">로그 블록</div>
+                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.6;">
+                        <b>화자:</b> AI: / USER: | <b>대사:</b> "대사" | <b>생각:</b> '생각'<br>
+                        <b>통신:</b> &gt; 메시지 | <b>속삭임:</b> ((메시지)) | <b>외침:</b> ! 메시지<br>
+                        <b>나레이션:</b> - 텍스트 | <b>구분선:</b> ---<br>
+                        <b>마크다운:</b> **굵게** *기울임* ^<span></span>하이라이트^ ~~취소~~
+                    </div>
+                    <div id="log-blocks-container">
+                        <div class="log-block" data-block-id="1">
+                            <div class="log-block-header" onclick="toggleBlock(this)">
+                                <div class="log-block-title">
+                                    <span>📝</span>
+                                    <input type="text" value="블록 1" onclick="event.stopPropagation()" onchange="updateBlockTitle(this)">
+                                </div>
+                                <div class="log-block-actions">
+                                    <button class="btn-move" onclick="event.stopPropagation(); moveBlock(this, -1)" title="위로">▲</button>
+                                    <button class="btn-move" onclick="event.stopPropagation(); moveBlock(this, 1)" title="아래로">▼</button>
+                                    <button class="btn-toggle" title="접기/펼치기">▼</button>
+                                    <button class="btn-delete" onclick="event.stopPropagation(); deleteBlock(this)" title="삭제">×</button>
+                                </div>
+                            </div>
+                            <div class="log-block-content">
+                                <textarea class="log-block-input" placeholder='AI: "안녕하세요!"
+USER: "반가워요."
+- 나레이션 텍스트'></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-add-block" onclick="addLogBlock()">➕ 새 블록 추가</button>
+                </div>
+
+                <!-- 정규식 치환 -->
+                <div class="section">
+                    <div class="section-title">단어 변환 (정규식)</div>
+                    <div class="rule-list" id="rule-list">
+                        <div class="rule-item">
+                            <input type="text" placeholder="찾을 단어" class="rule-find">
+                            <span style="color: var(--text-secondary);">→</span>
+                            <input type="text" placeholder="바꿀 단어" class="rule-replace">
+                            <button class="btn-remove" onclick="removeRule(this)">×</button>
+                        </div>
+                    </div>
+                    <button class="btn-add-rule" onclick="addRule()">+ 규칙 추가</button>
+                </div>
+            </div>
+
+            <!-- 테마 탭 -->
+            <div id="tab-theme" class="tab-content">
+                <div class="section">
+                    <div class="section-title">프리셋 테마</div>
+                    <div class="theme-grid">
+                        <button class="theme-btn active" data-theme="default"><span>기본</span></button>
+                        <button class="theme-btn" data-theme="ocean"><span>오션</span></button>
+                        <button class="theme-btn" data-theme="forest"><span>포레스트</span></button>
+                        <button class="theme-btn" data-theme="sunset"><span>선셋</span></button>
+                        <button class="theme-btn" data-theme="rose"><span>로즈</span></button>
+                        <button class="theme-btn" data-theme="lavender"><span>라벤더</span></button>
+                        <button class="theme-btn" data-theme="midnight"><span>미드나잇</span></button>
+                        <button class="theme-btn" data-theme="graphite"><span>그래파이트</span></button>
+                        <button class="theme-btn" data-theme="discord"><span>디스코드</span></button>
+                        <button class="theme-btn" data-theme="kakao"><span>카카오톡</span></button>
+                    </div>
+                </div>
+
+                <!-- 커스텀 색상 -->
+                <div class="section">
+                    <div class="section-title">커스텀 색상</div>
+                    <div class="color-grid">
+                        <div class="color-item">
+                            <label>묘사(나레이션)</label>
+                            <input type="color" id="color-text" value="#1d2129">
+                            <input type="text" id="color-text-text" value="#1d2129" style="display:none;">
+                        </div>
+                        <div class="color-item">
+                            <label>봇 말풍선</label>
+                            <input type="color" id="color-ai-bg" value="#f1f3f5">
+                            <input type="text" id="color-ai-bg-text" value="#f1f3f5" style="display:none;">
+                        </div>
+                        <div class="color-item">
+                            <label>퍼소 말풍선</label>
+                            <input type="color" id="color-user-bg" value="#339af0">
+                            <input type="text" id="color-user-bg-text" value="#339af0" style="display:none;">
+                        </div>
+                        <div class="color-item">
+                            <label>봇 대사</label>
+                            <input type="color" id="color-ai-text" value="#1d2129">
+                            <input type="text" id="color-ai-text-text" value="#1d2129" style="display:none;">
+                        </div>
+                        <div class="color-item">
+                            <label>퍼소 대사</label>
+                            <input type="color" id="color-user-text" value="#ffffff">
+                            <input type="text" id="color-user-text-text" value="#ffffff" style="display:none;">
+                        </div>
+                        <div class="color-item">
+                            <label>생각 말풍선</label>
+                            <input type="color" id="color-thought" value="#748ffc">
+                            <input type="text" id="color-thought-text" value="#748ffc" style="display:none;">
+                        </div>
+                        <div class="color-item">
+                            <label>통신 말풍선</label>
+                            <input type="color" id="color-comm" value="#20c997">
+                            <input type="text" id="color-comm-text" value="#20c997" style="display:none;">
+                        </div>
+                        <div class="color-item">
+                            <label>봇 이름표</label>
+                            <input type="color" id="color-name-ai" value="#495057">
+                            <input type="text" id="color-name-ai-text" value="#495057" style="display:none;">
+                        </div>
+                        <div class="color-item">
+                            <label>퍼소 이름표</label>
+                            <input type="color" id="color-name-user" value="#339af0">
+                            <input type="text" id="color-name-user-text" value="#339af0" style="display:none;">
+                        </div>
+                        <div class="color-item">
+                            <label>제목/부제목</label>
+                            <input type="color" id="color-title" value="#1d2129">
+                            <input type="text" id="color-title-text" value="#1d2129" style="display:none;">
+                        </div>
+                    </div>
+                    <div class="btn-group" style="margin-top: 12px;">
+                        <button class="btn btn-primary" onclick="saveCustomTheme()">💾 테마 저장</button>
+                    </div>
+                    <div id="saved-themes" style="margin-top: 12px;"></div>
+                </div>
+
+                <!-- 배경 설정 -->
+                <div class="section">
+                    <div class="section-title">배경 설정</div>
+                    <div class="input-group">
+                        <label class="input-label">배경 타입</label>
+                        <select id="bg-type" style="width:100%; padding:10px; background:var(--panel-bg); border:1px solid var(--input-border); border-radius:8px; color:var(--text-primary);">
+                            <option value="solid">단색</option>
+                            <option value="gradient">그라데이션</option>
+                        </select>
+                    </div>
+                    <div id="bg-solid-options">
+                        <div class="input-group">
+                            <label class="input-label">배경색</label>
+                            <div class="color-row">
+                                <input type="color" id="bg-solid-color" value="#ffffff">
+                                <input type="text" id="bg-solid-color-text" value="#ffffff">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="bg-gradient-options" style="display:none;">
+                        <div class="input-group">
+                            <label class="input-label">그라데이션 프리셋</label>
+                            <select id="gradient-select" style="width:100%; padding:10px; background:var(--panel-bg); border:1px solid var(--input-border); border-radius:8px; color:var(--text-primary);">
+                                <option value="custom">직접 설정</option>
+                                <option value="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">퍼플 드림</option>
+                                <option value="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">플라민고</option>
+                                <option value="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">오션 블루</option>
+                                <option value="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">민트 그린</option>
+                                <option value="linear-gradient(135deg, #fa709a 0%, #fee140 100%)">선셋 글로우</option>
+                                <option value="linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)">파스텔 드림</option>
+                                <option value="linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)">피치 크림</option>
+                                <option value="linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)">라벤더 미스트</option>
+                                <option value="linear-gradient(180deg, #2c3e50 0%, #4ca1af 100%)">마제스틱 다크</option>
+                                <option value="linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)">다크 밤하늘</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">시작 색상</label>
+                            <div class="color-row">
+                                <input type="color" id="gradient-start" value="#667eea">
+                                <input type="text" id="gradient-start-text" value="#667eea">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">끝 색상</label>
+                            <div class="color-row">
+                                <input type="color" id="gradient-end" value="#764ba2">
+                                <input type="text" id="gradient-end-text" value="#764ba2">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">방향 (도)</label>
+                            <input type="number" id="gradient-angle" value="135" min="0" max="360">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="applyBackground()" style="width:100%; margin-top:8px;">배경 적용</button>
+                </div>
+
+                <!-- 외곽 테마 -->
+                <div class="section">
+                    <div class="section-title">외곽 테마</div>
+                    <div class="input-group">
+                        <label class="input-label">프레임 스타일</label>
+                        <select id="frame-select" style="width:100%; padding:10px; background:var(--panel-bg); border:1px solid var(--input-border); border-radius:8px; color:var(--text-primary);">
+                            <option value="none">없음</option>
+                            <option value="letter">편지지 감성</option>
+                            <option value="diary">다이어리 감성</option>
+                            <option value="memo">메모지 감성</option>
+                            <option value="gold">금박 프레임</option>
+                            <option value="ornate">장식 프레임</option>
+                            <option value="check">체크무늬</option>
+                            <option value="tape">테이프 붙이기</option>
+                            <option value="vintage">빈티지</option>
+                            <option value="polaroid">폴라로이드</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 전체 프리셋 저장/불러오기 -->
+                <div class="section">
+                    <div class="section-title">프리셋 저장/불러오기</div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="savePreset()">💾 프리셋 저장</button>
+                        <button class="btn btn-secondary" onclick="exportPreset()">📤 내보내기</button>
+                    </div>
+                    <div class="input-group" style="margin-top:12px;">
+                        <input type="file" id="import-preset" accept=".json" style="display:none;">
+                        <button class="btn btn-secondary" onclick="document.getElementById('import-preset').click()" style="width:100%;">📥 프리셋 불러오기</button>
+                    </div>
+                    <div id="saved-presets" style="margin-top: 12px;"></div>
+                </div>
+            </div>
+
+            <!-- 스타일 탭 -->
+            <div id="tab-style" class="tab-content">
+                <div class="section">
+                    <div class="section-title">레이아웃</div>
+                    <div class="input-group">
+                        <label class="input-label">컨테이너 너비 (px)</label>
+                        <input type="number" id="style-width" value="1000" min="300" max="1500">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">모서리 둥글기 (px)</label>
+                        <input type="number" id="style-radius" value="16" min="0" max="50">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">타이포그래피</div>
+                    <div class="input-group">
+                        <label class="input-label">글자 크기 (px)</label>
+                        <input type="number" id="style-font-size" value="15" min="10" max="24">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">줄 간격</label>
+                        <input type="number" id="style-line-height" value="1.7" min="1" max="3" step="0.1">
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="applyStyles()" style="width: 100%;">스타일 적용</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="main-content">
+        <div class="preview-wrapper">
+            <div id="log-preview" class="theme-default">
+                <div style="text-align: center; color: var(--text-secondary); padding: 60px 20px;">
+                    <p style="font-size: 48px; margin-bottom: 16px;">✨</p>
+                    <p>왼쪽에서 로그를 입력하고<br>'생성' 버튼을 눌러주세요.</p>
+                </div>
+            </div>
+            <div id="html-code-view" class="html-code-view"></div>
+        </div>
+    </main>
+    </div>
+
+    <script>
+        // ========== 탭 시스템 ==========
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ========== 테마 색상 정의 ==========
+        const themeColors = {
+            'default': {
+                logBg: '#ffffff', logText: '#1d2129',
+                aiBg: '#f1f3f5', aiText: '#1d2129',
+                userBg: '#339af0', userText: '#ffffff',
+                thought: '#748ffc', comm: '#20c997',
+                nameAi: '#495057', nameUser: '#339af0', title: '#1d2129'
+            },
+            'ocean': {
+                logBg: '#e7f5ff', logText: '#1864ab',
+                aiBg: '#d0ebff', aiText: '#1864ab',
+                userBg: '#228be6', userText: '#ffffff',
+                thought: '#4dabf7', comm: '#15aabf',
+                nameAi: '#1864ab', nameUser: '#228be6', title: '#1864ab'
+            },
+            'forest': {
+                logBg: '#ebfbee', logText: '#2b8a3e',
+                aiBg: '#d3f9d8', aiText: '#2b8a3e',
+                userBg: '#40c057', userText: '#ffffff',
+                thought: '#69db7c', comm: '#38d9a9',
+                nameAi: '#2b8a3e', nameUser: '#40c057', title: '#2b8a3e'
+            },
+            'sunset': {
+                logBg: '#fff4e6', logText: '#d9480f',
+                aiBg: '#ffe8cc', aiText: '#d9480f',
+                userBg: '#fd7e14', userText: '#ffffff',
+                thought: '#ffa94d', comm: '#ff922b',
+                nameAi: '#d9480f', nameUser: '#fd7e14', title: '#d9480f'
+            },
+            'rose': {
+                logBg: '#fff0f6', logText: '#c2255c',
+                aiBg: '#ffdeeb', aiText: '#c2255c',
+                userBg: '#f06595', userText: '#ffffff',
+                thought: '#f783ac', comm: '#e64980',
+                nameAi: '#c2255c', nameUser: '#f06595', title: '#c2255c'
+            },
+            'lavender': {
+                logBg: '#f3f0ff', logText: '#5f3dc4',
+                aiBg: '#e5dbff', aiText: '#5f3dc4',
+                userBg: '#7950f2', userText: '#ffffff',
+                thought: '#9775fa', comm: '#845ef7',
+                nameAi: '#5f3dc4', nameUser: '#7950f2', title: '#5f3dc4'
+            },
+            'midnight': {
+                logBg: '#0f0e17', logText: '#a7a9be',
+                aiBg: '#1a1825', aiText: '#fffffe',
+                userBg: '#7f5af0', userText: '#fffffe',
+                thought: '#9d8cff', comm: '#2cb67d',
+                nameAi: '#fffffe', nameUser: '#7f5af0', title: '#fffffe'
+            },
+            'graphite': {
+                logBg: '#1c1917', logText: '#d6d3d1',
+                aiBg: '#292524', aiText: '#fafaf9',
+                userBg: '#c2410c', userText: '#ffffff',
+                thought: '#fb923c', comm: '#4ade80',
+                nameAi: '#fafaf9', nameUser: '#fb923c', title: '#fafaf9'
+            },
+            'discord': {
+                logBg: '#313338', logText: '#dbdee1',
+                aiBg: '#2b2d31', aiText: '#f2f3f5',
+                userBg: '#5865f2', userText: '#ffffff',
+                thought: '#949ba4', comm: '#23a559',
+                nameAi: '#f2f3f5', nameUser: '#5865f2', title: '#f2f3f5'
+            },
+            'kakao': {
+                logBg: '#b2c7d9', logText: '#1e1e1e',
+                aiBg: '#ffffff', aiText: '#1e1e1e',
+                userBg: '#fee500', userText: '#1e1e1e',
+                thought: '#5a5a5a', comm: '#3182f6',
+                nameAi: '#1e1e1e', nameUser: '#3182f6', title: '#1e1e1e'
+            }
+        };
+
+        // 커스텀 색상 입력란 업데이트 함수
+        function updateColorInputs(colors) {
+            document.getElementById('color-text').value = colors.logText;
+            document.getElementById('color-text-text').value = colors.logText;
+            document.getElementById('color-ai-bg').value = colors.aiBg;
+            document.getElementById('color-ai-bg-text').value = colors.aiBg;
+            document.getElementById('color-user-bg').value = colors.userBg;
+            document.getElementById('color-user-bg-text').value = colors.userBg;
+            document.getElementById('color-ai-text').value = colors.aiText;
+            document.getElementById('color-ai-text-text').value = colors.aiText;
+            document.getElementById('color-user-text').value = colors.userText;
+            document.getElementById('color-user-text-text').value = colors.userText;
+            document.getElementById('color-thought').value = colors.thought;
+            document.getElementById('color-thought-text').value = colors.thought;
+            document.getElementById('color-comm').value = colors.comm;
+            document.getElementById('color-comm-text').value = colors.comm;
+            document.getElementById('color-name-ai').value = colors.nameAi;
+            document.getElementById('color-name-ai-text').value = colors.nameAi;
+            document.getElementById('color-name-user').value = colors.nameUser;
+            document.getElementById('color-name-user-text').value = colors.nameUser;
+            document.getElementById('color-title').value = colors.title;
+            document.getElementById('color-title-text').value = colors.title;
+            
+            // 배경색도 업데이트
+            document.getElementById('bg-solid-color').value = colors.logBg;
+            document.getElementById('bg-solid-color-text').value = colors.logBg;
+        }
+
+        // ========== 테마 선택 ==========
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const themeName = btn.dataset.theme;
+                const colors = themeColors[themeName];
+                
+                if (colors) {
+                    // 커스텀 색상 입력란 업데이트
+                    updateColorInputs(colors);
+                }
+                
+                const preview = document.getElementById('log-preview');
+                // 모든 테마 클래스 제거
+                preview.className = preview.className.replace(/theme-\S+/g, '').trim();
+                
+                // 프레임 클래스는 유지
+                const frameClasses = preview.className.match(/frame-\S+/g) || [];
+                preview.className = frameClasses.join(' ');
+                
+                // 인라인 스타일(커스텀 색상) 초기화
+                preview.style.removeProperty('--log-bg');
+                preview.style.removeProperty('--log-text');
+                preview.style.removeProperty('--bubble-ai-bg');
+                preview.style.removeProperty('--bubble-user-bg');
+                preview.style.removeProperty('--bubble-ai-text');
+                preview.style.removeProperty('--bubble-user-text');
+                preview.style.removeProperty('--thought-color');
+                preview.style.removeProperty('--comm-color');
+                preview.style.removeProperty('--name-ai-color');
+                preview.style.removeProperty('--name-user-color');
+                preview.style.removeProperty('--title-color');
+                preview.style.removeProperty('background');
+                
+                // 선택한 테마 클래스 추가 (기본 포함)
+                preview.classList.add('theme-' + themeName);
+            });
+        });
+
+        // ========== 정규식 규칙 관리 ==========
+        function addRule() {
+            const list = document.getElementById('rule-list');
+            const item = document.createElement('div');
+            item.className = 'rule-item';
+            item.innerHTML = `
+                <input type="text" placeholder="찾을 단어" class="rule-find">
+                <span style="color: var(--text-secondary);">→</span>
+                <input type="text" placeholder="바꿀 단어" class="rule-replace">
+                <button class="btn-remove" onclick="removeRule(this)">×</button>
+            `;
+            list.appendChild(item);
+        }
+
+        function removeRule(btn) {
+            btn.parentElement.remove();
+        }
+
+        // ========== 색상 입력 동기화 ==========
+        const colorPairs = [
+            ['color-text', 'color-text-text'],
+            ['color-ai-bg', 'color-ai-bg-text'],
+            ['color-user-bg', 'color-user-bg-text'],
+            ['color-ai-text', 'color-ai-text-text'],
+            ['color-user-text', 'color-user-text-text'],
+            ['color-thought', 'color-thought-text'],
+            ['color-comm', 'color-comm-text'],
+            ['color-name-ai', 'color-name-ai-text'],
+            ['color-name-user', 'color-name-user-text'],
+            ['color-title', 'color-title-text'],
+            ['bg-solid-color', 'bg-solid-color-text'],
+            ['gradient-start', 'gradient-start-text'],
+            ['gradient-end', 'gradient-end-text']
+        ];
+
+        colorPairs.forEach(([colorId, textId]) => {
+            const colorInput = document.getElementById(colorId);
+            const textInput = document.getElementById(textId);
+            
+            if (!colorInput || !textInput) return;
+            
+            colorInput.addEventListener('input', () => {
+                textInput.value = colorInput.value;
+                applyCustomColors();
+            });
+            
+            textInput.addEventListener('input', () => {
+                if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+                    colorInput.value = textInput.value;
+                    applyCustomColors();
+                }
+            });
+        });
+
+        // ========== 커스텀 색상 적용 ==========
+        function applyCustomColors() {
+            const preview = document.getElementById('log-preview');
+            preview.style.setProperty('--log-text', document.getElementById('color-text').value);
+            preview.style.setProperty('--bubble-ai-bg', document.getElementById('color-ai-bg').value);
+            preview.style.setProperty('--bubble-user-bg', document.getElementById('color-user-bg').value);
+            preview.style.setProperty('--bubble-ai-text', document.getElementById('color-ai-text').value);
+            preview.style.setProperty('--bubble-user-text', document.getElementById('color-user-text').value);
+            preview.style.setProperty('--thought-color', document.getElementById('color-thought').value);
+            preview.style.setProperty('--comm-color', document.getElementById('color-comm').value);
+            preview.style.setProperty('--name-ai-color', document.getElementById('color-name-ai').value);
+            preview.style.setProperty('--name-user-color', document.getElementById('color-name-user').value);
+            preview.style.setProperty('--title-color', document.getElementById('color-title').value);
+            
+            // 테마 버튼 선택 해제
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        }
+
+        // ========== 커스텀 테마 저장 ==========
+        function saveCustomTheme() {
+            const name = prompt('테마 이름을 입력하세요:');
+            if (!name) return;
+            
+            const theme = {
+                name: name,
+                colors: {
+                    text: document.getElementById('color-text').value,
+                    aiBg: document.getElementById('color-ai-bg').value,
+                    userBg: document.getElementById('color-user-bg').value,
+                    aiText: document.getElementById('color-ai-text').value,
+                    userText: document.getElementById('color-user-text').value,
+                    thought: document.getElementById('color-thought').value,
+                    comm: document.getElementById('color-comm').value,
+                    nameAi: document.getElementById('color-name-ai').value,
+                    nameUser: document.getElementById('color-name-user').value,
+                    title: document.getElementById('color-title').value
+                }
+            };
+            
+            let savedThemes = JSON.parse(localStorage.getItem('customThemes') || '[]');
+            savedThemes.push(theme);
+            localStorage.setItem('customThemes', JSON.stringify(savedThemes));
+            renderSavedThemes();
+        }
+
+        function renderSavedThemes() {
+            const container = document.getElementById('saved-themes');
+            const savedThemes = JSON.parse(localStorage.getItem('customThemes') || '[]');
+            
+            if (savedThemes.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = '<div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">저장된 테마:</div>' +
+                savedThemes.map((t, i) => `
+                    <div style="display:flex; gap:8px; margin-bottom:6px;">
+                        <button class="btn btn-secondary" style="flex:1; padding:8px;" onclick="loadCustomTheme(${i})">${t.name}</button>
+                        <button style="padding:8px 12px; background:#e03131; color:white; border:none; border-radius:8px; cursor:pointer;" onclick="deleteCustomTheme(${i})">×</button>
+                    </div>
+                `).join('');
+        }
+
+        function loadCustomTheme(index) {
+            const savedThemes = JSON.parse(localStorage.getItem('customThemes') || '[]');
+            const theme = savedThemes[index];
+            if (!theme) return;
+            
+            document.getElementById('color-text').value = theme.colors.text;
+            document.getElementById('color-text-text').value = theme.colors.text;
+            document.getElementById('color-ai-bg').value = theme.colors.aiBg;
+            document.getElementById('color-ai-bg-text').value = theme.colors.aiBg;
+            document.getElementById('color-user-bg').value = theme.colors.userBg;
+            document.getElementById('color-user-bg-text').value = theme.colors.userBg;
+            document.getElementById('color-ai-text').value = theme.colors.aiText || '#1d2129';
+            document.getElementById('color-ai-text-text').value = theme.colors.aiText || '#1d2129';
+            document.getElementById('color-user-text').value = theme.colors.userText || '#ffffff';
+            document.getElementById('color-user-text-text').value = theme.colors.userText || '#ffffff';
+            document.getElementById('color-thought').value = theme.colors.thought;
+            document.getElementById('color-thought-text').value = theme.colors.thought;
+            document.getElementById('color-comm').value = theme.colors.comm;
+            document.getElementById('color-comm-text').value = theme.colors.comm;
+            document.getElementById('color-name-ai').value = theme.colors.nameAi;
+            document.getElementById('color-name-ai-text').value = theme.colors.nameAi;
+            document.getElementById('color-name-user').value = theme.colors.nameUser;
+            document.getElementById('color-name-user-text').value = theme.colors.nameUser;
+            document.getElementById('color-title').value = theme.colors.title;
+            document.getElementById('color-title-text').value = theme.colors.title;
+            
+            applyCustomColors();
+        }
+
+        function deleteCustomTheme(index) {
+            let savedThemes = JSON.parse(localStorage.getItem('customThemes') || '[]');
+            savedThemes.splice(index, 1);
+            localStorage.setItem('customThemes', JSON.stringify(savedThemes));
+            renderSavedThemes();
+        }
+
+        // ========== 스타일 적용 ==========
+        function applyStyles() {
+            const preview = document.getElementById('log-preview');
+            preview.style.setProperty('--log-width', document.getElementById('style-width').value + 'px');
+            preview.style.setProperty('--log-radius', document.getElementById('style-radius').value + 'px');
+            preview.style.setProperty('--log-font-size', document.getElementById('style-font-size').value + 'px');
+            preview.style.setProperty('--log-line-height', document.getElementById('style-line-height').value);
+            
+            preview.style.width = document.getElementById('style-width').value + 'px';
+            preview.style.borderRadius = document.getElementById('style-radius').value + 'px';
+            preview.style.fontSize = document.getElementById('style-font-size').value + 'px';
+            preview.style.lineHeight = document.getElementById('style-line-height').value;
+        }
+
+        // ========== 이미지 업로드 ==========
+        let uploadedImages = []; // {data: base64, blockNumber: number}
+        
+        document.getElementById('image-file-input').addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (!files.length) return;
+            
+            Array.from(files).forEach(file => {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`파일 "${file.name}"의 크기가 5MB를 초과합니다.`);
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    // 다음 블록 번호 자동 할당 (기존 이미지 중 가장 큰 번호 + 1, 또는 1)
+                    const nextBlockNum = uploadedImages.length > 0 
+                        ? Math.max(...uploadedImages.map(img => img.blockNumber)) + 1 
+                        : 1;
+                    uploadedImages.push({
+                        data: event.target.result,
+                        blockNumber: nextBlockNum,
+                        name: file.name
+                    });
+                    renderImageList();
+                    generateLog();
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // 입력 초기화 (같은 파일 다시 선택 가능하도록)
+            e.target.value = '';
+        });
+        
+        function renderImageList() {
+            const container = document.getElementById('image-list');
+            if (uploadedImages.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '<div style="display:flex; flex-direction:column; gap:8px;">';
+            uploadedImages.forEach((img, index) => {
+                html += `
+                    <div class="image-item" style="display:flex; align-items:center; gap:8px; padding:8px; background:var(--input-bg); border-radius:8px; border:1px solid var(--border-color);">
+                        <img src="${img.data}" style="width:50px; height:50px; object-fit:cover; border-radius:6px; flex-shrink:0;">
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-size:11px; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(img.name)}</div>
+                            <div style="display:flex; align-items:center; gap:4px; margin-top:4px;">
+                                <span style="font-size:11px; color:var(--text-secondary);">블록</span>
+                                <input type="number" value="${img.blockNumber}" min="0" 
+                                    onchange="updateImageBlockNumber(${index}, this.value)"
+                                    style="width:50px; padding:4px 6px; font-size:12px; border:1px solid var(--border-color); border-radius:4px; background:var(--bg-color); color:var(--text-color);">
+                                <span style="font-size:10px; color:var(--text-secondary);">번 앞에 삽입</span>
+                            </div>
+                        </div>
+                        <button onclick="removeImage(${index})" style="padding:4px 8px; background:#e03131; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px;">✕</button>
+                    </div>`;
+            });
+            html += '</div>';
+            html += '<div style="font-size:10px; color:var(--text-secondary); margin-top:6px;">💡 0번 = 제목 바로 아래, 1번 = 첫 번째 블록 앞</div>';
+            container.innerHTML = html;
+        }
+        
+        function updateImageBlockNumber(index, value) {
+            const num = parseInt(value) || 0;
+            uploadedImages[index].blockNumber = num;
+            generateLog();
+        }
+        
+        function removeImage(index) {
+            uploadedImages.splice(index, 1);
+            renderImageList();
+            generateLog();
+        }
+        
+        function clearAllImages() {
+            uploadedImages = [];
+            renderImageList();
+            generateLog();
+        }
+
+        // ========== AI모델/번역 선택시 입력창에 반영 ==========
+        document.getElementById('ai-model').addEventListener('change', function() {
+            if (this.value) {
+                document.getElementById('ai-model-input').value = this.value;
+            }
+        });
+        
+        document.getElementById('translation').addEventListener('change', function() {
+            if (this.value) {
+                document.getElementById('translation-input').value = this.value;
+            }
+        });
+
+        // ========== 배경 설정 ==========
+        document.getElementById('bg-type').addEventListener('change', function() {
+            const solidOptions = document.getElementById('bg-solid-options');
+            const gradientOptions = document.getElementById('bg-gradient-options');
+            
+            if (this.value === 'solid') {
+                solidOptions.style.display = 'block';
+                gradientOptions.style.display = 'none';
+            } else {
+                solidOptions.style.display = 'none';
+                gradientOptions.style.display = 'block';
+            }
+        });
+        
+        // 배경 단색 색상 동기화
+        document.getElementById('bg-solid-color').addEventListener('input', function() {
+            document.getElementById('bg-solid-color-text').value = this.value;
+        });
+        document.getElementById('bg-solid-color-text').addEventListener('input', function() {
+            if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+                document.getElementById('bg-solid-color').value = this.value;
+            }
+        });
+        
+        // 그라데이션 색상 동기화
+        document.getElementById('gradient-start').addEventListener('input', function() {
+            document.getElementById('gradient-start-text').value = this.value;
+        });
+        document.getElementById('gradient-start-text').addEventListener('input', function() {
+            if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+                document.getElementById('gradient-start').value = this.value;
+            }
+        });
+        document.getElementById('gradient-end').addEventListener('input', function() {
+            document.getElementById('gradient-end-text').value = this.value;
+        });
+        document.getElementById('gradient-end-text').addEventListener('input', function() {
+            if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+                document.getElementById('gradient-end').value = this.value;
+            }
+        });
+        
+        // 그라데이션 프리셋 선택시 색상 추출
+        document.getElementById('gradient-select').addEventListener('change', function() {
+            if (this.value !== 'custom') {
+                // 프리셋에서 색상 추출
+                const match = this.value.match(/#([0-9A-Fa-f]{6})/g);
+                if (match && match.length >= 2) {
+                    document.getElementById('gradient-start').value = match[0];
+                    document.getElementById('gradient-start-text').value = match[0];
+                    document.getElementById('gradient-end').value = match[1];
+                    document.getElementById('gradient-end-text').value = match[1];
+                }
+            }
+        });
+        
+        function applyBackground() {
+            const preview = document.getElementById('log-preview');
+            const bgType = document.getElementById('bg-type').value;
+            
+            if (bgType === 'solid') {
+                const color = document.getElementById('bg-solid-color').value;
+                preview.style.background = color;
+                preview.style.setProperty('--log-bg', color);
+            } else {
+                const start = document.getElementById('gradient-start').value;
+                const end = document.getElementById('gradient-end').value;
+                const angle = document.getElementById('gradient-angle').value;
+                const gradient = `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
+                preview.style.background = gradient;
+            }
+        }
+
+        // ========== 외곽 테마 선택 ==========
+        document.getElementById('frame-select').addEventListener('change', function() {
+            const preview = document.getElementById('log-preview');
+            // 모든 프레임 클래스 제거
+            preview.classList.remove('frame-letter', 'frame-diary', 'frame-memo', 'frame-gold', 'frame-ornate', 'frame-check', 'frame-tape', 'frame-vintage', 'frame-polaroid');
+            
+            if (this.value !== 'none') {
+                preview.classList.add('frame-' + this.value);
+            }
+        });
+
+        // ========== 프리셋 저장/불러오기 ==========
+        function savePreset() {
+            const name = prompt('프리셋 이름을 입력하세요:');
+            if (!name) return;
+            
+            const preset = {
+                name: name,
+                colors: {
+                    bg: document.getElementById('bg-solid-color').value,
+                    text: document.getElementById('color-text').value,
+                    aiBg: document.getElementById('color-ai-bg').value,
+                    userBg: document.getElementById('color-user-bg').value,
+                    aiText: document.getElementById('color-ai-text').value,
+                    userText: document.getElementById('color-user-text').value,
+                    thought: document.getElementById('color-thought').value,
+                    comm: document.getElementById('color-comm').value,
+                    nameAi: document.getElementById('color-name-ai').value,
+                    nameUser: document.getElementById('color-name-user').value,
+                    title: document.getElementById('color-title').value
+                },
+                bgType: document.getElementById('bg-type').value,
+                gradient: document.getElementById('gradient-select').value,
+                gradientStart: document.getElementById('gradient-start').value,
+                gradientEnd: document.getElementById('gradient-end').value,
+                gradientAngle: document.getElementById('gradient-angle').value,
+                frame: document.getElementById('frame-select').value,
+                style: {
+                    width: document.getElementById('style-width').value,
+                    radius: document.getElementById('style-radius').value,
+                    fontSize: document.getElementById('style-font-size').value,
+                    lineHeight: document.getElementById('style-line-height').value
+                }
+            };
+            
+            let savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
+            savedPresets.push(preset);
+            localStorage.setItem('logPresets', JSON.stringify(savedPresets));
+            renderSavedPresets();
+        }
+
+        function renderSavedPresets() {
+            const container = document.getElementById('saved-presets');
+            const savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
+            
+            if (savedPresets.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = '<div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">저장된 프리셋:</div>' +
+                savedPresets.map((p, i) => `
+                    <div style="display:flex; gap:8px; margin-bottom:6px;">
+                        <button class="btn btn-secondary" style="flex:1; padding:8px;" onclick="loadPreset(${i})">${p.name}</button>
+                        <button style="padding:8px 12px; background:#e03131; color:white; border:none; border-radius:8px; cursor:pointer;" onclick="deletePreset(${i})">×</button>
+                    </div>
+                `).join('');
+        }
+
+        function loadPreset(index) {
+            const savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
+            const preset = savedPresets[index];
+            if (!preset) return;
+            
+            // 배경 색상 적용
+            if (preset.colors.bg) {
+                document.getElementById('bg-solid-color').value = preset.colors.bg;
+                document.getElementById('bg-solid-color-text').value = preset.colors.bg;
+            }
+            if (preset.bgType) {
+                document.getElementById('bg-type').value = preset.bgType;
+                document.getElementById('bg-type').dispatchEvent(new Event('change'));
+            }
+            
+            // 커스텀 색상 적용
+            document.getElementById('color-text').value = preset.colors.text;
+            document.getElementById('color-text-text').value = preset.colors.text;
+            document.getElementById('color-ai-bg').value = preset.colors.aiBg;
+            document.getElementById('color-ai-bg-text').value = preset.colors.aiBg;
+            document.getElementById('color-user-bg').value = preset.colors.userBg;
+            document.getElementById('color-user-bg-text').value = preset.colors.userBg;
+            document.getElementById('color-ai-text').value = preset.colors.aiText || '#1d2129';
+            document.getElementById('color-ai-text-text').value = preset.colors.aiText || '#1d2129';
+            document.getElementById('color-user-text').value = preset.colors.userText || '#ffffff';
+            document.getElementById('color-user-text-text').value = preset.colors.userText || '#ffffff';
+            document.getElementById('color-thought').value = preset.colors.thought;
+            document.getElementById('color-thought-text').value = preset.colors.thought;
+            document.getElementById('color-comm').value = preset.colors.comm;
+            document.getElementById('color-comm-text').value = preset.colors.comm;
+            document.getElementById('color-name-ai').value = preset.colors.nameAi;
+            document.getElementById('color-name-ai-text').value = preset.colors.nameAi;
+            document.getElementById('color-name-user').value = preset.colors.nameUser;
+            document.getElementById('color-name-user-text').value = preset.colors.nameUser;
+            document.getElementById('color-title').value = preset.colors.title;
+            document.getElementById('color-title-text').value = preset.colors.title;
+            
+            // 그라데이션
+            document.getElementById('gradient-select').value = preset.gradient || 'custom';
+            if (preset.gradientStart) document.getElementById('gradient-start').value = preset.gradientStart;
+            if (preset.gradientEnd) document.getElementById('gradient-end').value = preset.gradientEnd;
+            if (preset.gradientAngle) document.getElementById('gradient-angle').value = preset.gradientAngle;
+            
+            // 프레임
+            document.getElementById('frame-select').value = preset.frame || 'none';
+            
+            // 스타일
+            if (preset.style) {
+                document.getElementById('style-width').value = preset.style.width;
+                document.getElementById('style-radius').value = preset.style.radius;
+                document.getElementById('style-font-size').value = preset.style.fontSize;
+                document.getElementById('style-line-height').value = preset.style.lineHeight;
+            }
+            
+            applyCustomColors();
+            applyBackground();
+            applyStyles();
+            document.getElementById('gradient-select').dispatchEvent(new Event('change'));
+            document.getElementById('frame-select').dispatchEvent(new Event('change'));
+        }
+
+        function deletePreset(index) {
+            let savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
+            savedPresets.splice(index, 1);
+            localStorage.setItem('logPresets', JSON.stringify(savedPresets));
+            renderSavedPresets();
+        }
+
+        function exportPreset() {
+            const preset = {
+                colors: {
+                    bg: document.getElementById('bg-solid-color').value,
+                    text: document.getElementById('color-text').value,
+                    aiBg: document.getElementById('color-ai-bg').value,
+                    userBg: document.getElementById('color-user-bg').value,
+                    aiText: document.getElementById('color-ai-text').value,
+                    userText: document.getElementById('color-user-text').value,
+                    thought: document.getElementById('color-thought').value,
+                    comm: document.getElementById('color-comm').value,
+                    nameAi: document.getElementById('color-name-ai').value,
+                    nameUser: document.getElementById('color-name-user').value,
+                    title: document.getElementById('color-title').value
+                },
+                bgType: document.getElementById('bg-type').value,
+                gradient: document.getElementById('gradient-select').value,
+                gradientStart: document.getElementById('gradient-start').value,
+                gradientEnd: document.getElementById('gradient-end').value,
+                gradientAngle: document.getElementById('gradient-angle').value,
+                frame: document.getElementById('frame-select').value,
+                style: {
+                    width: document.getElementById('style-width').value,
+                    radius: document.getElementById('style-radius').value,
+                    fontSize: document.getElementById('style-font-size').value,
+                    lineHeight: document.getElementById('style-line-height').value
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(preset, null, 2)], {type: 'application/json'});
+            const link = document.createElement('a');
+            link.download = 'logmaker-preset.json';
+            link.href = URL.createObjectURL(blob);
+            link.click();
+        }
+
+        document.getElementById('import-preset').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const preset = JSON.parse(event.target.result);
+                    
+                    // 배경 색상 적용
+                    if (preset.colors) {
+                        document.getElementById('bg-solid-color').value = preset.colors.bg || '#ffffff';
+                        document.getElementById('bg-solid-color-text').value = preset.colors.bg || '#ffffff';
+                        document.getElementById('color-text').value = preset.colors.text || '#1d2129';
+                        document.getElementById('color-text-text').value = preset.colors.text || '#1d2129';
+                        document.getElementById('color-ai-bg').value = preset.colors.aiBg || '#f1f3f5';
+                        document.getElementById('color-ai-bg-text').value = preset.colors.aiBg || '#f1f3f5';
+                        document.getElementById('color-user-bg').value = preset.colors.userBg || '#339af0';
+                        document.getElementById('color-user-bg-text').value = preset.colors.userBg || '#339af0';
+                        document.getElementById('color-ai-text').value = preset.colors.aiText || '#1d2129';
+                        document.getElementById('color-ai-text-text').value = preset.colors.aiText || '#1d2129';
+                        document.getElementById('color-user-text').value = preset.colors.userText || '#ffffff';
+                        document.getElementById('color-user-text-text').value = preset.colors.userText || '#ffffff';
+                        document.getElementById('color-thought').value = preset.colors.thought || '#748ffc';
+                        document.getElementById('color-thought-text').value = preset.colors.thought || '#748ffc';
+                        document.getElementById('color-comm').value = preset.colors.comm || '#20c997';
+                        document.getElementById('color-comm-text').value = preset.colors.comm || '#20c997';
+                        document.getElementById('color-name-ai').value = preset.colors.nameAi || '#495057';
+                        document.getElementById('color-name-ai-text').value = preset.colors.nameAi || '#495057';
+                        document.getElementById('color-name-user').value = preset.colors.nameUser || '#339af0';
+                        document.getElementById('color-name-user-text').value = preset.colors.nameUser || '#339af0';
+                        document.getElementById('color-title').value = preset.colors.title || '#1d2129';
+                        document.getElementById('color-title-text').value = preset.colors.title || '#1d2129';
+                    }
+                    
+                    // 배경 타입
+                    if (preset.bgType) {
+                        document.getElementById('bg-type').value = preset.bgType;
+                        document.getElementById('bg-type').dispatchEvent(new Event('change'));
+                    }
+                    
+                    if (preset.gradient) document.getElementById('gradient-select').value = preset.gradient;
+                    if (preset.gradientStart) document.getElementById('gradient-start').value = preset.gradientStart;
+                    if (preset.gradientEnd) document.getElementById('gradient-end').value = preset.gradientEnd;
+                    if (preset.gradientAngle) document.getElementById('gradient-angle').value = preset.gradientAngle;
+                    if (preset.frame) document.getElementById('frame-select').value = preset.frame;
+                    
+                    if (preset.style) {
+                        document.getElementById('style-width').value = preset.style.width || 1000;
+                        document.getElementById('style-radius').value = preset.style.radius || 16;
+                        document.getElementById('style-font-size').value = preset.style.fontSize || 15;
+                        document.getElementById('style-line-height').value = preset.style.lineHeight || 1.7;
+                    }
+                    
+                    applyCustomColors();
+                    applyBackground();
+                    applyStyles();
+                    document.getElementById('gradient-select').dispatchEvent(new Event('change'));
+                    document.getElementById('frame-select').dispatchEvent(new Event('change'));
+                    
+                    alert('프리셋을 불러왔습니다!');
+                } catch (e) {
+                    alert('프리셋 파일을 읽는 중 오류가 발생했습니다.');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // ========== 로그 블록 관리 ==========
+        let blockIdCounter = 1;
+        
+        function addLogBlock() {
+            blockIdCounter++;
+            const container = document.getElementById('log-blocks-container');
+            const block = document.createElement('div');
+            block.className = 'log-block';
+            block.dataset.blockId = blockIdCounter;
+            block.innerHTML = `
+                <div class="log-block-header" onclick="toggleBlock(this)">
+                    <div class="log-block-title">
+                        <span>📝</span>
+                        <input type="text" value="블록 ${blockIdCounter}" onclick="event.stopPropagation()" onchange="updateBlockTitle(this)">
+                    </div>
+                    <div class="log-block-actions">
+                        <button class="btn-move" onclick="event.stopPropagation(); moveBlock(this, -1)" title="위로">▲</button>
+                        <button class="btn-move" onclick="event.stopPropagation(); moveBlock(this, 1)" title="아래로">▼</button>
+                        <button class="btn-toggle" title="접기/펼치기">▼</button>
+                        <button class="btn-delete" onclick="event.stopPropagation(); deleteBlock(this)" title="삭제">×</button>
+                    </div>
+                </div>
+                <div class="log-block-content">
+                    <textarea class="log-block-input" placeholder='AI: "대사를 입력하세요"'></textarea>
+                </div>
+            `;
+            container.appendChild(block);
+            
+            // 새 블록에 실시간 미리보기 이벤트 추가
+            const textarea = block.querySelector('.log-block-input');
+            textarea.addEventListener('input', () => {
+                clearTimeout(window.inputTimeout);
+                window.inputTimeout = setTimeout(generateLog, 300);
+            });
+        }
+        
+        function deleteBlock(btn) {
+            const block = btn.closest('.log-block');
+            const container = document.getElementById('log-blocks-container');
+            
+            // 최소 1개 블록은 유지
+            if (container.querySelectorAll('.log-block').length <= 1) {
+                alert('최소 1개의 블록은 유지해야 합니다.');
+                return;
+            }
+            
+            if (confirm('이 블록을 삭제하시겠습니까?')) {
+                block.remove();
+                generateLog();
+            }
+        }
+        
+        function moveBlock(btn, direction) {
+            const block = btn.closest('.log-block');
+            const container = document.getElementById('log-blocks-container');
+            const blocks = Array.from(container.querySelectorAll('.log-block'));
+            const index = blocks.indexOf(block);
+            
+            if (direction === -1 && index > 0) {
+                // 위로 이동
+                container.insertBefore(block, blocks[index - 1]);
+            } else if (direction === 1 && index < blocks.length - 1) {
+                // 아래로 이동
+                container.insertBefore(blocks[index + 1], block);
+            }
+            
+            generateLog();
+        }
+        
+        function toggleBlock(header) {
+            const content = header.nextElementSibling;
+            const toggleBtn = header.querySelector('.btn-toggle');
+            
+            content.classList.toggle('collapsed');
+            toggleBtn.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
+        }
+        
+        function updateBlockTitle(input) {
+            // 제목 변경 시 별도 동작 필요 없음
+        }
+        
+        // ========== 로그 파싱 및 생성 ==========
+        function generateLog() {
+            // 각 블록의 내용을 개별적으로 수집
+            const blockElements = document.querySelectorAll('.log-block-input');
+            const blockContents = Array.from(blockElements).map(textarea => textarea.value);
+            
+            // 정규식 치환을 각 블록에 적용
+            const processedBlocks = blockContents.map(blockText => {
+                document.querySelectorAll('.rule-item').forEach(item => {
+                    const find = item.querySelector('.rule-find').value;
+                    const replace = item.querySelector('.rule-replace').value;
+                    if (find) {
+                        try {
+                            const regex = new RegExp(find, 'g');
+                            blockText = blockText.replace(regex, replace);
+                        } catch (e) {
+                            console.error('정규식 오류:', e);
+                        }
+                    }
+                });
+                return blockText;
+            });
+
+            const preview = document.getElementById('log-preview');
+            let html = '';
+
+            // 제목 추가
+            const title = document.getElementById('log-title').value;
+            const subtitle = document.getElementById('log-subtitle').value;
+            const aiModel = document.getElementById('ai-model-input').value;
+            const promptName = document.getElementById('prompt-name').value;
+            const translation = document.getElementById('translation-input').value;
+            const charLink = document.getElementById('char-link').value;
+            
+            if (title || subtitle || aiModel || promptName || translation || charLink) {
+                html += '<div class="log-title">';
+                if (title) html += `<h2>${escapeHtml(title)}</h2>`;
+                if (subtitle) html += `<p>${escapeHtml(subtitle)}</p>`;
+                
+                // 메타 정보
+                const metaItems = [];
+                if (aiModel) metaItems.push(`🤖 ${escapeHtml(aiModel)}`);
+                if (promptName) metaItems.push(`📝 ${escapeHtml(promptName)}`);
+                if (translation) metaItems.push(`🌐 ${escapeHtml(translation)}`);
+                if (charLink) metaItems.push(`<a href="${escapeHtml(charLink)}" target="_blank">🔗 캐릭터 링크</a>`);
+                
+                if (metaItems.length > 0) {
+                    html += '<div class="log-meta">';
+                    metaItems.forEach(item => {
+                        html += `<span class="log-meta-item">${item}</span>`;
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+            }
+
+            // 블록 번호 0에 할당된 이미지 (제목 바로 아래)
+            const headerImages = uploadedImages.filter(img => img.blockNumber === 0);
+            headerImages.forEach(img => {
+                html += `<div class="log-image"><img src="${img.data}" alt="Image"></div>`;
+            });
+
+            // 캐릭터 이름 가져오기
+            const aiName = document.getElementById('name-ai').value || 'AI';
+            const userName = document.getElementById('name-user').value || 'USER';
+
+            // 각 블록을 순회하면서 처리
+            processedBlocks.forEach((blockText, blockIndex) => {
+                const blockNumber = blockIndex + 1; // 1-based 블록 번호
+                
+                // 이 블록 앞에 삽입할 이미지들
+                const blockImages = uploadedImages.filter(img => img.blockNumber === blockNumber);
+                blockImages.forEach(img => {
+                    html += `<div class="log-image"><img src="${img.data}" alt="Image"></div>`;
+                });
+                
+                // 블록 사이 구분선 (첫 번째 블록이 아닌 경우)
+                if (blockIndex > 0) {
+                    html += '<div class="divider"></div>';
+                }
+                
+                const lines = blockText.split('\n');
+                let currentSpeaker = null;
+                let currentBubbles = [];
+
+                function flushBubbles() {
+                    if (currentSpeaker && currentBubbles.length > 0) {
+                        const speakerClass = currentSpeaker === 'AI' ? 'ai' : 'user';
+                        const displayName = currentSpeaker === 'AI' ? aiName : userName;
+                        
+                        html += `<div class="chat-block ${speakerClass}">`;
+                        html += `<div class="speaker-name">${escapeHtml(displayName)}</div>`;
+                        html += '<div class="bubbles">';
+                        currentBubbles.forEach(bubble => {
+                            html += bubble;
+                        });
+                        html += '</div></div>';
+                        
+                        currentBubbles = [];
+                    }
+                }
+
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (!line) return;
+
+                    // 구분선
+                    if (line === '---' || line === '***') {
+                        flushBubbles();
+                        currentSpeaker = null;
+                        html += '<div class="divider"></div>';
+                        return;
+                    }
+
+                    // 나레이션 (- 또는 * 로 시작)
+                    if (line.startsWith('-') || (line.startsWith('*') && !line.endsWith('*'))) {
+                        flushBubbles();
+                        currentSpeaker = null;
+                        const narrationText = line.substring(1).trim();
+                        html += `<div class="narration">${processMarkdown(narrationText)}</div>`;
+                        return;
+                    }
+
+                    // AI 또는 USER 대화
+                    const match = line.match(/^(AI|USER)\s*:\s*(.+)$/i);
+                    if (match) {
+                        const speaker = match[1].toUpperCase();
+                        let content = match[2].trim();
+
+                        // 새로운 화자면 이전 말풍선들 출력
+                        if (speaker !== currentSpeaker) {
+                            flushBubbles();
+                            currentSpeaker = speaker;
+                        }
+
+                        // 통신 메시지 (> 로 시작)
+                        if (content.startsWith('>')) {
+                            content = content.substring(1).trim();
+                            currentBubbles.push(`<div class="bubble comm">${processMarkdown(content)}</div>`);
+                        }
+                        // 속삭임 ((...) 로 감싸진 경우)
+                        else if (content.startsWith('((') && content.endsWith('))')) {
+                            content = content.slice(2, -2).trim();
+                            currentBubbles.push(`<div class="bubble whisper">${processMarkdown(content)}</div>`);
+                        }
+                        // 외침 (! 로 시작)
+                        else if (content.startsWith('!')) {
+                            content = content.substring(1).trim();
+                            currentBubbles.push(`<div class="bubble shout">${processMarkdown(content)}</div>`);
+                        }
+                        // 생각 ('...' 로 감싸진 경우)
+                        else if ((content.startsWith("'") && content.endsWith("'")) || 
+                                 (content.startsWith("'") && content.endsWith("'"))) {
+                            content = content.slice(1, -1);
+                            currentBubbles.push(`<div class="bubble thought">${processMarkdown(content)}</div>`);
+                        }
+                        // 대사 ("..." 로 감싸진 경우)
+                        else if ((content.startsWith('"') && content.endsWith('"')) ||
+                                (content.startsWith('"') && content.endsWith('"'))) {
+                            content = content.slice(1, -1);
+                            currentBubbles.push(`<div class="bubble dialogue">${processMarkdown(content)}</div>`);
+                        }
+                        // 그 외 (행동/묘사 - 아무 표시 없이 그냥 쓰기)
+                        else {
+                            currentBubbles.push(`<div class="bubble dialogue">${processMarkdown(content)}</div>`);
+                        }
+                        return;
+                    }
+
+                    // 그 외 일반 텍스트는 나레이션으로 처리
+                    flushBubbles();
+                    currentSpeaker = null;
+                    html += `<div class="narration">${processMarkdown(line)}</div>`;
+                });
+
+                // 남은 말풍선 출력
+                flushBubbles();
+            });
+
+            preview.innerHTML = html || '<div style="text-align: center; color: var(--text-secondary); padding: 60px;">내용을 입력해주세요.</div>';
+        }
+
+        // HTML 이스케이프
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 마크다운 처리
+        function processMarkdown(text) {
+            let result = escapeHtml(text);
+            
+            // **굵게**
+            result = result.replace(/\*\*(.+?)\*\*/g, '<span class="md-bold">$1</span>');
+            
+            // *기울임* (단, **는 제외)
+            result = result.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<span class="md-italic">$1</span>');
+            
+            // ^하이라이트^
+            result = result.replace(/\^(.+?)\^/g, '<span class="md-highlight">$1</span>');
+            
+            // $강조$
+            result = result.replace(/\$(.+?)\$/g, '<span class="md-emphasis">$1</span>');
+            
+            // __밑줄__
+            result = result.replace(/__(.+?)__/g, '<span class="md-underline">$1</span>');
+            
+            // ~~취소~~
+            result = result.replace(/~~(.+?)~~/g, '<span class="md-strike">$1</span>');
+            
+            return result;
+        }
+
+        // ========== 이미지 저장 ==========
+        function saveImage() {
+            const preview = document.getElementById('log-preview');
+            html2canvas(preview, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: null
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'log-' + new Date().toISOString().slice(0, 10) + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // ========== HTML 복사 ==========
+        function copyHTML() {
+            const preview = document.getElementById('log-preview');
+            navigator.clipboard.writeText(preview.innerHTML).then(() => {
+                alert('HTML이 클립보드에 복사되었습니다!');
+            });
+        }
+        
+        // ========== 미리보기/HTML 토글 ==========
+        let isHtmlMode = false;
+        
+        function togglePreviewMode() {
+            isHtmlMode = !isHtmlMode;
+            const wrapper = document.querySelector('.preview-wrapper');
+            const toggleBtn = document.querySelector('.preview-toggle');
+            const htmlView = document.getElementById('html-code-view');
+            const preview = document.getElementById('log-preview');
+            
+            if (isHtmlMode) {
+                wrapper.classList.add('html-mode');
+                toggleBtn.classList.add('active');
+                toggleBtn.innerHTML = '💻 HTML 코드';
+                // HTML 코드 업데이트
+                updateHtmlView();
+            } else {
+                wrapper.classList.remove('html-mode');
+                toggleBtn.classList.remove('active');
+                toggleBtn.innerHTML = '📄 미리보기';
+            }
+        }
+        
+        function updateHtmlView() {
+            const preview = document.getElementById('log-preview');
+            const htmlView = document.getElementById('html-code-view');
+            // HTML을 이쁨스케이프 처리하여 표시
+            const escaped = preview.innerHTML
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            htmlView.innerHTML = escaped;
+        }
+
+        // ========== 실시간 미리보기 ==========
+        // 첫 번째 블록의 textarea에 이벤트 리스너 추가
+        document.querySelectorAll('.log-block-input').forEach(textarea => {
+            textarea.addEventListener('input', () => {
+                // 디바운스 처리
+                clearTimeout(window.inputTimeout);
+                window.inputTimeout = setTimeout(generateLog, 300);
+            });
+        });
+
+        // 초기 예제 (첫 번째 블록에 설정)
+        document.querySelector('.log-block-input').value = `AI: "안녕하세요! 저는 AI 어시스턴트입니다."
+USER: "반가워요. 잘 부탁해요."
+AI: '이 사람은 **좋은 사람** 같아 보여...'
+- 잠시 침묵이 흘렀다.
+AI: "무엇을 도와드릴까요?"
+USER: '뭘 물어보지?'
+---
+AI: > 원격 통신이 연결되었습니다.
+USER: > 수신 확인했습니다.
+AI: ((조용히 속삭입니다...))
+USER: ! 깜짝 놀랐어!
+AI: 빙그레 웃는다`;
+
+        // 페이지 로드 시 생성
+        window.onload = function() {
+            applyStyles(); // 스타일 먼저 적용
+            generateLog();
+            renderSavedThemes();
+            renderSavedPresets();
+            
+            // 저장된 모드 설정 불러오기
+            const savedMode = localStorage.getItem('logmaker-mode');
+            if (savedMode === 'light') {
+                document.body.classList.add('light-mode');
+                document.querySelector('.mode-toggle').textContent = '☀️';
+            }
+        };
+        
+        // ========== 다크/라이트 모드 토글 ==========
+        function toggleDarkMode() {
+            const body = document.body;
+            const btn = document.querySelector('.mode-toggle');
+            
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                btn.textContent = '☀️';
+                localStorage.setItem('logmaker-mode', 'light');
+            } else {
+                btn.textContent = '🌙';
+                localStorage.setItem('logmaker-mode', 'dark');
+            }
+        }
+    </script>
+</body>
+</html>
