@@ -1176,13 +1176,21 @@
         }
 
         /* ========== 구분선 ========== */
+        /* --- 점선 구분선 */
         .divider {
+            border-top: 1px dashed rgba(128,128,128,0.4);
+            margin: 16px 0;
+        }
+        
+        /* === 점 세 개 구분선 */
+        .dot-divider {
             text-align: center;
-            margin: 12px 0;
-            opacity: 0.3;
+            margin: 16px 0;
+            color: var(--text-secondary);
+            opacity: 0.5;
         }
 
-        .divider::before {
+        .dot-divider::before {
             content: '• • •';
             letter-spacing: 8px;
         }
@@ -2037,7 +2045,7 @@
                     <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.6;">
                         <b>화자:</b> AI: / USER: / CHAR-01: | <b>대사:</b> "대사" | <b>생각:</b> '생각'<br>
                         <b>통신:</b> &gt; 메시지 | <b>속삭임:</b> ((메시지)) | <b>외침:</b> ! 메시지<br>
-                        <b>나레이션:</b> - 텍스트 | <b>구분선:</b> ---<br>
+                        <b>나레이션:</b> - 텍스트 | <b>구분선:</b> --- | <b>점 구분선:</b> ===<br>
                         <b>마크다운:</b> **굵게** *기울임* ^<span></span>하이라이트^ ~~취소~~
                     </div>
                     <div id="log-blocks-container">
@@ -3591,6 +3599,14 @@ USER: "반가워요."
                         html += '<div class="divider"></div>';
                         return;
                     }
+                    
+                    // 점 세 개 구분선
+                    if (line === '===') {
+                        flushBubbles();
+                        currentSpeaker = null;
+                        html += '<div class="dot-divider"></div>';
+                        return;
+                    }
 
                     // 나레이션 (- 또는 * 로 시작)
                     if (line.startsWith('-') || (line.startsWith('*') && !line.endsWith('*'))) {
@@ -3929,6 +3945,15 @@ USER: "반가워요."
                         flushBubblesOnlyArca();
                         currentSpeaker = null;
                         html += `<div style="border-top:1px dashed rgba(128,128,128,0.4);margin:16px 0;"></div>`;
+                        return;
+                    }
+                    
+                    // 점 세 개 구분선
+                    if (line === '===') {
+                        flushNarrationArca();
+                        flushBubblesOnlyArca();
+                        currentSpeaker = null;
+                        html += `<div style="text-align:center;color:rgba(128,128,128,0.5);margin:16px 0;letter-spacing:8px;">• • •</div>`;
                         return;
                     }
                     
