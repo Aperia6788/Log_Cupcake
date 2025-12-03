@@ -1363,6 +1363,8 @@
                 display: block;
                 max-height: calc(100vh - 56px - 60px);
                 height: calc(100vh - 56px - 60px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
             
             body.mobile-settings-view .main-content {
@@ -1376,6 +1378,8 @@
             body.mobile-preview-view .main-content {
                 display: flex;
                 height: calc(100vh - 56px - 60px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
             
             body.mobile-settings-view .app-body,
