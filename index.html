@@ -3206,7 +3206,8 @@ USER: "반가워요."
                     promptName: document.getElementById('prompt-name').value,
                     translation: document.getElementById('translation-input').value,
                     nameAi: document.getElementById('name-ai').value,
-                    nameUser: document.getElementById('name-user').value
+                    nameUser: document.getElementById('name-user').value,
+                    charLink: document.getElementById('char-link').value
                 },
                 regexRules: regexRules,
                 blockFolding: document.getElementById('block-folding').checked,
@@ -4407,6 +4408,7 @@ AI: 빙그레 웃는다`;
                 document.getElementById('translation-input').value = preset.input.translation || '';
                 document.getElementById('name-ai').value = preset.input.nameAi || 'AI';
                 document.getElementById('name-user').value = preset.input.nameUser || 'USER';
+                document.getElementById('char-link').value = preset.input.charLink || '';
             }
             
             // 정규식 규칙 로드
