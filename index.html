@@ -1679,7 +1679,7 @@ USER: "반가워요."
 
                 <!-- 외곽 테마 -->
                 <div class="section">
-                    <div class="section-title">외곽 테마 <span style="font-size:0.75em;opacity:0.7;font-weight:normal;">(이미지 저장시에만 적용, 아카라이브 미지원)</span></div>
+                    <div class="section-title">외곽 테마</div>
                     <div class="input-group">
                         <label class="input-label">프레임 스타일</label>
                         <select id="frame-select" style="width:100%; padding:10px; background:var(--panel-bg); border:1px solid var(--input-border); border-radius:8px; color:var(--text-primary);">
@@ -3054,52 +3054,42 @@ USER: "반가워요."
             let html = '';
             
             // 외곽 테마 스타일 생성 (아카라이브 호환)
-            let frameBorder = '';
-            let frameBg = '';
-            let tapeDecor = ''; // 테이프 장식
+            let frameCSS = '';
             switch(frameStyle) {
                 case 'letter':
-                    frameBorder = '4px double #d4a574';
+                    frameCSS = 'border:3px double #d4a574;';
                     break;
                 case 'diary':
-                    frameBorder = '1px solid #e4b5a6;border-left:6px solid #e4b5a6';
+                    frameCSS = 'border-left:5px solid #e4b5a6;border-top:1px solid #e4b5a6;border-right:1px solid #e4b5a6;border-bottom:1px solid #e4b5a6;';
                     break;
                 case 'memo':
-                    frameBorder = '2px solid #e8e4c9';
-                    frameBg = '#fffef0';
+                    frameCSS = 'background:#fffef0;border:1px solid #e8e4c9;';
                     break;
                 case 'gold':
-                    frameBorder = '4px double #d4af37';
+                    frameCSS = 'border:3px double #d4af37;';
                     break;
                 case 'ornate':
-                    frameBorder = '4px double #8b7355';
+                    frameCSS = 'border:3px double #8b7355;';
                     break;
                 case 'check':
-                    frameBorder = '3px dashed #aaa';
+                    frameCSS = 'border:2px dashed #ccc;';
                     break;
                 case 'tape':
-                    frameBorder = '2px solid #ddd';
-                    tapeDecor = `<div style="text-align:center;margin-bottom:10px;"><span style="background:#f0e68c;color:#8b7355;padding:4px 20px;font-size:0.8em;opacity:0.9;">📎 tape</span></div>`;
+                    frameCSS = 'border:2px solid #ddd;border-style:dashed solid;';
                     break;
                 case 'vintage':
-                    frameBorder = '3px solid #c9b99a';
+                    frameCSS = 'border:2px solid #c9b99a;';
                     break;
                 case 'polaroid':
-                    frameBorder = '4px solid #ddd';
-                    frameBg = '#ffffff';
+                    frameCSS = 'background:#fff;border:3px solid #ddd;padding-bottom:40px;';
                     break;
             }
             
-            // 배경색 결정 (외곽테마 배경 우선, 없으면 기본 배경)
-            const finalBg = frameBg || bgColor;
+            // 외부 wrapper (가운데 정렬)
+            html += `<div style="text-align:center;">`;
             
-            // 외부 컨테이너 시작 (80% 너비, 가운데 정렬, border-radius 포함)
-            html += `<div style="background:${finalBg};${frameBorder ? 'border:'+frameBorder+';' : ''}padding:24px;border-radius:${borderRadius}px;font-family:'Noto Sans KR',sans-serif;font-size:${fontSize}px;line-height:1.7;color:${textColor};width:80%;margin:0 auto;text-align:left;">`;
-            
-            // 테이프 장식 추가
-            if (tapeDecor) {
-                html += tapeDecor;
-            }
+            // 외부 컨테이너 시작 (80% 너비, 가운데 정렬)
+            html += `<div style="${bgStyle}${frameCSS}padding:24px;border-radius:${borderRadius}px;font-family:'Noto Sans KR',sans-serif;font-size:${fontSize}px;line-height:1.7;color:${textColor};max-width:80%;margin:0 auto;text-align:left;display:inline-block;">`;
             
             // 제목
             if (title || subtitle || aiModel || promptName || translation || charLink) {
@@ -3260,7 +3250,7 @@ USER: "반가워요."
                 flushBubblesOnlyArca();
             });
             
-            html += `</div>`;
+            html += `</div></div>`;
             return html;
         }
         
@@ -3365,4 +3355,3 @@ AI: 빙그레 웃는다`;
     </script>
 </body>
 </html>
-
