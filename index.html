@@ -4096,16 +4096,77 @@ USER: "반가워요."
         // ========== 이미지 저장 ==========
         function saveImage() {
             const preview = document.getElementById('log-preview');
-            html2canvas(preview, {
+            const previewWrapper = document.querySelector('.preview-wrapper');
+            const frameType = document.getElementById('frame-select').value;
+            
+            // 외곽 테마가 있는 경우 (overflow가 있는 프레임들)
+            const framesWithOverflow = ['vintage', 'letter', 'tape', 'memo', 'ornate', 'diary', 'polaroid'];
+            const hasOverflow = framesWithOverflow.includes(frameType);
+            
+            // 임시 캡처용 컨테이너 생성
+            const captureContainer = document.createElement('div');
+            captureContainer.id = 'capture-container';
+            captureContainer.style.cssText = `
+                position: fixed;
+                left: -9999px;
+                top: 0;
+                display: inline-block;
+                padding: ${hasOverflow ? '40px' : '0'};
+                background: transparent;
+            `;
+            document.body.appendChild(captureContainer);
+            
+            // preview를 임시 컨테이너로 이동
+            const originalParent = preview.parentNode;
+            const originalNextSibling = preview.nextSibling;
+            captureContainer.appendChild(preview);
+            
+            // 원본 스타일 저장 및 임시 조정
+            const originalMargin = preview.style.margin;
+            preview.style.margin = '0';
+            
+            html2canvas(captureContainer, {
                 scale: 2,
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: null
+                backgroundColor: null,
+                logging: false,
+                onclone: function(clonedDoc) {
+                    // 복제된 문서에서 SVG 필터 요소 복사
+                    const originalSvg = document.querySelector('svg[style*="position:absolute"]');
+                    if (originalSvg) {
+                        const clonedBody = clonedDoc.body;
+                        const svgClone = originalSvg.cloneNode(true);
+                        clonedBody.insertBefore(svgClone, clonedBody.firstChild);
+                    }
+                }
             }).then(canvas => {
+                // preview를 원래 위치로 복원
+                preview.style.margin = originalMargin;
+                if (originalNextSibling) {
+                    originalParent.insertBefore(preview, originalNextSibling);
+                } else {
+                    originalParent.appendChild(preview);
+                }
+                document.body.removeChild(captureContainer);
+                
                 const link = document.createElement('a');
                 link.download = 'log-' + new Date().toISOString().slice(0, 10) + '.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
+            }).catch(err => {
+                // 오류 시에도 복원
+                preview.style.margin = originalMargin;
+                if (originalNextSibling) {
+                    originalParent.insertBefore(preview, originalNextSibling);
+                } else {
+                    originalParent.appendChild(preview);
+                }
+                if (document.getElementById('capture-container')) {
+                    document.body.removeChild(captureContainer);
+                }
+                console.error('이미지 저장 오류:', err);
+                alert('이미지 저장 중 오류가 발생했습니다.');
             });
         }
 
