@@ -2024,9 +2024,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.3);
             z-index: 1000;
             display: none;
+            pointer-events: none;
         }
         
         .popup-editor-overlay.show {
@@ -2402,18 +2403,18 @@
                     <div class="input-row">
                         <div class="input-group">
                             <label class="input-label">로그 제목</label>
-                            <input type="text" id="log-title" placeholder="예: Chapter 1. 시작">
+                            <input type="text" id="log-title" placeholder="예: Chapter 1. 시작" oninput="generateLog()">
                         </div>
                         <div class="input-group">
                             <label class="input-label">부제목</label>
-                            <input type="text" id="log-subtitle" placeholder="예: 2025년 어느 날">
+                            <input type="text" id="log-subtitle" placeholder="예: 2025년 어느 날" oninput="generateLog()">
                         </div>
                     </div>
                     <div class="input-row">
                         <div class="input-group">
                             <label class="input-label">AI 모델</label>
-                            <input type="text" id="ai-model-input" placeholder="직접 입력">
-                            <select id="ai-model" style="width:100%; padding:8px; background:var(--panel-bg); border:1px solid var(--input-border); border-radius:6px; color:var(--text-primary); margin-top:4px; font-size:12px;">
+                            <input type="text" id="ai-model-input" placeholder="직접 입력" oninput="generateLog()">
+                            <select id="ai-model" style="width:100%; padding:8px; background:var(--panel-bg); border:1px solid var(--input-border); border-radius:6px; color:var(--text-primary); margin-top:4px; font-size:12px;" onchange="this.previousElementSibling.value = this.value; generateLog();">
                             <option value="">-- 모델 선택 --</option>
                             <option value="Gemini 2.5 Pro">Gemini 2.5 Pro</option>
                             <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
@@ -2436,14 +2437,14 @@
                         </div>
                         <div class="input-group">
                             <label class="input-label">프롬프트 이름</label>
-                            <input type="text" id="prompt-name" placeholder="예: MyPrompt v2.0">
+                            <input type="text" id="prompt-name" placeholder="예: MyPrompt v2.0" oninput="generateLog()">
                         </div>
                     </div>
                     <div class="input-row">
                         <div class="input-group">
                             <label class="input-label">번역</label>
-                            <input type="text" id="translation-input" placeholder="직접 입력">
-                            <select id="translation" style="width:100%; padding:8px; background:var(--panel-bg); border:1px solid var(--input-border); border-radius:6px; color:var(--text-primary); margin-top:4px; font-size:12px;">
+                            <input type="text" id="translation-input" placeholder="직접 입력" oninput="generateLog()">
+                            <select id="translation" style="width:100%; padding:8px; background:var(--panel-bg); border:1px solid var(--input-border); border-radius:6px; color:var(--text-primary); margin-top:4px; font-size:12px;" onchange="this.previousElementSibling.value = this.value; generateLog();">
                                 <option value="">-- 번역기 선택 --</option>
                                 <option value="Gemini 2.5 Pro">Gemini 2.5 Pro</option>
                                 <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
@@ -2469,7 +2470,7 @@
                         </div>
                         <div class="input-group">
                             <label class="input-label">캐릭터 링크</label>
-                            <input type="text" id="char-link" placeholder="https://...">
+                            <input type="text" id="char-link" placeholder="https://..." oninput="generateLog()">
                         </div>
                     </div>
                 </div>
@@ -3558,19 +3559,6 @@ USER: "반가워요."
             generateLog();
         }
 
-        // ========== AI모델/번역 선택시 입력창에 반영 ==========
-        document.getElementById('ai-model').addEventListener('change', function() {
-            if (this.value) {
-                document.getElementById('ai-model-input').value = this.value;
-            }
-        });
-        
-        document.getElementById('translation').addEventListener('change', function() {
-            if (this.value) {
-                document.getElementById('translation-input').value = this.value;
-            }
-        });
-
         // ========== 배경 설정 ==========
         document.getElementById('bg-type').addEventListener('change', function() {
             const solidOptions = document.getElementById('bg-solid-options');
@@ -4321,6 +4309,10 @@ USER: "반가워요."
             const preview = document.getElementById('log-preview');
             let html = '';
 
+            // 캐릭터 이름 가져오기 (제목에서 사용하므로 먼저 정의)
+            const aiName = document.getElementById('name-ai').value || 'AI';
+            const userName = document.getElementById('name-user').value || 'USER';
+
             // 제목 추가
             const title = document.getElementById('log-title').value;
             const subtitle = document.getElementById('log-subtitle').value;
@@ -4336,10 +4328,10 @@ USER: "반가워요."
                 
                 // 메타 정보
                 const metaItems = [];
-                if (aiModel) metaItems.push(`🤖 ${escapeHtml(aiModel)}`);
-                if (promptName) metaItems.push(`📝 ${escapeHtml(promptName)}`);
-                if (translation) metaItems.push(`🌐 ${escapeHtml(translation)}`);
-                if (charLink) metaItems.push(`<a href="${escapeHtml(charLink)}" target="_blank">🔗 캐릭터 링크</a>`);
+                if (aiModel) metaItems.push(`🍧 ${escapeHtml(aiModel)}`);
+                if (promptName) metaItems.push(`💝 ${escapeHtml(promptName)}`);
+                if (translation) metaItems.push(`💌 ${escapeHtml(translation)}`);
+                if (charLink) metaItems.push(`<a href="${escapeHtml(charLink)}" target="_blank">🍭 ${escapeHtml(aiName)}</a>`);
                 
                 if (metaItems.length > 0) {
                     html += '<div class="log-meta">';
@@ -4356,10 +4348,6 @@ USER: "반가워요."
             headerImages.forEach(img => {
                 html += `<div class="log-image"><img src="${img.data}" alt="Image"></div>`;
             });
-
-            // 캐릭터 이름 가져오기
-            const aiName = document.getElementById('name-ai').value || 'AI';
-            const userName = document.getElementById('name-user').value || 'USER';
 
             // 각 블록을 순회하면서 처리
             processedBlocks.forEach((blockText, blockIndex) => {
@@ -4490,14 +4478,42 @@ USER: "반가워요."
                     }
                 }
 
-                lines.forEach(line => {
-                    line = line.trim();
-                    if (!line) return;
+                let lastWasNarration = false; // 이전 줄이 나레이션인지 추적
+                
+                lines.forEach((line, lineIndex) => {
+                    const trimmedLine = line.trim();
+                    
+                    // 빈 줄 처리
+                    if (!trimmedLine) {
+                        // 이전이 나레이션이었고, 다음 줄도 나레이션이면 줄바꾼 추가
+                        if (lastWasNarration) {
+                            // 다음 줄 확인 (나레이션인지)
+                            let nextLineIndex = lineIndex + 1;
+                            while (nextLineIndex < lines.length && lines[nextLineIndex].trim() === '') {
+                                nextLineIndex++;
+                            }
+                            if (nextLineIndex < lines.length) {
+                                const nextLine = lines[nextLineIndex].trim();
+                                const isNextNarration = nextLine.startsWith('-') || 
+                                    (nextLine.startsWith('*') && !nextLine.endsWith('*')) ||
+                                    (!nextLine.match(/^(AI|USER)\s*:/i) && 
+                                     !nextLine.match(/^CHAR-\d{2}\s*:/i) &&
+                                     nextLine !== '---' && nextLine !== '***' && nextLine !== '===');
+                                if (isNextNarration) {
+                                    html += '<div class="narration" style="padding:2px 16px;">&nbsp;</div>';
+                                }
+                            }
+                        }
+                        return;
+                    }
+                    
+                    line = trimmedLine;
 
                     // 구분선
                     if (line === '---' || line === '***') {
                         flushBubbles();
                         currentSpeaker = null;
+                        lastWasNarration = false;
                         html += '<div class="divider"></div>';
                         return;
                     }
@@ -4506,6 +4522,7 @@ USER: "반가워요."
                     if (line === '===') {
                         flushBubbles();
                         currentSpeaker = null;
+                        lastWasNarration = false;
                         html += '<div class="dot-divider"></div>';
                         return;
                     }
@@ -4514,6 +4531,7 @@ USER: "반가워요."
                     if (line.startsWith('-') || (line.startsWith('*') && !line.endsWith('*'))) {
                         flushBubbles();
                         currentSpeaker = null;
+                        lastWasNarration = true;
                         const narrationText = line.substring(1).trim();
                         
                         // 폴라로이드 프레임일 때 30% 확률로 심볼 추가
@@ -4549,6 +4567,7 @@ USER: "반가워요."
 
                         // 말풍선 유형 처리
                         processBubbleContent(content);
+                        lastWasNarration = false;
                         return;
                     }
                     
@@ -4569,6 +4588,7 @@ USER: "반가워요."
                             
                             // 말풍선 유형 처리 (추가 캐릭터용 스타일 적용)
                             processBubbleContentForChar(content, charIndex);
+                            lastWasNarration = false;
                             return;
                         }
                     }
@@ -4576,6 +4596,7 @@ USER: "반가워요."
                     // 그 외 일반 텍스트는 나레이션으로 처리
                     flushBubbles();
                     currentSpeaker = null;
+                    lastWasNarration = true;
                     html += `<div class="narration">${processMarkdown(line)}</div>`;
                 });
 
@@ -4827,10 +4848,10 @@ USER: "반가워요."
                 if (subtitle) html += `<div style="font-size:0.95em;opacity:0.8;">${escapeHtml(subtitle)}</div>`;
                 
                 const metaItems = [];
-                if (aiModel) metaItems.push(`🤖 ${escapeHtml(aiModel)}`);
-                if (promptName) metaItems.push(`📝 ${escapeHtml(promptName)}`);
-                if (translation) metaItems.push(`🌐 ${escapeHtml(translation)}`);
-                if (charLink) metaItems.push(`<a href="${escapeHtml(charLink)}" target="_blank" style="color:${nameUserColor};text-decoration:none;">🔗 캐릭터 링크</a>`);
+                if (aiModel) metaItems.push(`🍧 ${escapeHtml(aiModel)}`);
+                if (promptName) metaItems.push(`💝 ${escapeHtml(promptName)}`);
+                if (translation) metaItems.push(`💌 ${escapeHtml(translation)}`);
+                if (charLink) metaItems.push(`<a href="${escapeHtml(charLink)}" target="_blank" style="color:${nameUserColor};text-decoration:none;">🍭 ${escapeHtml(aiName)}</a>`);
                 
                 if (metaItems.length > 0) {
                     html += `<div style="margin-top:12px;font-size:0.85em;opacity:0.7;">${metaItems.join(' &nbsp;|&nbsp; ')}</div>`;
@@ -4921,15 +4942,41 @@ USER: "반가워요."
                     }
                 }
                 
-                lines.forEach(line => {
-                    line = line.trim();
-                    if (!line) return;
+                let lastWasNarrationArca = false;
+                
+                lines.forEach((line, lineIndex) => {
+                    const trimmedLine = line.trim();
+                    
+                    // 빈 줄 처리
+                    if (!trimmedLine) {
+                        if (lastWasNarrationArca) {
+                            let nextLineIndex = lineIndex + 1;
+                            while (nextLineIndex < lines.length && lines[nextLineIndex].trim() === '') {
+                                nextLineIndex++;
+                            }
+                            if (nextLineIndex < lines.length) {
+                                const nextLine = lines[nextLineIndex].trim();
+                                const isNextNarration = nextLine.startsWith('-') || 
+                                    (nextLine.startsWith('*') && !nextLine.endsWith('*')) ||
+                                    (!nextLine.match(/^(AI|USER)\s*:/i) && 
+                                     !nextLine.match(/^CHAR-\d{2}\s*:/i) &&
+                                     nextLine !== '---' && nextLine !== '***' && nextLine !== '===');
+                                if (isNextNarration) {
+                                    narrationBuffer.push('<br>');
+                                }
+                            }
+                        }
+                        return;
+                    }
+                    
+                    line = trimmedLine;
                     
                     // 구분선
                     if (line === '---' || line === '***') {
                         flushNarrationArca();
                         flushBubblesOnlyArca();
                         currentSpeaker = null;
+                        lastWasNarrationArca = false;
                         html += `<div style="border-top:1px dashed rgba(128,128,128,0.4);margin:16px 0;"></div>`;
                         return;
                     }
@@ -4939,6 +4986,7 @@ USER: "반가워요."
                         flushNarrationArca();
                         flushBubblesOnlyArca();
                         currentSpeaker = null;
+                        lastWasNarrationArca = false;
                         html += `<div style="text-align:center;color:rgba(128,128,128,0.5);margin:16px 0;letter-spacing:8px;">• • •</div>`;
                         return;
                     }
@@ -4947,6 +4995,7 @@ USER: "반가워요."
                     if (line.startsWith('-') || (line.startsWith('*') && !line.endsWith('*'))) {
                         flushBubblesOnlyArca();
                         currentSpeaker = null;
+                        lastWasNarrationArca = true;
                         const narrationText = line.substring(1).trim();
                         narrationBuffer.push(processMarkdownArca(narrationText));
                         return;
@@ -5001,6 +5050,7 @@ USER: "반가워요."
                         }
                         
                         currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
+                        lastWasNarrationArca = false;
                         return;
                     }
                     
@@ -5054,6 +5104,7 @@ USER: "반가워요."
                             }
                             
                             currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
+                            lastWasNarrationArca = false;
                             return;
                         }
                     }
@@ -5061,6 +5112,7 @@ USER: "반가워요."
                     // 그 외 텍스트 (나레이션으로 처리)
                     flushBubblesOnlyArca();
                     currentSpeaker = null;
+                    lastWasNarrationArca = true;
                     narrationBuffer.push(processMarkdownArca(line));
                 });
                 
