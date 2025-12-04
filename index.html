@@ -1998,6 +1998,245 @@
             font-size: 14px;
         }
         
+        /* ========== 팝업 편집창 ========== */
+        .popup-editor-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .popup-editor-overlay.show {
+            display: block;
+        }
+        
+        .popup-editor {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 700px;
+            height: 500px;
+            min-width: 400px;
+            min-height: 300px;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+        
+        .popup-editor.show {
+            display: flex;
+        }
+        
+        .popup-editor-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border-bottom: 1px solid var(--panel-border);
+            cursor: move;
+            user-select: none;
+            flex-shrink: 0;
+        }
+        
+        .popup-editor-header h3 {
+            margin: 0;
+            font-size: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .popup-editor-header .drag-hint {
+            font-size: 11px;
+            color: var(--text-secondary);
+            opacity: 0.6;
+            margin-left: 8px;
+        }
+        
+        .popup-editor-header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .popup-editor-header-actions button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--panel-border);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+        
+        .popup-editor-header-actions button:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .popup-editor-header-actions .btn-close:hover {
+            background: #e03131;
+        }
+        
+        .popup-editor-body {
+            flex: 1;
+            padding: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .popup-editor-body textarea {
+            flex: 1;
+            width: 100%;
+            resize: none;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: 'Consolas', 'Monaco', 'Noto Sans KR', monospace;
+            line-height: 1.6;
+        }
+        
+        .popup-editor-body textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .popup-editor-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border-top: 1px solid var(--panel-border);
+            flex-shrink: 0;
+        }
+        
+        .popup-editor-footer .btn {
+            padding: 10px 20px;
+        }
+        
+        /* 리사이즈 핸들 */
+        .popup-editor .resize-handle {
+            position: absolute;
+            background: transparent;
+        }
+        
+        .popup-editor .resize-handle-se {
+            right: 0;
+            bottom: 0;
+            width: 20px;
+            height: 20px;
+            cursor: se-resize;
+        }
+        
+        .popup-editor .resize-handle-se::after {
+            content: '';
+            position: absolute;
+            right: 4px;
+            bottom: 4px;
+            width: 10px;
+            height: 10px;
+            border-right: 2px solid var(--text-secondary);
+            border-bottom: 2px solid var(--text-secondary);
+            opacity: 0.5;
+        }
+        
+        .popup-editor .resize-handle-e {
+            right: 0;
+            top: 50px;
+            bottom: 20px;
+            width: 8px;
+            cursor: e-resize;
+        }
+        
+        .popup-editor .resize-handle-s {
+            left: 20px;
+            right: 20px;
+            bottom: 0;
+            height: 8px;
+            cursor: s-resize;
+        }
+        
+        /* 헤더의 편집 버튼 */
+        .log-block-actions .btn-popup-edit {
+            background: #20c997;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .popup-editor {
+                width: 100% !important;
+                height: calc(100% - 60px) !important;
+                min-width: unset;
+                min-height: unset;
+                max-width: 100%;
+                max-height: calc(100% - 60px);
+                top: 0 !important;
+                left: 0 !important;
+                right: 0;
+                bottom: 60px;
+                transform: none !important;
+                border-radius: 0;
+                border: none;
+            }
+            
+            .popup-editor-header {
+                padding: 14px 16px;
+            }
+            
+            .popup-editor-header h3 {
+                font-size: 16px;
+            }
+            
+            .popup-editor-header .drag-hint {
+                display: none;
+            }
+            
+            .popup-editor-body {
+                padding: 12px;
+            }
+            
+            .popup-editor-body textarea {
+                font-size: 16px; /* iOS 줌 방지 */
+                line-height: 1.8;
+            }
+            
+            .popup-editor-footer {
+                padding: 10px 12px;
+            }
+            
+            .popup-editor-footer .btn {
+                flex: 1;
+                padding: 14px;
+                font-size: 15px;
+            }
+            
+            /* 모바일에서 리사이즈 비활성화 */
+            .popup-editor .resize-handle {
+                display: none;
+            }
+        }
+        
         @media (max-width: 768px) {
             .preset-panel {
                 top: auto;
@@ -2062,6 +2301,34 @@
             <button class="btn btn-secondary" onclick="resetAll()" title="모든 입력 초기화">🔄 초기화</button>
         </div>
     </header>
+    
+    <!-- 팝업 편집창 오버레이 -->
+    <div class="popup-editor-overlay" id="popup-editor-overlay" onclick="closePopupEditor()"></div>
+    
+    <!-- 팝업 편집창 -->
+    <div class="popup-editor" id="popup-editor">
+        <div class="popup-editor-header" id="popup-editor-header">
+            <h3>
+                <span>📝</span>
+                <span id="popup-editor-title">블록 편집</span>
+                <span class="drag-hint">드래그하여 이동</span>
+            </h3>
+            <div class="popup-editor-header-actions">
+                <button onclick="closePopupEditor()" class="btn-close" title="닫기">×</button>
+            </div>
+        </div>
+        <div class="popup-editor-body">
+            <textarea id="popup-editor-textarea" placeholder="내용을 입력하세요..."></textarea>
+        </div>
+        <div class="popup-editor-footer">
+            <button class="btn btn-secondary" onclick="closePopupEditor()">닫기</button>
+            <button class="btn btn-primary" onclick="saveAndClosePopupEditor()">저장 후 닫기</button>
+        </div>
+        <!-- 리사이즈 핸들 -->
+        <div class="resize-handle resize-handle-se" data-resize="se"></div>
+        <div class="resize-handle resize-handle-e" data-resize="e"></div>
+        <div class="resize-handle resize-handle-s" data-resize="s"></div>
+    </div>
     
     <!-- 모바일 뷰 전환 버튼 -->
     <div class="mobile-view-toggle" id="mobile-view-toggle">
@@ -2245,6 +2512,7 @@
                                     <input type="text" value="블록 1" onclick="event.stopPropagation()" onchange="updateBlockTitle(this)">
                                 </div>
                                 <div class="log-block-actions">
+                                    <button class="btn-popup-edit" onclick="event.stopPropagation(); openPopupEditor(this)" title="팝업 편집">📝</button>
                                     <button class="btn-move" onclick="event.stopPropagation(); moveBlock(this, -1)" title="위로">▲</button>
                                     <button class="btn-move" onclick="event.stopPropagation(); moveBlock(this, 1)" title="아래로">▼</button>
                                     <button class="btn-toggle" title="접기/펼치기">▼</button>
@@ -3514,6 +3782,7 @@ USER: "반가워요."
                             <input type="text" value="블록 1" onclick="event.stopPropagation()" onchange="updateBlockTitle(this)">
                         </div>
                         <div class="log-block-actions">
+                            <button class="btn-popup-edit" onclick="event.stopPropagation(); openPopupEditor(this)" title="팝업 편집">📝</button>
                             <button class="btn-move" onclick="event.stopPropagation(); moveBlock(this, -1)" title="위로">▲</button>
                             <button class="btn-move" onclick="event.stopPropagation(); moveBlock(this, 1)" title="아래로">▼</button>
                             <button class="btn-toggle" title="접기/펼치기">▼</button>
@@ -3552,6 +3821,7 @@ USER: "반가워요."
                         <input type="text" value="블록 ${blockIdCounter}" onclick="event.stopPropagation()" onchange="updateBlockTitle(this)">
                     </div>
                     <div class="log-block-actions">
+                        <button class="btn-popup-edit" onclick="event.stopPropagation(); openPopupEditor(this)" title="팝업 편집">📝</button>
                         <button class="btn-move" onclick="event.stopPropagation(); moveBlock(this, -1)" title="위로">▲</button>
                         <button class="btn-move" onclick="event.stopPropagation(); moveBlock(this, 1)" title="아래로">▼</button>
                         <button class="btn-toggle" title="접기/펼치기">▼</button>
@@ -3616,6 +3886,245 @@ USER: "반가워요."
         function updateBlockTitle(input) {
             // 제목 변경 시 별도 동작 필요 없음
         }
+        
+        // ========== 팝업 편집기 ==========
+        let currentEditingBlock = null;
+        let popupEditorInitialized = false;
+        
+        function openPopupEditor(btn) {
+            const block = btn.closest('.log-block');
+            const textarea = block.querySelector('.log-block-input');
+            const titleInput = block.querySelector('.log-block-title input');
+            const blockTitle = titleInput ? titleInput.value : '블록 편집';
+            
+            currentEditingBlock = textarea;
+            
+            // 팝업 편집기 열기
+            const overlay = document.getElementById('popup-editor-overlay');
+            const popup = document.getElementById('popup-editor');
+            const popupTextarea = document.getElementById('popup-editor-textarea');
+            const popupTitle = document.getElementById('popup-editor-title');
+            
+            popupTitle.textContent = blockTitle;
+            popupTextarea.value = textarea.value;
+            
+            overlay.classList.add('show');
+            popup.classList.add('show');
+            
+            // 초기화 (처음 열릴 때만)
+            if (!popupEditorInitialized) {
+                initPopupEditorDrag();
+                initPopupEditorResize();
+                popupEditorInitialized = true;
+            }
+            
+            // 텍스트에어리어에 포커스
+            setTimeout(() => popupTextarea.focus(), 100);
+        }
+        
+        function closePopupEditor() {
+            const overlay = document.getElementById('popup-editor-overlay');
+            const popup = document.getElementById('popup-editor');
+            
+            // 현재 편집 내용을 원본에 저장
+            if (currentEditingBlock) {
+                const popupTextarea = document.getElementById('popup-editor-textarea');
+                currentEditingBlock.value = popupTextarea.value;
+                generateLog(); // 미리보기 업데이트
+            }
+            
+            overlay.classList.remove('show');
+            popup.classList.remove('show');
+            currentEditingBlock = null;
+        }
+        
+        function saveAndClosePopupEditor() {
+            closePopupEditor();
+        }
+        
+        // 팝업 편집기 드래그 기능
+        function initPopupEditorDrag() {
+            const popup = document.getElementById('popup-editor');
+            const header = document.getElementById('popup-editor-header');
+            
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+            let hasBeenDragged = false;
+            
+            header.addEventListener('mousedown', startDrag);
+            header.addEventListener('touchstart', startDrag, { passive: false });
+            
+            function startDrag(e) {
+                if (e.target.tagName === 'BUTTON') return;
+                
+                isDragging = true;
+                
+                if (e.type === 'touchstart') {
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                } else {
+                    startX = e.clientX;
+                    startY = e.clientY;
+                }
+                
+                // 처음 드래그할 때 transform을 실제 위치로 변환
+                if (!hasBeenDragged) {
+                    const rect = popup.getBoundingClientRect();
+                    popup.style.transform = 'none';
+                    popup.style.left = rect.left + 'px';
+                    popup.style.top = rect.top + 'px';
+                    hasBeenDragged = true;
+                }
+                
+                initialX = popup.offsetLeft;
+                initialY = popup.offsetTop;
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+                document.addEventListener('touchmove', drag, { passive: false });
+                document.addEventListener('touchend', stopDrag);
+                
+                e.preventDefault();
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                
+                let currentX, currentY;
+                if (e.type === 'touchmove') {
+                    currentX = e.touches[0].clientX;
+                    currentY = e.touches[0].clientY;
+                } else {
+                    currentX = e.clientX;
+                    currentY = e.clientY;
+                }
+                
+                const deltaX = currentX - startX;
+                const deltaY = currentY - startY;
+                
+                let newX = initialX + deltaX;
+                let newY = initialY + deltaY;
+                
+                // 화면 경계 체크
+                const rect = popup.getBoundingClientRect();
+                const maxX = window.innerWidth - rect.width;
+                const maxY = window.innerHeight - rect.height;
+                
+                newX = Math.max(0, Math.min(newX, maxX));
+                newY = Math.max(0, Math.min(newY, maxY));
+                
+                popup.style.left = newX + 'px';
+                popup.style.top = newY + 'px';
+                
+                e.preventDefault();
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('touchend', stopDrag);
+            }
+        }
+        
+        // 팝업 편집기 리사이즈 기능
+        function initPopupEditorResize() {
+            const popup = document.getElementById('popup-editor');
+            const handles = popup.querySelectorAll('.resize-handle');
+            
+            handles.forEach(handle => {
+                handle.addEventListener('mousedown', startResize);
+                handle.addEventListener('touchstart', startResize, { passive: false });
+            });
+            
+            let isResizing = false;
+            let currentHandle = null;
+            let startX, startY, startWidth, startHeight, startLeft, startTop;
+            
+            function startResize(e) {
+                isResizing = true;
+                currentHandle = e.target.dataset.resize;
+                
+                if (e.type === 'touchstart') {
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                } else {
+                    startX = e.clientX;
+                    startY = e.clientY;
+                }
+                
+                // 처음 리사이즈할 때 transform 제거
+                const rect = popup.getBoundingClientRect();
+                if (popup.style.transform && popup.style.transform !== 'none') {
+                    popup.style.transform = 'none';
+                    popup.style.left = rect.left + 'px';
+                    popup.style.top = rect.top + 'px';
+                }
+                
+                startWidth = rect.width;
+                startHeight = rect.height;
+                startLeft = popup.offsetLeft;
+                startTop = popup.offsetTop;
+                
+                document.addEventListener('mousemove', resize);
+                document.addEventListener('mouseup', stopResize);
+                document.addEventListener('touchmove', resize, { passive: false });
+                document.addEventListener('touchend', stopResize);
+                
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            function resize(e) {
+                if (!isResizing) return;
+                
+                let currentX, currentY;
+                if (e.type === 'touchmove') {
+                    currentX = e.touches[0].clientX;
+                    currentY = e.touches[0].clientY;
+                } else {
+                    currentX = e.clientX;
+                    currentY = e.clientY;
+                }
+                
+                const deltaX = currentX - startX;
+                const deltaY = currentY - startY;
+                
+                const minWidth = 400;
+                const minHeight = 300;
+                
+                if (currentHandle === 'se') {
+                    popup.style.width = Math.max(minWidth, startWidth + deltaX) + 'px';
+                    popup.style.height = Math.max(minHeight, startHeight + deltaY) + 'px';
+                } else if (currentHandle === 'e') {
+                    popup.style.width = Math.max(minWidth, startWidth + deltaX) + 'px';
+                } else if (currentHandle === 's') {
+                    popup.style.height = Math.max(minHeight, startHeight + deltaY) + 'px';
+                }
+                
+                e.preventDefault();
+            }
+            
+            function stopResize() {
+                isResizing = false;
+                currentHandle = null;
+                document.removeEventListener('mousemove', resize);
+                document.removeEventListener('mouseup', stopResize);
+                document.removeEventListener('touchmove', resize);
+                document.removeEventListener('touchend', stopResize);
+            }
+        }
+        
+        // 팝업 편집기 실시간 미리보기
+        document.getElementById('popup-editor-textarea').addEventListener('input', function() {
+            if (currentEditingBlock) {
+                currentEditingBlock.value = this.value;
+                // 디바운스 처리
+                clearTimeout(window.popupInputTimeout);
+                window.popupInputTimeout = setTimeout(generateLog, 200);
+            }
+        });
         
         // ========== 빈티지 테마 말풍선 물결 배경 추가 ==========
         function addVintageBubbleBackgrounds(preview) {
