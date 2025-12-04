@@ -4292,6 +4292,7 @@ USER: "반가워요."
             
             // 정규식 치환을 각 블록에 적용
             const processedBlocks = blockContents.map(blockText => {
+                let originalText = blockText; // 디버그용
                 document.querySelectorAll('.rule-item').forEach(item => {
                     const find = item.querySelector('.rule-find').value;
                     const replace = item.querySelector('.rule-replace').value;
@@ -4304,6 +4305,12 @@ USER: "반가워요."
                         }
                     }
                 });
+                // 디버그: 치환 전후 비교
+                if (originalText !== blockText) {
+                    console.log('=== 정규식 치환 결과 ===');
+                    console.log('치환 전:', originalText.substring(0, 200));
+                    console.log('치환 후:', blockText.substring(0, 200));
+                }
                 return blockText;
             });
 
@@ -4514,6 +4521,7 @@ USER: "반가워요."
                     if (line === '---' || line === '***') {
                         flushBubbles();
                         currentSpeaker = null;
+                        currentSpeakerType = null;
                         lastWasNarration = false;
                         html += '<div class="divider"></div>';
                         return;
@@ -4523,6 +4531,7 @@ USER: "반가워요."
                     if (line === '===') {
                         flushBubbles();
                         currentSpeaker = null;
+                        currentSpeakerType = null;
                         lastWasNarration = false;
                         html += '<div class="dot-divider"></div>';
                         return;
@@ -4532,6 +4541,7 @@ USER: "반가워요."
                     if (line.startsWith('-') || (line.startsWith('*') && !line.endsWith('*'))) {
                         flushBubbles();
                         currentSpeaker = null;
+                        currentSpeakerType = null;
                         lastWasNarration = true;
                         const narrationText = line.substring(1).trim();
                         
@@ -4553,6 +4563,31 @@ USER: "반가워요."
                         return;
                     }
 
+                    // 추가 캐릭터 대화 (CHAR-01:, CHAR-02: 등) - AI/USER보다 먼저 체크
+                    const charMatch = line.match(/^CHAR-(\d{2})\s*:\s*(.+)$/i);
+                    if (charMatch) {
+                        const charNum = parseInt(charMatch[1], 10);
+                        const charIndex = charNum - 1;
+                        let content = charMatch[2].trim();
+                        
+                        // 디버그
+                        console.log('CHAR 매칭:', charMatch[0], '| charIndex:', charIndex, '| extraCharacters.length:', extraCharacters.length);
+                        
+                        if (charIndex >= 0 && charIndex < extraCharacters.length) {
+                            // 새로운 화자면 이전 말풍선들 출력
+                            if (currentSpeakerType !== charIndex) {
+                                flushBubbles();
+                                currentSpeaker = `CHAR-${charMatch[1]}`;
+                                currentSpeakerType = charIndex;
+                            }
+                            
+                            // 말풍선 유형 처리 (추가 캐릭터용 스타일 적용)
+                            processBubbleContentForChar(content, charIndex);
+                            lastWasNarration = false;
+                            return;
+                        }
+                    }
+
                     // AI 또는 USER 대화
                     const match = line.match(/^(AI|USER)\s*:\s*(.+)$/i);
                     if (match) {
@@ -4571,32 +4606,11 @@ USER: "반가워요."
                         lastWasNarration = false;
                         return;
                     }
-                    
-                    // 추가 캐릭터 대화 (CHAR-01:, CHAR-02: 등)
-                    const charMatch = line.match(/^CHAR-(\d{2})\s*:\s*(.+)$/i);
-                    if (charMatch) {
-                        const charNum = parseInt(charMatch[1], 10);
-                        const charIndex = charNum - 1;
-                        let content = charMatch[2].trim();
-                        
-                        if (charIndex >= 0 && charIndex < extraCharacters.length) {
-                            // 새로운 화자면 이전 말풍선들 출력
-                            if (currentSpeakerType !== charIndex) {
-                                flushBubbles();
-                                currentSpeaker = `CHAR-${charMatch[1]}`;
-                                currentSpeakerType = charIndex;
-                            }
-                            
-                            // 말풍선 유형 처리 (추가 캐릭터용 스타일 적용)
-                            processBubbleContentForChar(content, charIndex);
-                            lastWasNarration = false;
-                            return;
-                        }
-                    }
 
                     // 그 외 일반 텍스트는 나레이션으로 처리
                     flushBubbles();
                     currentSpeaker = null;
+                    currentSpeakerType = null;
                     lastWasNarration = true;
                     html += `<div class="narration">${processMarkdown(line)}</div>`;
                 });
@@ -5013,6 +5027,7 @@ USER: "반가워요."
                         flushNarrationArca();
                         flushBubblesOnlyArca();
                         currentSpeaker = null;
+                        currentSpeakerType = null;
                         lastWasNarrationArca = false;
                         html += `<div style="border-top:1px dashed rgba(128,128,128,0.4);margin:16px 0;"></div>`;
                         return;
@@ -5023,6 +5038,7 @@ USER: "반가워요."
                         flushNarrationArca();
                         flushBubblesOnlyArca();
                         currentSpeaker = null;
+                        currentSpeakerType = null;
                         lastWasNarrationArca = false;
                         html += `<div style="text-align:center;color:rgba(128,128,128,0.5);margin:16px 0;letter-spacing:8px;">• • •</div>`;
                         return;
@@ -5032,10 +5048,66 @@ USER: "반가워요."
                     if (line.startsWith('-') || (line.startsWith('*') && !line.endsWith('*'))) {
                         flushBubblesOnlyArca();
                         currentSpeaker = null;
+                        currentSpeakerType = null;
                         lastWasNarrationArca = true;
                         const narrationText = line.substring(1).trim();
                         narrationBuffer.push(processMarkdownArca(narrationText));
                         return;
+                    }
+                    
+                    // 추가 캐릭터 대화 (CHAR-01:, CHAR-02: 등) - AI/USER보다 먼저 체크
+                    const charMatch = line.match(/^CHAR-(\d{2})\s*:\s*(.+)$/i);
+                    if (charMatch) {
+                        const charNum = parseInt(charMatch[1], 10);
+                        const charIndex = charNum - 1;
+                        let content = charMatch[2].trim();
+                        
+                        if (charIndex >= 0 && charIndex < extraCharacters.length) {
+                            const char = extraCharacters[charIndex];
+                            
+                            if (currentSpeakerType !== charIndex) {
+                                flushNarrationArca();
+                                flushBubblesOnlyArca();
+                                currentSpeaker = `CHAR-${charMatch[1]}`;
+                                currentSpeakerType = charIndex;
+                            }
+                            
+                            let bubbleStyle = `background:${char.bgColor};color:${char.textColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;`;
+                            let bubbleContent = content;
+                            
+                            // 통신 메시지
+                            if (content.startsWith('>')) {
+                                bubbleContent = '📡 ' + content.substring(1).trim();
+                                bubbleStyle = `background-color:transparent;color:${commColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border:2px solid ${commColor};`;
+                            }
+                            // 속삭임
+                            else if (content.startsWith('((') && content.endsWith('))')) {
+                                bubbleContent = content.slice(2, -2).trim();
+                                bubbleStyle = `background:${char.bgColor};color:${char.textColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;opacity:0.7;font-size:0.9em;`;
+                            }
+                            // 외침
+                            else if (content.startsWith('!')) {
+                                bubbleContent = content.substring(1).trim();
+                                bubbleStyle = `background:${char.bgColor};color:${char.textColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-weight:bold;font-size:1.1em;`;
+                            }
+                            // 생각
+                            else if ((content.startsWith("'") && content.endsWith("'")) || (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
+                                bubbleContent = content.slice(1, -1);
+                                bubbleStyle = `background-color:transparent;color:${char.nameColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
+                            }
+                            // 대사
+                            else if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith('\u201c') && content.endsWith('\u201d'))) {
+                                bubbleContent = content.slice(1, -1);
+                            }
+                            // 그 외 (아무 표시 없으면 생각 스타일로)
+                            else {
+                                bubbleStyle = `background-color:transparent;color:${char.nameColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
+                            }
+                            
+                            currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
+                            lastWasNarrationArca = false;
+                            return;
+                        }
                     }
                     
                     // AI/USER 대화
@@ -5091,64 +5163,10 @@ USER: "반가워요."
                         return;
                     }
                     
-                    // 추가 캐릭터 대화 (CHAR-01:, CHAR-02: 등)
-                    const charMatch = line.match(/^CHAR-(\d{2})\s*:\s*(.+)$/i);
-                    if (charMatch) {
-                        const charNum = parseInt(charMatch[1], 10);
-                        const charIndex = charNum - 1;
-                        let content = charMatch[2].trim();
-                        
-                        if (charIndex >= 0 && charIndex < extraCharacters.length) {
-                            const char = extraCharacters[charIndex];
-                            
-                            if (currentSpeakerType !== charIndex) {
-                                flushNarrationArca();
-                                flushBubblesOnlyArca();
-                                currentSpeaker = `CHAR-${charMatch[1]}`;
-                                currentSpeakerType = charIndex;
-                            }
-                            
-                            let bubbleStyle = `background:${char.bgColor};color:${char.textColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;`;
-                            let bubbleContent = content;
-                            
-                            // 통신 메시지
-                            if (content.startsWith('>')) {
-                                bubbleContent = '📡 ' + content.substring(1).trim();
-                                bubbleStyle = `background-color:transparent;color:${commColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border:2px solid ${commColor};`;
-                            }
-                            // 속삭임
-                            else if (content.startsWith('((') && content.endsWith('))')) {
-                                bubbleContent = content.slice(2, -2).trim();
-                                bubbleStyle = `background:${char.bgColor};color:${char.textColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;opacity:0.7;font-size:0.9em;`;
-                            }
-                            // 외침
-                            else if (content.startsWith('!')) {
-                                bubbleContent = content.substring(1).trim();
-                                bubbleStyle = `background:${char.bgColor};color:${char.textColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-weight:bold;font-size:1.1em;`;
-                            }
-                            // 생각
-                            else if ((content.startsWith("'") && content.endsWith("'")) || (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
-                                bubbleContent = content.slice(1, -1);
-                                bubbleStyle = `background-color:transparent;color:${char.nameColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
-                            }
-                            // 대사
-                            else if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith('\u201c') && content.endsWith('\u201d'))) {
-                                bubbleContent = content.slice(1, -1);
-                            }
-                            // 그 외 (아무 표시 없으면 생각 스타일로)
-                            else {
-                                bubbleStyle = `background-color:transparent;color:${char.nameColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
-                            }
-                            
-                            currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
-                            lastWasNarrationArca = false;
-                            return;
-                        }
-                    }
-                    
                     // 그 외 텍스트 (나레이션으로 처리)
                     flushBubblesOnlyArca();
                     currentSpeaker = null;
+                    currentSpeakerType = null;
                     lastWasNarrationArca = true;
                     narrationBuffer.push(processMarkdownArca(line));
                 });
