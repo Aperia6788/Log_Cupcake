@@ -4693,6 +4693,16 @@ USER: "반가워요."
                         const svgClone = originalSvg.cloneNode(true);
                         clonedBody.insertBefore(svgClone, clonedBody.firstChild);
                     }
+                    
+                    // 워터마크 스타일을 이미지 저장에 호환되는 방식으로 변경
+                    const watermark = clonedDoc.querySelector('.log-watermark span');
+                    if (watermark) {
+                        watermark.style.background = 'none';
+                        watermark.style.webkitBackgroundClip = 'unset';
+                        watermark.style.webkitTextFillColor = '#e8a4b8';
+                        watermark.style.backgroundClip = 'unset';
+                        watermark.style.color = '#e8a4b8';
+                    }
                 }
             }).then(canvas => {
                 // preview를 원래 위치로 복원
