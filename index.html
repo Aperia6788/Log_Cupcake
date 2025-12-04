@@ -5305,6 +5305,16 @@ AI: 빙그레 웃는다`;
             renderSavedThemes();
             renderPresetListPanel(); // 프리셋 패널 렌더링
             
+            // 마지막으로 선택한 프리셋 불러오기
+            const lastPresetIndex = localStorage.getItem('lastPresetIndex');
+            if (lastPresetIndex !== null) {
+                const savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
+                const preset = savedPresets[parseInt(lastPresetIndex)];
+                if (preset) {
+                    applyPresetData(preset);
+                }
+            }
+            
             // 저장된 모드 설정 불러오기
             const savedMode = localStorage.getItem('logmaker-mode');
             if (savedMode === 'light') {
@@ -5396,6 +5406,8 @@ AI: 빙그레 웃는다`;
             if (!preset) return;
             
             applyPresetData(preset);
+            // 마지막으로 선택한 프리셋 인덱스 저장
+            localStorage.setItem('lastPresetIndex', index);
             closePresetPanel();
         }
         
