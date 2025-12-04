@@ -4770,11 +4770,14 @@ USER: "반가워요."
             
             // 배경 설정
             let bgStyle = `background:${bgColor};`;
+            let bubbleBgColor = bgColor; // 말풍선 배경용 (투명 스타일에서 사용)
             if (bgType === 'gradient') {
                 const start = document.getElementById('gradient-start').value;
                 const end = document.getElementById('gradient-end').value;
                 const angle = document.getElementById('gradient-angle').value;
                 bgStyle = `background:linear-gradient(${angle}deg, ${start} 0%, ${end} 100%);`;
+                // 그라데이션일 경우 중간값 계산 (시작색과 끝색의 중간)
+                bubbleBgColor = start; // 시작색 사용 (가장 비슷하게 보이도록)
             }
             
             // 각 블록 수집 및 정규식 적용
@@ -5032,8 +5035,8 @@ USER: "반가워요."
                         
                         // 통신 메시지
                         if (content.startsWith('>')) {
-                            bubbleContent = content.substring(1).trim();
-                            bubbleStyle = `background:${bgC};color:${commColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border-left:3px solid ${commColor};font-family:monospace;`;
+                            bubbleContent = '📡 ' + content.substring(1).trim();
+                            bubbleStyle = `background-color:transparent;color:${commColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border:2px solid ${commColor};`;
                         }
                         // 속삭임
                         else if (content.startsWith('((') && content.endsWith('))')) {
@@ -5048,7 +5051,7 @@ USER: "반가워요."
                         // 생각
                         else if ((content.startsWith("'") && content.endsWith("'")) || (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
                             bubbleContent = content.slice(1, -1);
-                            bubbleStyle = `background:transparent;color:${thoughtColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${thoughtColor};`;
+                            bubbleStyle = `background-color:transparent;color:${thoughtColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${thoughtColor};`;
                         }
                         // 대사
                         else if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith('\u201c') && content.endsWith('\u201d'))) {
@@ -5056,7 +5059,7 @@ USER: "반가워요."
                         }
                         // 그 외 (아무 표시 없으면 생각 스타일로)
                         else {
-                            bubbleStyle = `background:transparent;color:${thoughtColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${thoughtColor};`;
+                            bubbleStyle = `background-color:transparent;color:${thoughtColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${thoughtColor};`;
                         }
                         
                         currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
@@ -5086,8 +5089,8 @@ USER: "반가워요."
                             
                             // 통신 메시지
                             if (content.startsWith('>')) {
-                                bubbleContent = content.substring(1).trim();
-                                bubbleStyle = `background:${char.bgColor};color:${commColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border-left:3px solid ${commColor};font-family:monospace;`;
+                                bubbleContent = '📡 ' + content.substring(1).trim();
+                                bubbleStyle = `background-color:transparent;color:${commColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border:2px solid ${commColor};`;
                             }
                             // 속삭임
                             else if (content.startsWith('((') && content.endsWith('))')) {
@@ -5102,7 +5105,7 @@ USER: "반가워요."
                             // 생각
                             else if ((content.startsWith("'") && content.endsWith("'")) || (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
                                 bubbleContent = content.slice(1, -1);
-                                bubbleStyle = `background:transparent;color:${char.nameColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
+                                bubbleStyle = `background-color:transparent;color:${char.nameColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
                             }
                             // 대사
                             else if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith('\u201c') && content.endsWith('\u201d'))) {
@@ -5110,7 +5113,7 @@ USER: "반가워요."
                             }
                             // 그 외 (아무 표시 없으면 생각 스타일로)
                             else {
-                                bubbleStyle = `background:transparent;color:${char.nameColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
+                                bubbleStyle = `background-color:transparent;color:${char.nameColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
                             }
                             
                             currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
