@@ -2317,7 +2317,8 @@
         <div class="header-divider"></div>
         <div class="header-right">
             <button class="btn btn-secondary preview-toggle" onclick="togglePreviewMode()">📄 미리보기</button>
-            <button class="btn btn-primary" onclick="copyArcaHTML()">📋 아카라이브</button>
+            <button class="btn btn-primary" onclick="copyStyled()" title="스타일 복사 - 바로 붙여넣기 가능!">✨ 복사</button>
+            <button class="btn btn-secondary" onclick="copyArcaHTML()" title="HTML 코드 복사">&lt;/&gt; HTML</button>
             <button class="btn btn-secondary" onclick="resetAll()" title="모든 입력 초기화">🔄 초기화</button>
         </div>
     </header>
@@ -4742,11 +4743,34 @@ USER: "반가워요."
             });
         }
         
+        // ========== 스타일 복사 (바로 붙여넣기) ==========
+        async function copyStyled() {
+            const html = generateArcaHTML();
+            
+            try {
+                // ClipboardItem API로 HTML 형식으로 복사
+                const htmlBlob = new Blob([html], { type: 'text/html' });
+                const textBlob = new Blob([html], { type: 'text/plain' });
+                
+                const clipboardItem = new ClipboardItem({
+                    'text/html': htmlBlob,
+                    'text/plain': textBlob
+                });
+                
+                await navigator.clipboard.write([clipboardItem]);
+                alert('복사 완료! 🧁\n아카라이브에 바로 붙여넣기 하세요!');
+            } catch (e) {
+                // ClipboardItem 지원 안 되면 기존 방식으로 폴백
+                console.error('ClipboardItem failed:', e);
+                copyArcaHTML();
+            }
+        }
+        
         // ========== 아카라이브용 HTML 복사 ==========
         function copyArcaHTML() {
             const html = generateArcaHTML();
             navigator.clipboard.writeText(html).then(() => {
-                alert('아카라이브용 HTML이 복사되었습니다!\n게시글 작성 시 HTML 모드로 붙여넣으세요.');
+                alert('아카라이브용 HTML이 복사되었습니다!\n\n붙여넣기 방법:\n1. 아카라이브 게시글 작성\n2. 에디터 상단 </> 버튼 클릭 (HTML 모드)\n3. Ctrl+V로 붙여넣기\n4. 다시 </> 버튼 클릭해서 미리보기');
             });
         }
         
