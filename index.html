@@ -1327,8 +1327,13 @@
             padding: 6px 16px;
             margin: 4px 0;
             color: var(--log-text);
-            font-style: italic;
+            font-style: normal;
             position: relative;
+        }
+        
+        /* 나레이션 기울임 적용 */
+        .narration-italic .narration {
+            font-style: italic;
         }
         
         /* 나레이션 앞에 말풍선이 있을 때만 위쪽 선 표시 */
@@ -2512,12 +2517,17 @@
                 <!-- 로그 블록 관리 -->
                 <div class="section">
                     <div class="section-title">로그 블록</div>
-                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; padding:8px 12px; background:var(--input-bg); border-radius:8px;">
+                    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:10px; padding:8px 12px; background:var(--input-bg); border-radius:8px;">
                         <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:13px;">
                             <input type="checkbox" id="block-folding" checked style="width:16px; height:16px; cursor:pointer;">
                             <span>HTML 복사 시 블록 접기</span>
                         </label>
                         <span style="font-size:11px; color:var(--text-secondary);">(아카라이브용)</span>
+                        <span style="color:var(--panel-border); margin:0 4px;">|</span>
+                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:13px;">
+                            <input type="checkbox" id="narration-italic" style="width:16px; height:16px; cursor:pointer;" onchange="toggleNarrationItalic()">
+                            <span>나레이션 기울임</span>
+                        </label>
                     </div>
                     <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.6;">
                         <b>화자:</b> AI: / USER: / CHAR-01: | <b>대사:</b> "대사" | <b>생각:</b> '생각'<br>
@@ -3891,6 +3901,16 @@ USER: "반가워요."
             toggleBtn.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
         }
         
+        function toggleNarrationItalic() {
+            const preview = document.getElementById('log-preview');
+            const isItalic = document.getElementById('narration-italic').checked;
+            if (isItalic) {
+                preview.classList.add('narration-italic');
+            } else {
+                preview.classList.remove('narration-italic');
+            }
+        }
+        
         function updateBlockTitle(input) {
             // 제목 변경 시 별도 동작 필요 없음
         }
@@ -4807,13 +4827,13 @@ USER: "반가워요."
             const borderRadius = document.getElementById('style-radius').value;
             
             // 배경 설정
-            let bgStyle = `background:${bgColor};`;
+            let bgStyle = `background:${bgColor} !important;`;
             let bubbleBgColor = bgColor; // 말풍선 배경용 (투명 스타일에서 사용)
             if (bgType === 'gradient') {
                 const start = document.getElementById('gradient-start').value;
                 const end = document.getElementById('gradient-end').value;
                 const angle = document.getElementById('gradient-angle').value;
-                bgStyle = `background:linear-gradient(${angle}deg, ${start} 0%, ${end} 100%);`;
+                bgStyle = `background:linear-gradient(${angle}deg, ${start} 0%, ${end} 100%) !important;`;
                 // 그라데이션일 경우 중간값 계산 (시작색과 끝색의 중간)
                 bubbleBgColor = start; // 시작색 사용 (가장 비슷하게 보이도록)
             }
@@ -4890,22 +4910,20 @@ USER: "반가워요."
             html += `<div style="text-align:center;">`;
             
             // 외부 컨테이너 시작 (80% 너비, 가운데 정렬)
-            html += `<div style="${bgStyle}${frameCSS}padding:24px;border-radius:${borderRadius}px;font-family:'Noto Sans KR',sans-serif;font-size:${fontSize}px;line-height:1.7;color:${textColor};width:80%;margin:0 auto;text-align:left;">`;
+            html += `<div style="${bgStyle}${frameCSS}padding:24px;border-radius:${borderRadius}px;font-family:'Noto Sans KR',sans-serif;font-size:${fontSize}px;line-height:1.7;color:${textColor} !important;width:80%;margin:0 auto;text-align:left;">`;
             
             // 제목
             if (title || subtitle || aiModel || promptName || translation || charLink) {
                 html += `<div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(128,128,128,0.3);">`;
-                if (title) html += `<div style="font-size:1.5em;font-weight:700;color:${titleColor};margin-bottom:4px;">${escapeHtml(title)}</div>`;
-                if (subtitle) html += `<div style="font-size:0.95em;opacity:0.8;">${escapeHtml(subtitle)}</div>`;
-                
-                const metaItems = [];
+                if (title) html += `<div style="font-size:1.8em;font-weight:700;color:${titleColor} !important;margin-bottom:6px;">${escapeHtml(title)}</div>`;
+                if (subtitle) html += `<div style="font-size:1.1em;color:${textColor} !important;">${escapeHtml(subtitle)}</div>`;                const metaItems = [];
                 if (aiModel) metaItems.push(`🍧 ${escapeHtml(aiModel)}`);
                 if (promptName) metaItems.push(`💝 ${escapeHtml(promptName)}`);
                 if (translation) metaItems.push(`💌 ${escapeHtml(translation)}`);
                 if (charLink) metaItems.push(`<a href="${escapeHtml(charLink)}" target="_blank" style="color:${nameUserColor};text-decoration:none;">🍭 ${escapeHtml(aiName)}</a>`);
                 
                 if (metaItems.length > 0) {
-                    html += `<div style="margin-top:12px;font-size:0.85em;opacity:0.7;">${metaItems.join(' &nbsp;|&nbsp; ')}</div>`;
+                    html += `<div style="margin-top:12px;font-size:0.85em;color:${textColor};">${metaItems.join(' &nbsp;|&nbsp; ')}</div>`;
                 }
                 html += `</div>`;
             }
@@ -4935,7 +4953,7 @@ USER: "반가워요."
                 
                 // 블록 접기 시작
                 if (blockFolding) {
-                    html += `<details style="margin:10px 0;"><summary style="cursor:pointer;padding:8px 12px;background:rgba(128,128,128,0.1);border-radius:6px;font-weight:600;color:${textColor};">${escapeHtml(blockTitle)}</summary><div style="padding:10px 0;">`; 
+                    html += `<details style="margin:10px 0;"><summary style="cursor:pointer;padding:8px 12px;background:rgba(128,128,128,0.1) !important;border-radius:6px;font-weight:600;"><font color="${textColor}">${escapeHtml(blockTitle)}</font></summary><div style="padding:10px 0;">`; 
                 }
                 
                 const lines = blockText.split('\n');
@@ -4943,14 +4961,16 @@ USER: "반가워요."
                 let currentSpeakerType = null; // 'AI', 'USER', or char index for Arca
                 let currentBubbles = [];
                 let narrationBuffer = []; // 나레이션 모으기
+                const narrationItalic = document.getElementById('narration-italic').checked;
+                const narrationStyle = narrationItalic ? 'font-style:italic;' : '';
                 
                 function flushNarrationArca() {
                     if (narrationBuffer.length > 0) {
                         // 나레이션 + 위아래 짧은 선을 하나의 div로 (텍스트 기반 선)
-                        html += `<div style="text-align:center;color:${textColor};opacity:0.85;padding:8px 16px;margin:10px 0;">`;
-                        html += `<span style="color:rgba(128,128,128,0.5);">──────</span><br>`;
+                        html += `<div style="text-align:center;color:${textColor} !important;padding:8px 16px;margin:10px 0;${narrationStyle}">`;
+                        html += `<span style="color:rgba(128,128,128,0.5) !important;">──────</span><br>`;
                         html += narrationBuffer.join('<br>');
-                        html += `<br><span style="color:rgba(128,128,128,0.5);">──────</span>`;
+                        html += `<br><span style="color:rgba(128,128,128,0.5) !important;">──────</span>`;
                         html += `</div>`;
                         narrationBuffer = [];
                     }
@@ -4983,7 +5003,7 @@ USER: "반가워요."
                         }
                         
                         html += `<div style="margin:12px 0;text-align:${align};">`;
-                        html += `<div style="font-size:0.85em;font-weight:600;color:${nameC};margin-bottom:6px;">${escapeHtml(displayName)}</div>`;
+                        html += `<div style="font-size:0.85em;font-weight:600;color:${nameC} !important;margin-bottom:6px;">${escapeHtml(displayName)}</div>`;
                         html += `<div style="display:inline-block;text-align:${align};width:75%;">`;
                         currentBubbles.forEach(bubble => {
                             html += bubble;
@@ -5072,28 +5092,28 @@ USER: "반가워요."
                                 currentSpeakerType = charIndex;
                             }
                             
-                            let bubbleStyle = `background:${char.bgColor};color:${char.textColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;`;
+                            let bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;`;
                             let bubbleContent = content;
                             
                             // 통신 메시지
                             if (content.startsWith('>')) {
                                 bubbleContent = '📡 ' + content.substring(1).trim();
-                                bubbleStyle = `background-color:transparent;color:${commColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border:2px solid ${commColor};`;
+                                bubbleStyle = `background-color:transparent !important;color:${commColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border:2px solid ${commColor};`;
                             }
                             // 속삭임
                             else if (content.startsWith('((') && content.endsWith('))')) {
                                 bubbleContent = content.slice(2, -2).trim();
-                                bubbleStyle = `background:${char.bgColor};color:${char.textColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;opacity:0.7;font-size:0.9em;`;
+                                bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-size:0.9em;`;
                             }
                             // 외침
                             else if (content.startsWith('!')) {
                                 bubbleContent = content.substring(1).trim();
-                                bubbleStyle = `background:${char.bgColor};color:${char.textColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-weight:bold;font-size:1.1em;`;
+                                bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-weight:bold;font-size:1.1em;`;
                             }
                             // 생각
                             else if ((content.startsWith("'") && content.endsWith("'")) || (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
                                 bubbleContent = content.slice(1, -1);
-                                bubbleStyle = `background-color:transparent;color:${char.nameColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
+                                bubbleStyle = `background-color:transparent !important;color:${char.nameColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
                             }
                             // 대사
                             else if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith('\u201c') && content.endsWith('\u201d'))) {
@@ -5101,7 +5121,7 @@ USER: "반가워요."
                             }
                             // 그 외 (아무 표시 없으면 생각 스타일로)
                             else {
-                                bubbleStyle = `background-color:transparent;color:${char.nameColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
+                                bubbleStyle = `background-color:transparent !important;color:${char.nameColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${char.nameColor};`;
                             }
                             
                             currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
@@ -5126,28 +5146,28 @@ USER: "반가워요."
                             currentSpeakerType = speaker;
                         }
                         
-                        let bubbleStyle = `background:${bgC};color:${txtC};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;`;
+                        let bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;`;
                         let bubbleContent = content;
                         
                         // 통신 메시지
                         if (content.startsWith('>')) {
                             bubbleContent = '📡 ' + content.substring(1).trim();
-                            bubbleStyle = `background-color:transparent;color:${commColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border:2px solid ${commColor};`;
+                            bubbleStyle = `background-color:transparent !important;color:${commColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border:2px solid ${commColor};`;
                         }
                         // 속삭임
                         else if (content.startsWith('((') && content.endsWith('))')) {
                             bubbleContent = content.slice(2, -2).trim();
-                            bubbleStyle = `background:${bgC};color:${txtC};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;opacity:0.7;font-size:0.9em;`;
+                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-size:0.9em;`;
                         }
                         // 외침
                         else if (content.startsWith('!')) {
                             bubbleContent = content.substring(1).trim();
-                            bubbleStyle = `background:${bgC};color:${txtC};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-weight:bold;font-size:1.1em;`;
+                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-weight:bold;font-size:1.1em;`;
                         }
                         // 생각
                         else if ((content.startsWith("'") && content.endsWith("'")) || (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
                             bubbleContent = content.slice(1, -1);
-                            bubbleStyle = `background-color:transparent;color:${thoughtColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${thoughtColor};`;
+                            bubbleStyle = `background-color:transparent !important;color:${thoughtColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${thoughtColor};`;
                         }
                         // 대사
                         else if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith('\u201c') && content.endsWith('\u201d'))) {
@@ -5155,7 +5175,7 @@ USER: "반가워요."
                         }
                         // 그 외 (아무 표시 없으면 생각 스타일로)
                         else {
-                            bubbleStyle = `background-color:transparent;color:${thoughtColor};padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${thoughtColor};`;
+                            bubbleStyle = `background-color:transparent !important;color:${thoughtColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${thoughtColor};`;
                         }
                         
                         currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
@@ -5182,7 +5202,7 @@ USER: "반가워요."
             
             // 워터마크 추가
             html += `<div style="text-align:center;padding:20px 0 8px 0;margin-top:24px;border-top:1px solid rgba(128,128,128,0.15);">`;
-            html += `<span style="font-size:11px;font-weight:500;background:linear-gradient(135deg,#ff9a9e,#fecfef,#a18cd1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0.7;">🧁 Created with Log Cupcake</span>`;
+            html += `<span style="font-size:11px;font-weight:500;background:linear-gradient(135deg,#ff9a9e,#fecfef,#a18cd1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🧁 Created with Log Cupcake</span>`;
             html += `</div>`;
             
             html += `</div></div>`;
