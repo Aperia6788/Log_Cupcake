@@ -5134,7 +5134,7 @@ USER: "반가워요."
                         html += `<div style="font-size:0.85em;font-weight:600;color:${nameC} !important;margin-bottom:6px;">${escapeHtml(displayName)}</div>`;
                         html += `<div style="display:inline-block;text-align:${align};width:75%;">`;
                         currentBubbles.forEach(bubble => {
-                            html += bubble;
+                            html += `<div style="display:block;margin:4px 0;">${bubble}</div>`;
                         });
                         html += `</div></div>`;
                         currentBubbles = [];
