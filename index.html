@@ -5274,28 +5274,28 @@ USER: "반가워요."
                             currentSpeakerType = speaker;
                         }
 
-                        let bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border:2px solid ${bgC};`;
+                        let bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border:2px solid ${bgC};text-align:left;`;
                         let bubbleContent = content;
 
                         // 통신 메시지
                         if (content.startsWith('>')) {
                             bubbleContent = '📡 ' + content.substring(1).trim();
-                            bubbleStyle = `background-color:transparent !important;color:${commColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border:2px solid ${commColor};`;
+                            bubbleStyle = `background-color:transparent !important;color:${commColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;border:2px solid ${commColor};text-align:left;`;
                         }
                         // 속삭임
                         else if (content.startsWith('((') && content.endsWith('))')) {
                             bubbleContent = content.slice(2, -2).trim();
-                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-size:0.9em;border:2px solid ${bgC};`;
+                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-size:0.9em;border:2px solid ${bgC};text-align:left;`;
                         }
                         // 외침
                         else if (content.startsWith('!')) {
                             bubbleContent = content.substring(1).trim();
-                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-weight:bold;font-size:1.1em;border:2px solid ${bgC};`;
+                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-weight:bold;font-size:1.1em;border:2px solid ${bgC};text-align:left;`;
                         }
                         // 생각
                         else if ((content.startsWith("'") && content.endsWith("'")) || (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
                             bubbleContent = content.slice(1, -1);
-                            bubbleStyle = `background-color:transparent !important;color:${thoughtColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${thoughtColor};`;
+                            bubbleStyle = `background-color:transparent !important;color:${thoughtColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${thoughtColor};text-align:left;`;
                         }
                         // 대사
                         else if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith('\u201c') && content.endsWith('\u201d'))) {
@@ -5303,7 +5303,7 @@ USER: "반가워요."
                         }
                         // 그 외 (아무 표시 없으면 생각 스타일로)
                         else {
-                            bubbleStyle = `background-color:transparent !important;color:${thoughtColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${thoughtColor};`;
+                            bubbleStyle = `background-color:transparent !important;color:${thoughtColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:100%;font-style:italic;border:1px dashed ${thoughtColor};text-align:left;`;
                         }
 
                         currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
