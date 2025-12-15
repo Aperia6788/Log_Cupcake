@@ -3709,11 +3709,22 @@ USER: "반가워요."
             const img = uploadedImages[index];
             if (!img) return;
 
-            // 현재 포커스된 textarea 또는 첫 번째 textarea 찾기
-            let textarea = document.activeElement;
-            if (!textarea || !textarea.classList.contains('log-block-input')) {
-                // 포커스된 게 없으면 첫 번째 블록의 textarea 사용
-                textarea = document.querySelector('.log-block-input');
+            // 팝업 편집기가 열려있으면 우선 사용
+            const popupTextarea = document.getElementById('popup-editor-textarea');
+            const popupContainer = document.getElementById('popup-editor');
+
+            let textarea;
+
+            if (popupContainer && popupContainer.style.display !== 'none' && popupTextarea) {
+                // 팝업 편집기가 열려있는 경우
+                textarea = popupTextarea;
+            } else {
+                // 현재 포커스된 textarea 또는 첫 번째 textarea 찾기
+                textarea = document.activeElement;
+                if (!textarea || !textarea.classList.contains('log-block-input')) {
+                    // 포커스된 게 없으면 첫 번째 블록의 textarea 사용
+                    textarea = document.querySelector('.log-block-input');
+                }
             }
 
             if (!textarea) {
@@ -3732,8 +3743,14 @@ USER: "반가워요."
             textarea.focus();
             textarea.setSelectionRange(start + tag.length, start + tag.length);
 
+            // 팝업 편집기인 경우 input 이벤트 트리거
+            if (textarea === popupTextarea) {
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
             generateLog();
         }
+
 
 
         function removeImage(index) {
