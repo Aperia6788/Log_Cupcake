@@ -1320,6 +1320,10 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
+        .log-image.inline-image {
+            margin: 12px 0;
+        }
+
         /* ========== 대화 블록 ========== */
         .chat-block {
             margin-bottom: 12px;
@@ -3617,7 +3621,7 @@ USER: "반가워요."
         }
 
         // ========== 이미지 업로드 ==========
-        let uploadedImages = []; // {data: base64, blockNumber: number}
+        let uploadedImages = []; // {data: base64, blockNumber: number, position: 'before'|'after'|'inline', name: string}
 
         document.getElementById('image-file-input').addEventListener('change', function (e) {
             const files = e.target.files;
@@ -3638,6 +3642,7 @@ USER: "반가워요."
                     uploadedImages.push({
                         data: event.target.result,
                         blockNumber: nextBlockNum,
+                        position: 'before', // 기본값: 블록 앞
                         name: file.name
                     });
                     renderImageList();
@@ -3659,24 +3664,31 @@ USER: "반가워요."
 
             let html = '<div style="display:flex; flex-direction:column; gap:8px;">';
             uploadedImages.forEach((img, index) => {
+                const positionLabel = img.position === 'before' ? '앞' : (img.position === 'after' ? '뒤' : '내');
                 html += `
                     <div class="image-item" style="display:flex; align-items:center; gap:8px; padding:8px; background:var(--input-bg); border-radius:8px; border:1px solid var(--border-color);">
                         <img src="${img.data}" style="width:50px; height:50px; object-fit:cover; border-radius:6px; flex-shrink:0;">
                         <div style="flex:1; min-width:0;">
                             <div style="font-size:11px; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(img.name)}</div>
-                            <div style="display:flex; align-items:center; gap:4px; margin-top:4px;">
+                            <div style="display:flex; align-items:center; gap:4px; margin-top:4px; flex-wrap:wrap;">
                                 <span style="font-size:11px; color:var(--text-secondary);">블록</span>
                                 <input type="number" value="${img.blockNumber}" min="0" 
                                     onchange="updateImageBlockNumber(${index}, this.value)"
-                                    style="width:50px; padding:4px 6px; font-size:12px; border:1px solid var(--border-color); border-radius:4px; background:var(--bg-color); color:var(--text-color);">
-                                <span style="font-size:10px; color:var(--text-secondary);">번 앞에 삽입</span>
+                                    style="width:45px; padding:4px 6px; font-size:12px; border:1px solid var(--border-color); border-radius:4px; background:var(--bg-color); color:var(--text-color);">
+                                <select onchange="updateImagePosition(${index}, this.value)"
+                                    style="padding:4px 6px; font-size:11px; border:1px solid var(--border-color); border-radius:4px; background:var(--bg-color); color:var(--text-color);">
+                                    <option value="before" ${img.position === 'before' ? 'selected' : ''}>앞에</option>
+                                    <option value="after" ${img.position === 'after' ? 'selected' : ''}>뒤에</option>
+                                    <option value="inline" ${img.position === 'inline' ? 'selected' : ''}>내부 (인라인)</option>
+                                </select>
+                                ${img.position === 'inline' ? `<button onclick="insertImageTag(${index})" style="padding:3px 8px; background:#228be6; color:white; border:none; border-radius:4px; cursor:pointer; font-size:10px;" title="텍스트에 태그 삽입">📝삽입</button>` : ''}
                             </div>
                         </div>
                         <button onclick="removeImage(${index})" style="padding:4px 8px; background:#e03131; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px;">✕</button>
                     </div>`;
             });
             html += '</div>';
-            html += '<div style="font-size:10px; color:var(--text-secondary); margin-top:6px;">💡 0번 = 제목 바로 아래, 1번 = 첫 번째 블록 앞</div>';
+            html += '<div style="font-size:10px; color:var(--text-secondary); margin-top:6px;">💡 0번=제목 아래 | 앞에/뒤에=블록 외부 | 내부=텍스트에 <code style="background:#4a5568;color:#e2e8f0;padding:2px 6px;border-radius:4px;font-family:monospace;">이미지:파일명</code></div>';
             container.innerHTML = html;
         }
 
@@ -3685,6 +3697,44 @@ USER: "반가워요."
             uploadedImages[index].blockNumber = num;
             generateLog();
         }
+
+        function updateImagePosition(index, value) {
+            uploadedImages[index].position = value;
+            renderImageList(); // UI 업데이트
+            generateLog();
+        }
+
+        // 텍스트에 이미지 태그 삽입
+        function insertImageTag(index) {
+            const img = uploadedImages[index];
+            if (!img) return;
+
+            // 현재 포커스된 textarea 또는 첫 번째 textarea 찾기
+            let textarea = document.activeElement;
+            if (!textarea || !textarea.classList.contains('log-block-input')) {
+                // 포커스된 게 없으면 첫 번째 블록의 textarea 사용
+                textarea = document.querySelector('.log-block-input');
+            }
+
+            if (!textarea) {
+                alert('텍스트 편집 영역을 찾을 수 없습니다.');
+                return;
+            }
+
+            const tag = `이미지:${img.name}`;
+
+            // 커서 위치에 삽입
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+
+            textarea.value = text.substring(0, start) + tag + text.substring(end);
+            textarea.focus();
+            textarea.setSelectionRange(start + tag.length, start + tag.length);
+
+            generateLog();
+        }
+
 
         function removeImage(index) {
             uploadedImages.splice(index, 1);
@@ -3697,6 +3747,7 @@ USER: "반가워요."
             renderImageList();
             generateLog();
         }
+
 
         // ========== 배경 설정 ==========
         document.getElementById('bg-type').addEventListener('change', function () {
@@ -4499,19 +4550,22 @@ USER: "반가워요."
                 html += '</div>';
             }
 
-            // 블록 번호 0에 할당된 이미지 (제목 바로 아래)
+            // 블록 번호 0에 할당된 이미지 (제목 바로 아래) - position 무관
             const headerImages = uploadedImages.filter(img => img.blockNumber === 0);
             headerImages.forEach(img => {
                 html += `<div class="log-image"><img src="${img.data}" alt="Image"></div>`;
             });
 
             // 각 블록을 순회하면서 처리
+
             processedBlocks.forEach((blockText, blockIndex) => {
                 const blockNumber = blockIndex + 1; // 1-based 블록 번호
 
-                // 이 블록 앞에 삽입할 이미지들
-                const blockImages = uploadedImages.filter(img => img.blockNumber === blockNumber);
-                blockImages.forEach(img => {
+                // 이 블록 앞에 삽입할 이미지들 (position === 'before')
+                const beforeImages = uploadedImages.filter(img =>
+                    img.blockNumber === blockNumber && img.position === 'before'
+                );
+                beforeImages.forEach(img => {
                     html += `<div class="log-image"><img src="${img.data}" alt="Image"></div>`;
                 });
 
@@ -4519,6 +4573,7 @@ USER: "반가워요."
                 if (blockIndex > 0) {
                     html += '<div class="divider"></div>';
                 }
+
 
                 const lines = blockText.split('\n');
                 let currentSpeaker = null;
@@ -4663,6 +4718,27 @@ USER: "반가워요."
                         return;
                     }
 
+                    // ★ 인라인 이미지 패턴 감지: 이미지:파일명
+                    const inlineImageMatch = trimmedLine.match(/^이미지:(.+)$/);
+                    if (inlineImageMatch) {
+                        const imageName = inlineImageMatch[1].trim();
+                        // position이 inline인 이미지 중에서 파일명 매칭
+                        const matchedImage = uploadedImages.find(img => {
+                            if (img.position !== 'inline') return false;
+                            const baseName = img.name.replace(/\.[^.]+$/, '');
+                            return img.name === imageName || baseName === imageName;
+                        });
+
+                        if (matchedImage) {
+                            flushBubbles();
+                            currentSpeaker = null;
+                            currentSpeakerType = null;
+                            lastWasNarration = false;
+                            html += `<div class="log-image inline-image"><img src="${matchedImage.data}" alt="${escapeHtml(matchedImage.name)}"></div>`;
+                            return;
+                        }
+                    }
+
                     line = trimmedLine;
 
                     // 구분선
@@ -4765,6 +4841,14 @@ USER: "반가워요."
 
                 // 남은 말풍선 출력
                 flushBubbles();
+
+                // 이 블록 뒤에 삽입할 이미지들 (position === 'after')
+                const afterImages = uploadedImages.filter(img =>
+                    img.blockNumber === blockNumber && img.position === 'after'
+                );
+                afterImages.forEach(img => {
+                    html += `<div class="log-image"><img src="${img.data}" alt="Image"></div>`;
+                });
             });
 
             // 워터마크 추가
@@ -4783,6 +4867,11 @@ USER: "반가워요."
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        // 정규식 특수문자 이스케이프
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
 
         // 마크다운 처리
@@ -5068,8 +5157,10 @@ USER: "반가워요."
                 const blockText = block.content;
                 const blockTitle = block.title;
 
-                // 이 블록 앞에 삽입할 이미지
-                const blockImages = uploadedImages.filter(img => img.blockNumber === blockNumber);
+                // 이 블록 앞에 삽입할 이미지 (position === 'before'만)
+                const blockImages = uploadedImages.filter(img =>
+                    img.blockNumber === blockNumber && img.position === 'before'
+                );
                 blockImages.forEach(img => {
                     html += `<div style="text-align:center;margin:16px 0;"><img src="${img.data}" style="max-width:100%;border-radius:8px;"></div>`;
                 });
@@ -5133,8 +5224,11 @@ USER: "반가워요."
                         html += `<div style="margin:12px 0;text-align:${align};">`;
                         html += `<div style="font-size:0.85em;font-weight:600;color:${nameC} !important;margin-bottom:6px;">${escapeHtml(displayName)}</div>`;
                         html += `<div style="display:inline-block;text-align:${align};width:75%;">`;
-                        currentBubbles.forEach(bubble => {
-                            html += `<div style="display:block;margin:4px 0;">${bubble}</div>`;
+                        currentBubbles.forEach((bubble, index) => {
+                            html += bubble;
+                            if (index < currentBubbles.length - 1) {
+                                html += '<br>';
+                            }
                         });
                         html += `</div></div>`;
                         currentBubbles = [];
@@ -5166,6 +5260,27 @@ USER: "반가워요."
                             }
                         }
                         return;
+                    }
+
+                    // ★ 인라인 이미지 패턴 감지: 이미지:파일명
+                    const inlineImageMatch = trimmedLine.match(/^이미지:(.+)$/);
+                    if (inlineImageMatch) {
+                        const imageName = inlineImageMatch[1].trim();
+                        const matchedImage = uploadedImages.find(img => {
+                            if (img.position !== 'inline') return false;
+                            const baseName = img.name.replace(/\.[^.]+$/, '');
+                            return img.name === imageName || baseName === imageName;
+                        });
+
+                        if (matchedImage) {
+                            flushNarrationArca();
+                            flushBubblesOnlyArca();
+                            currentSpeaker = null;
+                            currentSpeakerType = null;
+                            lastWasNarrationArca = false;
+                            html += `<div style="text-align:center;margin:16px 0;"><img src="${matchedImage.data}" style="max-width:100%;border-radius:8px;" alt="${escapeHtml(matchedImage.name)}"></div>`;
+                            return;
+                        }
                     }
 
                     line = trimmedLine;
@@ -5321,6 +5436,14 @@ USER: "반가워요."
 
                 flushNarrationArca();
                 flushBubblesOnlyArca();
+
+                // 이 블록 뒤에 삽입할 이미지 (position === 'after')
+                const afterImages = uploadedImages.filter(img =>
+                    img.blockNumber === blockNumber && img.position === 'after'
+                );
+                afterImages.forEach(img => {
+                    html += `<div style="text-align:center;margin:16px 0;"><img src="${img.data}" style="max-width:100%;border-radius:8px;"></div>`;
+                });
 
                 // 블록 접기 끝
                 if (blockFolding) {
