@@ -3715,7 +3715,7 @@ USER: "반가워요."
 
             let textarea;
 
-            if (popupContainer && popupContainer.style.display !== 'none' && popupTextarea) {
+            if (popupContainer && popupContainer.classList.contains('show') && popupTextarea) {
                 // 팝업 편집기가 열려있는 경우
                 textarea = popupTextarea;
             } else {
