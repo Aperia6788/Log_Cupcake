@@ -2536,6 +2536,7 @@
                                     <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
                                     <option value="Gemini 2.0 Flash">Gemini 2.0 Flash</option>
                                     <option value="Gemini 3 Pro">Gemini 3 Pro</option>
+                                    <option value="Gemini 3 Flash">Gemini 3 Flash</option>
                                     <option value="Claude Sonnet 4">Claude Sonnet 4</option>
                                     <option value="Claude Sonnet 4.5">Claude Sonnet 4.5</option>
                                     <option value="Claude Haiku 4.5">Claude Haiku 4.5</option>
@@ -2569,6 +2570,7 @@
                                     <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
                                     <option value="Gemini 2.0 Flash">Gemini 2.0 Flash</option>
                                     <option value="Gemini 3 Pro">Gemini 3 Pro</option>
+                                    <option value="Gemini 3 Flash">Gemini 3 Flash</option>
                                     <option value="Claude Sonnet 4">Claude Sonnet 4</option>
                                     <option value="Claude Sonnet 4.5">Claude Sonnet 4.5</option>
                                     <option value="Claude Haiku 4.5">Claude Haiku 4.5</option>
@@ -4870,7 +4872,7 @@ USER: "반가워요."
 
             // 워터마크 추가
             if (html) {
-                html += '<div class="log-watermark"><span>🧁 Created with Log Cupcake</span></div>';
+                html += '<div class="log-watermark"><a href="https://aperia6788.github.io/Log_Cupcake/" target="_blank" style="text-decoration:none;"><span>🧁 Created with Log Cupcake</span></a></div>';
             }
 
             preview.innerHTML = html || '<div style="text-align: center; color: var(--text-secondary); padding: 60px;">내용을 입력해주세요.</div>';
@@ -5470,7 +5472,7 @@ USER: "반가워요."
 
             // 워터마크 추가
             html += `<div style="text-align:center;padding:20px 0 8px 0;margin-top:24px;border-top:1px solid rgba(128,128,128,0.15);">`;
-            html += `<span style="font-size:11px;font-weight:500;background:linear-gradient(135deg,#ff9a9e,#fecfef,#a18cd1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🧁 Created with Log Cupcake</span>`;
+            html += `<a href="https://aperia6788.github.io/Log_Cupcake/" target="_blank" style="text-decoration:none;"><span style="font-size:11px;font-weight:500;background:linear-gradient(135deg,#ff9a9e,#fecfef,#a18cd1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🧁 Created with Log Cupcake</span></a>`;
             html += `</div>`;
 
             html += `</div></div>`;
