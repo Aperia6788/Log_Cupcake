@@ -3721,11 +3721,16 @@ USER: "반가워요."
                 // 팝업 편집기가 열려있는 경우
                 textarea = popupTextarea;
             } else {
-                // 현재 포커스된 textarea 또는 첫 번째 textarea 찾기
+                // 현재 포커스된 textarea 또는 마지막으로 포커스된 textarea 찾기
                 textarea = document.activeElement;
                 if (!textarea || !textarea.classList.contains('log-block-input')) {
-                    // 포커스된 게 없으면 첫 번째 블록의 textarea 사용
-                    textarea = document.querySelector('.log-block-input');
+                    // 포커스된 게 없으면 마지막으로 포커스된 요소 사용
+                    if (lastFocusedTextarea && document.body.contains(lastFocusedTextarea)) {
+                        textarea = lastFocusedTextarea;
+                    } else {
+                        // 그것도 없으면 첫 번째 블록의 textarea 사용
+                        textarea = document.querySelector('.log-block-input');
+                    }
                 }
             }
 
@@ -4023,6 +4028,7 @@ USER: "반가워요."
 
         // ========== 로그 블록 관리 ==========
         let blockIdCounter = 1;
+        let lastFocusedTextarea = null; // 마지막으로 포커스된 텍스트 영역 추적
 
         function addLogBlock() {
             blockIdCounter++;
@@ -4055,6 +4061,10 @@ USER: "반가워요."
             textarea.addEventListener('input', () => {
                 clearTimeout(window.inputTimeout);
                 window.inputTimeout = setTimeout(generateLog, 300);
+            });
+            // 포커스 추적 이벤트 추가
+            textarea.addEventListener('focus', () => {
+                lastFocusedTextarea = textarea;
             });
         }
 
@@ -5608,7 +5618,7 @@ USER: "반가워요."
             }
         }
 
-        // ========== 실시간 미리보기 ==========
+        // ========== 실시간 미리보기 + 포커스 추적 ==========
         // 첫 번째 블록의 textarea에 이벤트 리스너 추가
         document.querySelectorAll('.log-block-input').forEach(textarea => {
             textarea.addEventListener('input', () => {
@@ -5616,7 +5626,13 @@ USER: "반가워요."
                 clearTimeout(window.inputTimeout);
                 window.inputTimeout = setTimeout(generateLog, 300);
             });
+            // 포커스 추적
+            textarea.addEventListener('focus', () => {
+                lastFocusedTextarea = textarea;
+            });
         });
+
+
 
         // 초기 예제 (첫 번째 블록에 설정)
         document.querySelector('.log-block-input').value = `AI: "안녕하세요! 저는 AI 어시스턴트입니다."
