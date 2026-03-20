@@ -3142,6 +3142,7 @@ USER: "반가워요."
 
 
 
+
         // ========== 탭 시스템 ==========
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -3808,6 +3809,7 @@ USER: "반가워요."
 
 
 
+
         // ========== 스타일 적용 ==========
         function applyStyles() {
             const preview = document.getElementById('log-preview');
@@ -4058,6 +4060,7 @@ USER: "반가워요."
 
 
 
+
         // ========== 이미지 업로드 ==========
         let uploadedImages = []; // {data: base64, blockNumber: number, position: 'before'|'after'|'inline', name: string}
 
@@ -4209,6 +4212,7 @@ USER: "반가워요."
         }
 
 // ===== presets.js =====
+
 
 
 
@@ -4524,6 +4528,7 @@ USER: "반가워요."
         }
 
 // ===== blocks.js =====
+
 
 
 
@@ -4930,6 +4935,7 @@ USER: "반가워요."
         });
 
 // ===== preview.js =====
+
 
 
 
@@ -5693,6 +5699,7 @@ USER: "반가워요."
 
 
 
+
         // ========== HTML 복사 ==========
         function copyHTML() {
             const preview = document.getElementById('log-preview');
@@ -5868,11 +5875,11 @@ USER: "반가워요."
             if (botAvatarData || personaAvatarData || botBio || personaBio) {
                 const botAvatarRadius = botAvatarShape === 'circle' ? '999px' : '20px';
                 const personaAvatarRadius = personaAvatarShape === 'circle' ? '999px' : '20px';
-                html += `<div style="display:flex;flex-direction:row;justify-content:center;align-items:flex-start;gap:32px;margin-bottom:24px;padding:20px;border-radius:18px;background:rgba(128,128,128,0.08);text-align:center;flex-wrap:wrap;">`;
+                html += `<div style="text-align:center;margin-bottom:24px;padding:20px;border-radius:18px;background:rgba(128,128,128,0.08);">`;
                 if (botAvatarData || botBio) {
-                    html += `<div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-width:140px;max-width:220px;">`;
+                    html += `<div style="display:inline-block;vertical-align:top;text-align:center;min-width:140px;max-width:220px;margin:0 16px 8px 16px;">`;
                     if (botAvatarData) {
-                        html += `<img src="${botAvatarData}" alt="bot avatar" style="width:160px;height:160px;object-fit:cover;border-radius:${botAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);">`;
+                        html += `<img src="${botAvatarData}" alt="bot avatar" style="display:inline-block !important;float:none !important;width:160px;height:160px;object-fit:cover;border-radius:${botAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);margin-bottom:8px;">`;
                     }
                     html += `<div style="font-size:1.05em;font-weight:700;color:${profileNameColor} !important;">${escapeHtml(aiName)}</div>`;
                     if (botBio) {
@@ -5881,9 +5888,9 @@ USER: "반가워요."
                     html += `</div>`;
                 }
                 if (personaAvatarData || personaBio) {
-                    html += `<div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-width:140px;max-width:220px;">`;
+                    html += `<div style="display:inline-block;vertical-align:top;text-align:center;min-width:140px;max-width:220px;margin:0 16px 8px 16px;">`;
                     if (personaAvatarData) {
-                        html += `<img src="${personaAvatarData}" alt="persona avatar" style="width:160px;height:160px;object-fit:cover;border-radius:${personaAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);">`;
+                        html += `<img src="${personaAvatarData}" alt="persona avatar" style="display:inline-block !important;float:none !important;width:160px;height:160px;object-fit:cover;border-radius:${personaAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);margin-bottom:8px;">`;
                     }
                     html += `<div style="font-size:1.05em;font-weight:700;color:${profileNamePersonaColor} !important;">${escapeHtml(userName)}</div>`;
                     if (personaBio) {
@@ -6264,6 +6271,7 @@ USER: "반가워요."
 
 
 
+
         // ========== 미리보기/HTML 토글 ==========
         let isHtmlMode = false;
 
@@ -6383,6 +6391,7 @@ USER: "반가워요."
         }
 
 // ===== init.js =====
+
 
 
 
