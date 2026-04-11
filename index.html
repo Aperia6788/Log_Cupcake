@@ -1253,9 +1253,7 @@
 
         /* ========== 제작자 메시지 스타일 ========== */
         .creator-message {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            text-align: center;
             margin: 20px 0;
             clear: both;
         }
@@ -1472,8 +1470,7 @@
         .bubbles {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            gap: 6px;
+            gap: 10px;
         }
 
         .chat-block.user .bubbles {
@@ -1486,7 +1483,6 @@
 
         /* 개별 말풍선 */
         .bubble {
-            width: fit-content;
             max-width: 85%;
             padding: 12px 16px;
             border-radius: 18px;
@@ -2719,7 +2715,12 @@
                             </div>
                             <div class="input-group">
                                 <label class="input-label">캐릭터 링크</label>
-                                <input type="text" id="char-link" placeholder="https://..." oninput="generateLog()">
+                                <div id="char-links-container">
+                                    <div class="char-link-row" style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">
+                                        <input type="text" class="char-link-input" placeholder="AI 캐릭터 링크 (https://...)" oninput="generateLog()" style="flex:1;">
+                                    </div>
+                                </div>
+                                <button onclick="addCharLinkRow()" style="display:flex;align-items:center;gap:4px;padding:8px 14px;background:#339af0;color:white;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;margin-top:6px;">➕ 캐릭터 링크 추가</button>
                             </div>
                         </div>
                     </div>
@@ -2921,6 +2922,16 @@ USER: "반가워요."
                                 <input type="text" id="color-user-text-text" value="#ffffff" style="display:none;">
                             </div>
                             <div class="color-item">
+                                <label>봇 생각</label>
+                                <input type="color" id="color-thought-ai" value="#748ffc">
+                                <input type="text" id="color-thought-ai-text" value="#748ffc" style="display:none;">
+                            </div>
+                            <div class="color-item">
+                                <label>퍼소 생각</label>
+                                <input type="color" id="color-thought-user" value="#748ffc">
+                                <input type="text" id="color-thought-user-text" value="#748ffc" style="display:none;">
+                            </div>
+                            <div class="color-item" style="display:none;">
                                 <label>생각 말풍선</label>
                                 <input type="color" id="color-thought" value="#748ffc">
                                 <input type="text" id="color-thought-text" value="#748ffc" style="display:none;">
@@ -3258,6 +3269,10 @@ USER: "반가워요."
             document.getElementById('color-user-text-text').value = colors.userText;
             document.getElementById('color-thought').value = colors.thought;
             document.getElementById('color-thought-text').value = colors.thought;
+            document.getElementById('color-thought-ai').value = colors.thoughtAi || colors.thought;
+            document.getElementById('color-thought-ai-text').value = colors.thoughtAi || colors.thought;
+            document.getElementById('color-thought-user').value = colors.thoughtUser || colors.thought;
+            document.getElementById('color-thought-user-text').value = colors.thoughtUser || colors.thought;
             document.getElementById('color-comm').value = colors.comm;
             document.getElementById('color-comm-text').value = colors.comm;
             document.getElementById('color-comm-ai').value = colors.commAi || colors.comm;
@@ -3366,6 +3381,8 @@ USER: "반가워요."
             ['color-ai-text', 'color-ai-text-text'],
             ['color-user-text', 'color-user-text-text'],
             ['color-thought', 'color-thought-text'],
+            ['color-thought-ai', 'color-thought-ai-text'],
+            ['color-thought-user', 'color-thought-user-text'],
             ['color-comm', 'color-comm-text'],
             ['color-comm-ai', 'color-comm-ai-text'],
             ['color-comm-user', 'color-comm-user-text'],
@@ -3393,12 +3410,14 @@ USER: "반가워요."
             colorInput.addEventListener('input', () => {
                 textInput.value = colorInput.value;
                 applyCustomColors();
+                generateLog();
             });
 
             textInput.addEventListener('input', () => {
                 if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
                     colorInput.value = textInput.value;
                     applyCustomColors();
+                    generateLog();
                 }
             });
         });
@@ -3451,6 +3470,8 @@ USER: "반가워요."
             preview.style.setProperty('--bubble-ai-text', document.getElementById('color-ai-text').value);
             preview.style.setProperty('--bubble-user-text', document.getElementById('color-user-text').value);
             preview.style.setProperty('--thought-color', document.getElementById('color-thought').value);
+            preview.style.setProperty('--thought-ai-color', document.getElementById('color-thought-ai').value);
+            preview.style.setProperty('--thought-user-color', document.getElementById('color-thought-user').value);
             preview.style.setProperty('--comm-color', document.getElementById('color-comm').value);
             preview.style.setProperty('--comm-ai-color', document.getElementById('color-comm-ai').value);
             preview.style.setProperty('--comm-user-color', document.getElementById('color-comm-user').value);
@@ -3524,9 +3545,13 @@ USER: "반가워요."
                 colors.subtitle = hslToHex(baseHue, 10, 80 + Math.floor(Math.random() * 10));
                 colors.profileName = colors.title;
                 colors.profileBio = colors.text;
+                colors.profileNamePersona = hslToHex(accentHue, 15, 88 + Math.floor(Math.random() * 8));
+                colors.profileBioPersona = hslToHex(accentHue, 10, 78 + Math.floor(Math.random() * 10));
 
                 // 생각/통신: 포인트 컬러
                 colors.thought = hslToHex(secondaryHue, 50 + Math.floor(Math.random() * 30), 60 + Math.floor(Math.random() * 15));
+                colors.thoughtAi = hslToHex(secondaryHue, 50 + Math.floor(Math.random() * 30), 60 + Math.floor(Math.random() * 15));
+                colors.thoughtUser = hslToHex((secondaryHue + 40) % 360, 50 + Math.floor(Math.random() * 30), 65 + Math.floor(Math.random() * 12));
                 colors.comm = hslToHex((accentHue + 60) % 360, 50 + Math.floor(Math.random() * 30), 55 + Math.floor(Math.random() * 15));
                 colors.commAi = hslToHex((accentHue + 60) % 360, 50 + Math.floor(Math.random() * 30), 55 + Math.floor(Math.random() * 15));
                 colors.commUser = hslToHex((accentHue + 90) % 360, 50 + Math.floor(Math.random() * 25), 60 + Math.floor(Math.random() * 12));
@@ -3555,9 +3580,13 @@ USER: "반가워요."
                 colors.subtitle = hslToHex(baseHue, 25, 25 + Math.floor(Math.random() * 15));
                 colors.profileName = colors.title;
                 colors.profileBio = colors.text;
+                colors.profileNamePersona = hslToHex(accentHue, 30, 22 + Math.floor(Math.random() * 15));
+                colors.profileBioPersona = hslToHex(accentHue, 25, 18 + Math.floor(Math.random() * 15));
 
                 // 생각/통신: 포인트 컬러
                 colors.thought = hslToHex(secondaryHue, 50 + Math.floor(Math.random() * 35), 50 + Math.floor(Math.random() * 15));
+                colors.thoughtAi = hslToHex(secondaryHue, 50 + Math.floor(Math.random() * 35), 50 + Math.floor(Math.random() * 15));
+                colors.thoughtUser = hslToHex((secondaryHue + 40) % 360, 50 + Math.floor(Math.random() * 35), 45 + Math.floor(Math.random() * 18));
                 colors.comm = hslToHex((accentHue + 60) % 360, 55 + Math.floor(Math.random() * 30), 45 + Math.floor(Math.random() * 15));
                 colors.commAi = hslToHex((accentHue + 60) % 360, 55 + Math.floor(Math.random() * 30), 45 + Math.floor(Math.random() * 15));
                 colors.commUser = hslToHex((accentHue + 90) % 360, 55 + Math.floor(Math.random() * 25), 40 + Math.floor(Math.random() * 18));
@@ -3585,6 +3614,10 @@ USER: "반가워요."
             document.getElementById('color-user-text-text').value = colors.userText;
             document.getElementById('color-thought').value = colors.thought;
             document.getElementById('color-thought-text').value = colors.thought;
+            document.getElementById('color-thought-ai').value = colors.thoughtAi;
+            document.getElementById('color-thought-ai-text').value = colors.thoughtAi;
+            document.getElementById('color-thought-user').value = colors.thoughtUser;
+            document.getElementById('color-thought-user-text').value = colors.thoughtUser;
             document.getElementById('color-comm').value = colors.comm;
             document.getElementById('color-comm-text').value = colors.comm;
             document.getElementById('color-comm-ai').value = colors.commAi;
@@ -3632,6 +3665,8 @@ USER: "반가워요."
                     aiText: document.getElementById('color-ai-text').value,
                     userText: document.getElementById('color-user-text').value,
                     thought: document.getElementById('color-thought').value,
+                    thoughtAi: document.getElementById('color-thought-ai').value,
+                    thoughtUser: document.getElementById('color-thought-user').value,
                     comm: document.getElementById('color-comm').value,
                     commAi: document.getElementById('color-comm-ai').value,
                     commUser: document.getElementById('color-comm-user').value,
@@ -3725,6 +3760,10 @@ USER: "반가워요."
             document.getElementById('color-user-text-text').value = theme.colors.userText || '#ffffff';
             document.getElementById('color-thought').value = theme.colors.thought;
             document.getElementById('color-thought-text').value = theme.colors.thought;
+            document.getElementById('color-thought-ai').value = theme.colors.thoughtAi || theme.colors.thought;
+            document.getElementById('color-thought-ai-text').value = theme.colors.thoughtAi || theme.colors.thought;
+            document.getElementById('color-thought-user').value = theme.colors.thoughtUser || theme.colors.thought;
+            document.getElementById('color-thought-user-text').value = theme.colors.thoughtUser || theme.colors.thought;
             document.getElementById('color-comm').value = theme.colors.comm;
             document.getElementById('color-comm-text').value = theme.colors.comm;
             document.getElementById('color-comm-ai').value = theme.colors.commAi || theme.colors.comm;
@@ -3788,6 +3827,8 @@ USER: "반가워요."
                     aiText: document.getElementById('color-ai-text').value,
                     userText: document.getElementById('color-user-text').value,
                     thought: document.getElementById('color-thought').value,
+                    thoughtAi: document.getElementById('color-thought-ai').value,
+                    thoughtUser: document.getElementById('color-thought-user').value,
                     comm: document.getElementById('color-comm').value,
                     commAi: document.getElementById('color-comm-ai').value,
                     commUser: document.getElementById('color-comm-user').value,
@@ -3890,7 +3931,10 @@ USER: "반가워요."
                 bgColor: '#e9ecef',
                 textColor: '#1d2129',
                 nameColor: '#868e96',
-                commColor: '#20c997'
+                commColor: '#20c997',
+                avatarData: '',
+                avatarShape: 'rounded',
+                bio: ''
             });
 
             renderExtraCharacters();
@@ -3920,15 +3964,89 @@ USER: "반가워요."
 
         function renderExtraCharacters() {
             const container = document.getElementById('extra-characters-container');
-            container.innerHTML = extraCharacters.map((char, index) => `
-                <div class="extra-char-item" data-char-index="${index}">
-                    <span class="char-id">${char.id}:</span>
-                    <input type="text" value="${char.name}" placeholder="캐릭터 이름" 
-                           onchange="updateExtraCharName(${index}, this.value)" oninput="generateLog()">
-                    <button class="btn-color-edit" onclick="openCharColorPopup(${index})" title="색상 설정">🎨</button>
-                    <button class="btn-delete-char" onclick="removeExtraCharacter(${index})" title="삭제">×</button>
-                </div>
-            `).join('');
+            container.innerHTML = extraCharacters.map((char, index) => {
+                const isOpen = char._open !== false;
+                return `
+                <div class="extra-char-card" data-char-index="${index}" style="border:1px solid var(--input-border);border-radius:12px;margin-bottom:10px;overflow:hidden;background:var(--input-bg);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;background:var(--panel-bg);border-bottom:${isOpen ? '1px solid var(--input-border)' : 'none'};" onclick="toggleExtraChar(${index})">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="font-size:12px;font-weight:600;color:var(--text-primary);">${char.id}:</span>
+                            <span style="font-size:13px;color:var(--text-primary);">${escapeHtmlAttr(char.name)}</span>
+                            ${char.avatarData ? '<span style="font-size:10px;">📷</span>' : ''}
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <button class="btn-color-edit" onclick="event.stopPropagation();openCharColorPopup(${index})" title="색상 설정">🎨</button>
+                            <button class="btn-delete-char" onclick="event.stopPropagation();removeExtraCharacter(${index})" title="삭제">×</button>
+                            <span style="font-size:11px;color:var(--text-secondary);transition:transform .2s;display:inline-block;${isOpen ? '' : 'transform:rotate(-90deg);'}">▼</span>
+                        </div>
+                    </div>
+                    <div style="display:${isOpen ? 'block' : 'none'};padding:12px 14px;">
+                        <div class="input-group" style="margin-bottom:10px;">
+                            <label class="input-label">캐릭터 이름</label>
+                            <input type="text" value="${escapeHtmlAttr(char.name)}" placeholder="캐릭터 이름"
+                                   onchange="updateExtraCharName(${index}, this.value)" oninput="generateLog()">
+                        </div>
+                        <div class="input-row" style="margin-bottom:10px;">
+                            <div class="input-group">
+                                <label class="input-label">프로필 사진</label>
+                                <input type="file" accept="image/*" onchange="handleExtraCharAvatar(${index}, this)">
+                                <div style="display:flex;align-items:center;gap:6px;margin-top:8px;">
+                                    <img id="extra-char-avatar-preview-${index}" src="${char.avatarData || ''}" style="display:${char.avatarData ? 'block' : 'none'};width:68px;height:68px;object-fit:cover;border-radius:${char.avatarShape === 'circle' ? '999px' : '16px'};border:1px solid var(--input-border);">
+                                    ${char.avatarData ? '<button onclick="removeExtraCharAvatar(' + index + ')" style="padding:4px 8px;background:#e03131;color:white;border:none;border-radius:6px;cursor:pointer;font-size:11px;">×</button>' : ''}
+                                </div>
+                                <select onchange="updateExtraCharAvatarShape(${index}, this.value)"
+                                    style="width:100%;padding:8px;margin-top:6px;background:var(--panel-bg);border:1px solid var(--input-border);border-radius:8px;color:var(--text-primary);font-size:12px;">
+                                    <option value="rounded" ${char.avatarShape === 'rounded' ? 'selected' : ''}>둥근 네모</option>
+                                    <option value="circle" ${char.avatarShape === 'circle' ? 'selected' : ''}>동그라미</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">소개</label>
+                                <input type="text" value="${escapeHtmlAttr(char.bio || '')}" placeholder="캐릭터 소개 (선택사항)"
+                                       onchange="updateExtraCharBio(${index}, this.value)" oninput="generateLog()">
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleExtraChar(index) {
+            extraCharacters[index]._open = extraCharacters[index]._open === false ? true : false;
+            renderExtraCharacters();
+        }
+
+        function escapeHtmlAttr(str) {
+            return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function handleExtraCharAvatar(index, input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                extraCharacters[index].avatarData = e.target.result;
+                renderExtraCharacters();
+                generateLog();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeExtraCharAvatar(index) {
+            extraCharacters[index].avatarData = '';
+            renderExtraCharacters();
+            generateLog();
+        }
+
+        function updateExtraCharAvatarShape(index, shape) {
+            extraCharacters[index].avatarShape = shape;
+            renderExtraCharacters();
+            generateLog();
+        }
+
+        function updateExtraCharBio(index, bio) {
+            extraCharacters[index].bio = bio;
+            generateLog();
         }
 
         function updateExtraCharName(index, name) {
@@ -4410,6 +4528,8 @@ USER: "반가워요."
                     aiText: document.getElementById('color-ai-text').value,
                     userText: document.getElementById('color-user-text').value,
                     thought: document.getElementById('color-thought').value,
+                    thoughtAi: document.getElementById('color-thought-ai').value,
+                    thoughtUser: document.getElementById('color-thought-user').value,
                     comm: document.getElementById('color-comm').value,
                     commAi: document.getElementById('color-comm-ai').value,
                     commUser: document.getElementById('color-comm-user').value,
@@ -4441,11 +4561,9 @@ USER: "반가워요."
                     aiModel: document.getElementById('ai-model-input').value,
                     promptName: document.getElementById('prompt-name').value,
                     translation: document.getElementById('translation-input').value,
-                    logTitle: document.getElementById('log-title').value,
-                    logSubtitle: document.getElementById('log-subtitle').value,
                     nameAi: document.getElementById('name-ai').value,
                     nameUser: document.getElementById('name-user').value,
-                    charLink: document.getElementById('char-link').value,
+                    charLink: getCharLinks().map((l, i) => i === 0 ? l.url : (l.name + '|' + l.url)).join('\n'),
                     botAvatar: botAvatarData,
                     botAvatarShape: document.getElementById('bot-avatar-shape').value,
                     botBio: document.getElementById('bot-bio').value,
@@ -4524,7 +4642,14 @@ USER: "반가워요."
             document.getElementById('prompt-name').value = '';
             document.getElementById('translation').value = '';
             document.getElementById('translation-input').value = '';
-            document.getElementById('char-link').value = '';
+            // char-links-container 초기화
+            const clContainer = document.getElementById('char-links-container');
+            if (clContainer) {
+                const clRows = clContainer.querySelectorAll('.char-link-row');
+                for (let i = clRows.length - 1; i > 0; i--) clRows[i].remove();
+                const firstClInput = clContainer.querySelector('.char-link-input');
+                if (firstClInput) firstClInput.value = '';
+            }
             document.getElementById('bot-bio').value = '';
             document.getElementById('persona-bio').value = '';
             document.getElementById('persona-avatar-shape').value = 'rounded';
@@ -5213,7 +5338,7 @@ USER: "반가워요."
             const aiModel = document.getElementById('ai-model-input').value;
             const promptName = document.getElementById('prompt-name').value;
             const translation = document.getElementById('translation-input').value;
-            const charLink = document.getElementById('char-link').value;
+            const charLinks = getCharLinks();
             const botBio = document.getElementById('bot-bio').value;
             const personaBio = document.getElementById('persona-bio').value;
             const botAvatarShape = document.getElementById('bot-avatar-shape').value;
@@ -5227,7 +5352,7 @@ USER: "반가워요."
             const pvProfileNamePersonaColor = document.getElementById('color-profile-name-persona').value;
             const pvProfileBioPersonaColor = document.getElementById('color-profile-bio-persona').value;
 
-            if (title || subtitle || aiModel || promptName || translation || charLink) {
+            if (title || subtitle || aiModel || promptName || translation || charLinks.length > 0) {
                 html += `<div class="log-title" style="border-bottom-color:${pvTitleColor}">`;
                 if (title) html += `<h2 style="color:${pvTitleColor}">${escapeHtml(title)}</h2>`;
                 if (subtitle) html += `<p style="color:${pvSubtitleColor};opacity:0.7">${escapeHtml(subtitle)}</p>`;
@@ -5237,7 +5362,13 @@ USER: "반가워요."
                 if (aiModel) metaItems.push(`🍧 ${escapeHtml(aiModel)}`);
                 if (promptName) metaItems.push(`💝 ${escapeHtml(promptName)}`);
                 if (translation) metaItems.push(`💌 ${escapeHtml(translation)}`);
-                if (charLink) metaItems.push(`<a href="${escapeHtml(charLink)}" target="_blank">🍭 ${escapeHtml(aiName)}</a>`);
+                charLinks.forEach((linkObj, idx) => {
+                    if (idx === 0) {
+                        metaItems.push(`<a href="${escapeHtml(linkObj.url)}" target="_blank">🍭 ${escapeHtml(aiName)}</a>`);
+                    } else {
+                        metaItems.push(`<a href="${escapeHtml(linkObj.url)}" target="_blank">🍭 ${escapeHtml(linkObj.name || '')}</a>`);
+                    }
+                });
 
                 if (metaItems.length > 0) {
                     html += '<div class="log-meta">';
@@ -5253,10 +5384,10 @@ USER: "반가워요."
             if (botAvatarData || personaAvatarData || botBio || personaBio) {
                 const botAvatarClass = botAvatarShape === 'circle' ? 'persona-avatar circle' : 'persona-avatar';
                 const personaAvatarClass = personaAvatarShape === 'circle' ? 'persona-avatar circle' : 'persona-avatar';
-                html += '<div class="persona-intro" style="flex-direction:row;justify-content:center;gap:32px;flex-wrap:wrap;">';
+                html += '<div class="persona-intro" style="flex-direction:row;justify-content:center;gap:32px;flex-wrap:nowrap;">';
                 // 봇(AI) 프로필 - 좌측
                 if (botAvatarData || botBio) {
-                    html += '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-width:140px;max-width:220px;">';
+                    html += '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:50%;max-width:50%;box-sizing:border-box;">';
                     if (botAvatarData) {
                         html += `<img src="${botAvatarData}" alt="bot avatar" class="${botAvatarClass}">`;
                     }
@@ -5268,7 +5399,7 @@ USER: "반가워요."
                 }
                 // 페르소나(USER) 프로필 - 우측
                 if (personaAvatarData || personaBio) {
-                    html += '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-width:140px;max-width:220px;">';
+                    html += '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:50%;max-width:50%;box-sizing:border-box;">';
                     if (personaAvatarData) {
                         html += `<img src="${personaAvatarData}" alt="persona avatar" class="${personaAvatarClass}">`;
                     }
@@ -5278,6 +5409,25 @@ USER: "반가워요."
                     }
                     html += '</div>';
                 }
+                html += '</div>';
+            }
+
+            // 추가 캐릭터 프로필 카드 (봇/페르소나 아래)
+            const extraCharsWithProfile = extraCharacters.filter(c => c.avatarData || c.bio);
+            if (extraCharsWithProfile.length > 0) {
+                html += '<div class="persona-intro" style="flex-direction:row;justify-content:center;gap:24px;flex-wrap:wrap;">';
+                extraCharsWithProfile.forEach(char => {
+                    const avatarClass = char.avatarShape === 'circle' ? 'persona-avatar circle' : 'persona-avatar';
+                    html += '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:calc(50% - 12px);max-width:calc(50% - 12px);box-sizing:border-box;">';
+                    if (char.avatarData) {
+                        html += `<img src="${char.avatarData}" alt="${escapeHtml(char.name)} avatar" class="${avatarClass}">`;
+                    }
+                    html += `<div class="persona-name" style="color:${char.nameColor}">${escapeHtml(char.name)}</div>`;
+                    if (char.bio) {
+                        html += `<div class="persona-bio" style="color:${pvProfileBioColor}">${escapeHtml(char.bio)}</div>`;
+                    }
+                    html += '</div>';
+                });
                 html += '</div>';
             }
 
@@ -5358,6 +5508,9 @@ USER: "반가워요."
                     const aiCommColor = document.getElementById('color-comm-ai').value || document.getElementById('color-comm').value;
                     const userCommColor = document.getElementById('color-comm-user').value || document.getElementById('color-comm').value;
                     const currentCommColor = currentSpeakerType === 'USER' ? userCommColor : aiCommColor;
+                    const aiThoughtColor = document.getElementById('color-thought-ai').value || document.getElementById('color-thought').value;
+                    const userThoughtColor = document.getElementById('color-thought-user').value || document.getElementById('color-thought').value;
+                    const currentThoughtColor = currentSpeakerType === 'USER' ? userThoughtColor : aiThoughtColor;
 
                     // 통신 메시지 (> 로 시작)
                     if (content.startsWith('>')) {
@@ -5378,7 +5531,7 @@ USER: "반가워요."
                     else if ((content.startsWith("'") && content.endsWith("'")) ||
                         (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
                         content = content.slice(1, -1);
-                        currentBubbles.push(`<div class="bubble thought">${processMarkdown(content)}</div>`);
+                        currentBubbles.push(`<div class="bubble thought" style="border-color:${currentThoughtColor};color:${currentThoughtColor} !important;">${processMarkdown(content)}</div>`);
                     }
                     // 대사 ("..." 로 감싸진 경우)
                     else if ((content.startsWith('"') && content.endsWith('"')) ||
@@ -5388,7 +5541,7 @@ USER: "반가워요."
                     }
                     // 그 외 (아무 표시 없으면 생각 스타일로)
                     else {
-                        currentBubbles.push(`<div class="bubble thought">${processMarkdown(content)}</div>`);
+                        currentBubbles.push(`<div class="bubble thought" style="border-color:${currentThoughtColor};color:${currentThoughtColor} !important;">${processMarkdown(content)}</div>`);
                     }
                 }
 
@@ -5816,6 +5969,8 @@ USER: "반가워요."
             const aiTextColor = document.getElementById('color-ai-text').value;
             const userTextColor = document.getElementById('color-user-text').value;
             const thoughtColor = document.getElementById('color-thought').value;
+            const thoughtAiColor = document.getElementById('color-thought-ai').value || thoughtColor;
+            const thoughtUserColor = document.getElementById('color-thought-user').value || thoughtColor;
             const commColor = document.getElementById('color-comm').value;
             const commAiColor = document.getElementById('color-comm-ai').value || commColor;
             const commUserColor = document.getElementById('color-comm-user').value || commColor;
@@ -5879,7 +6034,7 @@ USER: "반가워요."
             const aiModel = document.getElementById('ai-model-input').value;
             const promptName = document.getElementById('prompt-name').value;
             const translation = document.getElementById('translation-input').value;
-            const charLink = document.getElementById('char-link').value;
+            const charLinks = getCharLinks();
             const aiName = document.getElementById('name-ai').value || 'AI';
             const userName = document.getElementById('name-user').value || 'USER';
             const frameStyle = document.getElementById('frame-select').value;
@@ -5925,14 +6080,20 @@ USER: "반가워요."
             html += `<div style="${bgStyle}${frameCSS}padding:24px;border-radius:${borderRadius}px;font-family:'Noto Sans KR',sans-serif;font-size:${fontSize}px;line-height:1.7;color:${textColor} !important;width:${arcaWidth}%;max-width:100%;margin:0 auto;text-align:left;word-break:break-word;overflow-wrap:break-word;box-sizing:border-box;">`;
 
             // 제목
-            if (title || subtitle || aiModel || promptName || translation || charLink) {
+            if (title || subtitle || aiModel || promptName || translation || charLinks.length > 0) {
                 html += `<div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(128,128,128,0.3);">`;
                 if (title) html += `<div style="font-size:1.8em;font-weight:700;margin-bottom:6px;color:${titleColor} !important;">${escapeHtml(title)}</div>`;
                 if (subtitle) html += `<div style="font-size:1.1em;color:${subtitleColor} !important;">${escapeHtml(subtitle)}</div>`; const metaItems = [];
                 if (aiModel) metaItems.push(`🍧 ${escapeHtml(aiModel)}`);
                 if (promptName) metaItems.push(`💝 ${escapeHtml(promptName)}`);
                 if (translation) metaItems.push(`💌 ${escapeHtml(translation)}`);
-                if (charLink) metaItems.push(`<a href="${escapeHtml(charLink)}" target="_blank" style="color:${nameUserColor};text-decoration:none;">🍭 ${escapeHtml(aiName)}</a>`);
+                charLinks.forEach((linkObj, idx) => {
+                    if (idx === 0) {
+                        metaItems.push(`<a href="${escapeHtml(linkObj.url)}" target="_blank" style="color:${nameUserColor};text-decoration:none;">🍭 ${escapeHtml(aiName)}</a>`);
+                    } else {
+                        metaItems.push(`<a href="${escapeHtml(linkObj.url)}" target="_blank" style="color:${nameUserColor};text-decoration:none;">🍭 ${escapeHtml(linkObj.name || '')}</a>`);
+                    }
+                });
 
                 if (metaItems.length > 0) {
                     html += `<div style="margin-top:12px;font-size:0.85em;color:${textColor};">${metaItems.join(' &nbsp;|&nbsp; ')}</div>`;
@@ -5946,7 +6107,7 @@ USER: "반가워요."
                 html += `<div style="text-align:center;margin-bottom:24px;padding:20px;border-radius:18px;background:rgba(128,128,128,0.08);">`;
                 html += `<table style="margin:0 auto;border-collapse:collapse;border:none;border-spacing:0;max-width:100%;" border="0" cellspacing="0" cellpadding="0"><tr>`;
                 if (botAvatarData || botBio) {
-                    html += `<td style="text-align:center;vertical-align:top;padding:0 8px 8px 8px;border:none;">`;
+                    html += `<td style="width:50%;text-align:center;vertical-align:top;padding:0 8px 8px 8px;border:none;">`;
                     if (botAvatarData) {
                         html += `<img src="${botAvatarData}" width="160" height="160" style="margin:0 auto 8px auto;border-radius:${botAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);max-width:100%;height:auto;">`;
                     }
@@ -5957,7 +6118,7 @@ USER: "반가워요."
                     html += `</td>`;
                 }
                 if (personaAvatarData || personaBio) {
-                    html += `<td style="text-align:center;vertical-align:top;padding:0 8px 8px 8px;border:none;">`;
+                    html += `<td style="width:50%;text-align:center;vertical-align:top;padding:0 8px 8px 8px;border:none;">`;
                     if (personaAvatarData) {
                         html += `<img src="${personaAvatarData}" width="160" height="160" style="margin:0 auto 8px auto;border-radius:${personaAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);max-width:100%;height:auto;">`;
                     }
@@ -5967,6 +6128,27 @@ USER: "반가워요."
                     }
                     html += `</td>`;
                 }
+                html += `</tr></table>`;
+                html += `</div>`;
+            }
+
+            // 추가 캐릭터 프로필 카드 (봇/페르소나 아래)
+            const extraCharsWithProfile = extraCharacters.filter(c => c.avatarData || c.bio);
+            if (extraCharsWithProfile.length > 0) {
+                html += `<div style="text-align:center;margin-bottom:24px;padding:20px;border-radius:18px;background:rgba(128,128,128,0.08);">`;
+                html += `<table style="margin:0 auto;border-collapse:collapse;border:none;border-spacing:0;max-width:100%;" border="0" cellspacing="0" cellpadding="0"><tr>`;
+                extraCharsWithProfile.forEach(char => {
+                    const charAvatarRadius = char.avatarShape === 'circle' ? '999px' : '20px';
+                    html += `<td style="width:50%;text-align:center;vertical-align:top;padding:0 8px 8px 8px;border:none;">`;
+                    if (char.avatarData) {
+                        html += `<img src="${char.avatarData}" width="160" height="160" style="margin:0 auto 8px auto;border-radius:${charAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);max-width:100%;height:auto;">`;
+                    }
+                    html += `<div style="font-size:1.05em;font-weight:700;color:${char.nameColor} !important;">${escapeHtml(char.name)}</div>`;
+                    if (char.bio) {
+                        html += `<div style="font-size:0.9em;line-height:1.65;white-space:pre-wrap;color:${profileBioColor} !important;">${escapeHtml(char.bio)}</div>`;
+                    }
+                    html += `</td>`;
+                });
                 html += `</tr></table>`;
                 html += `</div>`;
             }
@@ -6059,10 +6241,14 @@ USER: "반가워요."
 
                         html += `<div style="margin:12px 0;text-align:${align};">`;
                         html += `<div style="font-size:0.85em;font-weight:600;color:${nameC} !important;margin-bottom:6px;">${escapeHtml(displayName)}</div>`;
+                        html += `<div style="display:flex;flex-direction:column;${align === 'right' ? 'align-items:flex-end' : 'align-items:flex-start'};max-width:85%;${align === 'right' ? 'margin-left:auto;' : ''}box-sizing:border-box;">`;
                         currentBubbles.forEach((bubble, index) => {
                             html += bubble;
+                            if (index < currentBubbles.length - 1) {
+                                html += '<br>';
+                            }
                         });
-                        html += `</div>`;
+                        html += `</div></div>`;
                         currentBubbles = [];
                     }
                 }
@@ -6148,9 +6334,9 @@ USER: "반가워요."
                         lastWasNarrationArca = false;
                         const creatorContent = creatorMatch[1] || creatorMatch[2];
                         html += `<div style="text-align:center;margin:20px 0;">`;
-                        html += `<div style="color:rgba(128,128,128,0.5) !important;margin-bottom:6px;">──────</div>`;
-                        html += `<div style="display:inline-block;padding:14px 28px;border-radius:50px;max-width:80%;text-align:center;font-style:italic;background-color:transparent !important;box-shadow:0 2px 8px rgba(0,0,0,0.1),inset 0 0 0 1000px ${creatorBgColor};color:${creatorTextColor} !important;">✨ ${processMarkdownArca(creatorContent.trim())}</div>`;
-                        html += `<div style="color:rgba(128,128,128,0.5) !important;margin-top:6px;">──────</div>`;
+                        html += `<span style="color:rgba(128,128,128,0.5) !important;">──────</span><br>`;
+                        html += `<div style="display:inline-block;padding:14px 28px;border-radius:50px;max-width:80%;text-align:center;font-style:italic;background-color:transparent !important;box-shadow:0 2px 8px rgba(0,0,0,0.1),inset 0 0 0 1000px ${creatorBgColor};color:${creatorTextColor} !important;">✨ ${processMarkdownArca(creatorContent.trim())}</div><br>`;
+                        html += `<span style="color:rgba(128,128,128,0.5) !important;">──────</span>`;
                         html += `</div>`;
                         return;
                     }
@@ -6183,29 +6369,29 @@ USER: "반가워요."
                                 currentSpeakerType = charIndex;
                             }
 
-                            let bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:85%;box-sizing:border-box;border:2px solid ${char.bgColor};`;
+                            let bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:inline-block;max-width:100%;box-sizing:border-box;border:2px solid ${char.bgColor};`;
                             let bubbleContent = content;
 
                             // 통신 메시지
                             if (content.startsWith('>')) {
                                 bubbleContent = '📡 ' + content.substring(1).trim();
                                 const charCommColor = char.commColor || commColor;
-                                bubbleStyle = `background-color:transparent !important;color:${charCommColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:85%;box-sizing:border-box;border:2px solid ${charCommColor};`;
+                                bubbleStyle = `background-color:transparent !important;color:${charCommColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:inline-block;max-width:100%;box-sizing:border-box;border:2px solid ${charCommColor};`;
                             }
                             // 속삭임
                             else if (content.startsWith('((') && content.endsWith('))')) {
                                 bubbleContent = content.slice(2, -2).trim();
-                                bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:85%;box-sizing:border-box;font-size:0.9em;border:2px solid ${char.bgColor};`;
+                                bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:inline-block;max-width:100%;box-sizing:border-box;font-size:0.9em;border:2px solid ${char.bgColor};`;
                             }
                             // 외침
                             else if (content.startsWith('!')) {
                                 bubbleContent = content.substring(1).trim();
-                                bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:85%;box-sizing:border-box;font-weight:bold;font-size:1.1em;border:2px solid ${char.bgColor};`;
+                                bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:inline-block;max-width:100%;box-sizing:border-box;font-weight:bold;font-size:1.1em;border:2px solid ${char.bgColor};`;
                             }
                             // 생각
                             else if ((content.startsWith("'") && content.endsWith("'")) || (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
                                 bubbleContent = content.slice(1, -1);
-                                bubbleStyle = `background-color:transparent !important;color:${char.nameColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:85%;box-sizing:border-box;font-style:italic;border:1px dashed ${char.nameColor};`;
+                                bubbleStyle = `background-color:transparent !important;color:${char.nameColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:inline-block;max-width:100%;box-sizing:border-box;font-style:italic;border:1px dashed ${char.nameColor};`;
                             }
                             // 대사
                             else if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith('\u201c') && content.endsWith('\u201d'))) {
@@ -6213,7 +6399,7 @@ USER: "반가워요."
                             }
                             // 그 외 (아무 표시 없으면 생각 스타일로)
                             else {
-                                bubbleStyle = `background-color:transparent !important;color:${char.nameColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:85%;box-sizing:border-box;font-style:italic;border:1px dashed ${char.nameColor};`;
+                                bubbleStyle = `background-color:transparent !important;color:${char.nameColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:inline-block;max-width:100%;box-sizing:border-box;font-style:italic;border:1px dashed ${char.nameColor};`;
                             }
 
                             currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
@@ -6238,29 +6424,30 @@ USER: "반가워요."
                             currentSpeakerType = speaker;
                         }
 
-                        let bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:85%;box-sizing:border-box;border:2px solid ${bgC};text-align:left;`;
+                        let bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:inline-block;max-width:100%;box-sizing:border-box;border:2px solid ${bgC};text-align:left;`;
                         let bubbleContent = content;
 
                         // 통신 메시지
                         if (content.startsWith('>')) {
                             bubbleContent = '📡 ' + content.substring(1).trim();
                             const currentCommColor = isAI ? commAiColor : commUserColor;
-                            bubbleStyle = `background-color:transparent !important;color:${currentCommColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:85%;box-sizing:border-box;border:2px solid ${currentCommColor};text-align:left;`;
+                            bubbleStyle = `background-color:transparent !important;color:${currentCommColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:inline-block;max-width:100%;box-sizing:border-box;border:2px solid ${currentCommColor};text-align:left;`;
                         }
                         // 속삭임
                         else if (content.startsWith('((') && content.endsWith('))')) {
                             bubbleContent = content.slice(2, -2).trim();
-                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:85%;box-sizing:border-box;font-size:0.9em;border:2px solid ${bgC};text-align:left;`;
+                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:inline-block;max-width:100%;box-sizing:border-box;font-size:0.9em;border:2px solid ${bgC};text-align:left;`;
                         }
                         // 외침
                         else if (content.startsWith('!')) {
                             bubbleContent = content.substring(1).trim();
-                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:85%;box-sizing:border-box;font-weight:bold;font-size:1.1em;border:2px solid ${bgC};text-align:left;`;
+                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:inline-block;max-width:100%;box-sizing:border-box;font-weight:bold;font-size:1.1em;border:2px solid ${bgC};text-align:left;`;
                         }
                         // 생각
                         else if ((content.startsWith("'") && content.endsWith("'")) || (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
                             bubbleContent = content.slice(1, -1);
-                            bubbleStyle = `background-color:transparent !important;color:${thoughtColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:85%;box-sizing:border-box;font-style:italic;border:1px dashed ${thoughtColor};text-align:left;`;
+                            const currentThoughtColor = isAI ? thoughtAiColor : thoughtUserColor;
+                            bubbleStyle = `background-color:transparent !important;color:${currentThoughtColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:inline-block;max-width:100%;box-sizing:border-box;font-style:italic;border:1px dashed ${currentThoughtColor};text-align:left;`;
                         }
                         // 대사
                         else if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith('\u201c') && content.endsWith('\u201d'))) {
@@ -6268,7 +6455,8 @@ USER: "반가워요."
                         }
                         // 그 외 (아무 표시 없으면 생각 스타일로)
                         else {
-                            bubbleStyle = `background-color:transparent !important;color:${thoughtColor} !important;padding:10px 14px;border-radius:12px;margin:4px 0;display:inline-block;max-width:85%;box-sizing:border-box;font-style:italic;border:1px dashed ${thoughtColor};text-align:left;`;
+                            const currentThoughtColor = isAI ? thoughtAiColor : thoughtUserColor;
+                            bubbleStyle = `background-color:transparent !important;color:${currentThoughtColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:inline-block;max-width:100%;box-sizing:border-box;font-style:italic;border:1px dashed ${currentThoughtColor};text-align:left;`;
                         }
 
                         currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
@@ -6458,6 +6646,70 @@ USER: "반가워요."
                 document.removeEventListener('touchmove', drag);
                 document.removeEventListener('touchend', stopDrag);
             }
+        }
+
+        // ========== 캐릭터 링크 관리 ==========
+        function addCharLinkRow() {
+            const container = document.getElementById('char-links-container');
+            const row = document.createElement('div');
+            row.className = 'char-link-row';
+            row.style.cssText = 'display:flex;gap:6px;align-items:center;margin-bottom:6px;';
+            row.innerHTML = `
+                <input type="text" class="char-link-name" placeholder="캐릭터 이름" oninput="generateLog()" style="width:100px;">
+                <input type="text" class="char-link-url" placeholder="링크 (https://...)" oninput="generateLog()" style="flex:1;">
+                <button onclick="removeCharLinkRow(this)" style="padding:6px 10px;background:#e03131;color:white;border:none;border-radius:6px;cursor:pointer;font-size:13px;">×</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeCharLinkRow(btn) {
+            btn.closest('.char-link-row').remove();
+            generateLog();
+        }
+
+        function getCharLinks() {
+            const rows = document.querySelectorAll('#char-links-container .char-link-row');
+            const links = [];
+            rows.forEach((row, idx) => {
+                if (idx === 0) {
+                    const url = row.querySelector('.char-link-input')?.value?.trim();
+                    if (url) links.push({ name: null, url: url });
+                } else {
+                    const name = row.querySelector('.char-link-name')?.value?.trim();
+                    const url = row.querySelector('.char-link-url')?.value?.trim();
+                    if (name && url) links.push({ name: name, url: url });
+                }
+            });
+            return links;
+        }
+
+        function setCharLinksFromPreset(charLinkValue) {
+            const container = document.getElementById('char-links-container');
+            // 기존 추가 행 제거 (첫 번째 행 제외)
+            const rows = container.querySelectorAll('.char-link-row');
+            for (let i = rows.length - 1; i > 0; i--) rows[i].remove();
+            // 첫 번째 행 초기화
+            const firstInput = container.querySelector('.char-link-input');
+            if (firstInput) firstInput.value = '';
+            if (!charLinkValue) return;
+            // 이전 textarea 형식 호환 (줄바꿈 구분)
+            const lines = charLinkValue.split('\n').map(l => l.trim()).filter(l => l);
+            lines.forEach((line, idx) => {
+                if (idx === 0) {
+                    if (firstInput) firstInput.value = line;
+                } else {
+                    addCharLinkRow();
+                    const newRows = container.querySelectorAll('.char-link-row');
+                    const lastRow = newRows[newRows.length - 1];
+                    const parts = line.split('|');
+                    if (parts.length >= 2) {
+                        lastRow.querySelector('.char-link-name').value = parts[0].trim();
+                        lastRow.querySelector('.char-link-url').value = parts.slice(1).join('|').trim();
+                    } else {
+                        lastRow.querySelector('.char-link-url').value = line;
+                    }
+                }
+            });
         }
 
 // ===== init.js =====
@@ -6823,6 +7075,10 @@ AI: 빙그레 웃는다`;
                 document.getElementById('color-user-text-text').value = preset.colors.userText || '#ffffff';
                 document.getElementById('color-thought').value = preset.colors.thought || '#748ffc';
                 document.getElementById('color-thought-text').value = preset.colors.thought || '#748ffc';
+                document.getElementById('color-thought-ai').value = preset.colors.thoughtAi || preset.colors.thought || '#748ffc';
+                document.getElementById('color-thought-ai-text').value = preset.colors.thoughtAi || preset.colors.thought || '#748ffc';
+                document.getElementById('color-thought-user').value = preset.colors.thoughtUser || preset.colors.thought || '#748ffc';
+                document.getElementById('color-thought-user-text').value = preset.colors.thoughtUser || preset.colors.thought || '#748ffc';
                 document.getElementById('color-comm').value = preset.colors.comm || '#20c997';
                 document.getElementById('color-comm-text').value = preset.colors.comm || '#20c997';
                 document.getElementById('color-comm-ai').value = preset.colors.commAi || preset.colors.comm || '#20c997';
@@ -6882,11 +7138,9 @@ AI: 빙그레 웃는다`;
                 document.getElementById('ai-model-input').value = preset.input.aiModel || '';
                 document.getElementById('prompt-name').value = preset.input.promptName || '';
                 document.getElementById('translation-input').value = preset.input.translation || '';
-                document.getElementById('log-title').value = preset.input.logTitle || '';
-                document.getElementById('log-subtitle').value = preset.input.logSubtitle || '';
                 document.getElementById('name-ai').value = preset.input.nameAi || 'AI';
                 document.getElementById('name-user').value = preset.input.nameUser || 'USER';
-                document.getElementById('char-link').value = preset.input.charLink || '';
+                setCharLinksFromPreset(preset.input.charLink || '');
                 document.getElementById('bot-bio').value = preset.input.botBio || '';
                 document.getElementById('persona-bio').value = preset.input.personaBio || '';
                 document.getElementById('bot-avatar-shape').value = preset.input.botAvatarShape || 'rounded';
