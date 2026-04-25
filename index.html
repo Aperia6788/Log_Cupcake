@@ -4026,9 +4026,11 @@ USER: "반가워요."
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                extraCharacters[index].avatarData = e.target.result;
-                renderExtraCharacters();
-                generateLog();
+                resizeImageForCache(e.target.result, 320, function(resized) {
+                    extraCharacters[index].avatarData = resized;
+                    renderExtraCharacters();
+                    generateLog();
+                });
             };
             reader.readAsDataURL(file);
         }
@@ -4208,6 +4210,7 @@ USER: "반가워요."
             if (popup) popup.remove();
             if (overlay) overlay.remove();
         }
+
 
 // ===== images.js =====
 
@@ -4622,13 +4625,34 @@ USER: "반가워요."
         }
 
         function exportPreset() {
-            const preset = collectPresetData();
+            const savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
+            const exportData = {
+                type: 'log-cupcake-presets',
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                presets: savedPresets
+            };
 
-            const blob = new Blob([JSON.stringify(preset, null, 2)], { type: 'application/json' });
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             const link = document.createElement('a');
-            link.download = 'log-cupcake-preset.json';
+            link.download = 'log-cupcake-presets.json';
             link.href = URL.createObjectURL(blob);
             link.click();
+        }
+
+        function normalizeImportedPresets(parsed) {
+            const importedPresets = Array.isArray(parsed)
+                ? parsed
+                : Array.isArray(parsed && parsed.presets)
+                    ? parsed.presets
+                    : [parsed];
+
+            return importedPresets
+                .filter(preset => preset && typeof preset === 'object')
+                .map((preset, index) => ({
+                    ...preset,
+                    name: preset.name || `가져온 프리셋 ${index + 1}`
+                }));
         }
 
         // ========== 초기화 함수 ==========
@@ -4707,6 +4731,7 @@ USER: "반가워요."
 
             alert('초기화되었습니다!');
         }
+
 
 // ===== blocks.js =====
 
@@ -5419,11 +5444,11 @@ USER: "반가워요."
                 html += '<div class="persona-intro" style="flex-direction:row;justify-content:center;gap:24px;flex-wrap:wrap;">';
                 extraCharsWithProfile.forEach(char => {
                     const avatarClass = char.avatarShape === 'circle' ? 'persona-avatar circle' : 'persona-avatar';
-                    html += '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:calc(50% - 12px);max-width:calc(50% - 12px);box-sizing:border-box;">';
+                    html += '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:0 0 calc((100% - 24px) / 2);max-width:calc((100% - 24px) / 2);min-width:0;box-sizing:border-box;">';
                     if (char.avatarData) {
                         html += `<img src="${char.avatarData}" alt="${escapeHtml(char.name)} avatar" class="${avatarClass}">`;
                     }
-                    html += `<div class="persona-name" style="color:${char.nameColor}">${escapeHtml(char.name)}</div>`;
+                    html += `<div class="persona-name" style="color:${char.nameColor};max-width:100%;overflow-wrap:anywhere;">${escapeHtml(char.name)}</div>`;
                     if (char.bio) {
                         html += `<div class="persona-bio" style="color:${pvProfileBioColor}">${escapeHtml(char.bio)}</div>`;
                     }
@@ -5900,6 +5925,7 @@ USER: "반가워요."
             });
         }
 
+
 // ===== arca-html.js =====
 
 
@@ -6110,7 +6136,7 @@ USER: "반가워요."
                 if (botAvatarData || botBio) {
                     html += `<td style="width:50%;text-align:center;vertical-align:top;padding:0 8px 8px 8px;border:none;">`;
                     if (botAvatarData) {
-                        html += `<img src="${botAvatarData}" width="160" height="160" style="margin:0 auto 8px auto;border-radius:${botAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);max-width:100%;height:auto;">`;
+                        html += `<img src="${botAvatarData}" width="160" height="160" style="width:160px;height:160px;margin:0 auto 8px auto;border-radius:${botAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);max-width:100%;">`;
                     }
                     html += `<div style="font-size:1.05em;font-weight:700;color:${profileNameColor} !important;">${escapeHtml(aiName)}</div>`;
                     if (botBio) {
@@ -6121,7 +6147,7 @@ USER: "반가워요."
                 if (personaAvatarData || personaBio) {
                     html += `<td style="width:50%;text-align:center;vertical-align:top;padding:0 8px 8px 8px;border:none;">`;
                     if (personaAvatarData) {
-                        html += `<img src="${personaAvatarData}" width="160" height="160" style="margin:0 auto 8px auto;border-radius:${personaAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);max-width:100%;height:auto;">`;
+                        html += `<img src="${personaAvatarData}" width="160" height="160" style="width:160px;height:160px;margin:0 auto 8px auto;border-radius:${personaAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);max-width:100%;">`;
                     }
                     html += `<div style="font-size:1.05em;font-weight:700;color:${profileNamePersonaColor} !important;">${escapeHtml(userName)}</div>`;
                     if (personaBio) {
@@ -6137,20 +6163,22 @@ USER: "반가워요."
             const extraCharsWithProfile = extraCharacters.filter(c => c.avatarData || c.bio);
             if (extraCharsWithProfile.length > 0) {
                 html += `<div style="text-align:center;margin-bottom:24px;padding:20px;border-radius:18px;background:rgba(128,128,128,0.08);">`;
-                html += `<table style="margin:0 auto;border-collapse:collapse;border:none;border-spacing:0;max-width:100%;" border="0" cellspacing="0" cellpadding="0"><tr>`;
-                extraCharsWithProfile.forEach(char => {
+                html += `<table style="margin:0 auto;border-collapse:collapse;border:none;border-spacing:0;max-width:100%;width:100%;" border="0" cellspacing="0" cellpadding="0">`;
+                extraCharsWithProfile.forEach((char, index) => {
+                    if (index % 2 === 0) html += `<tr>`;
                     const charAvatarRadius = char.avatarShape === 'circle' ? '999px' : '20px';
                     html += `<td style="width:50%;text-align:center;vertical-align:top;padding:0 8px 8px 8px;border:none;">`;
                     if (char.avatarData) {
-                        html += `<img src="${char.avatarData}" width="160" height="160" style="margin:0 auto 8px auto;border-radius:${charAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);max-width:100%;height:auto;">`;
+                        html += `<img src="${char.avatarData}" width="160" height="160" style="width:160px;height:160px;margin:0 auto 8px auto;border-radius:${charAvatarRadius};border:2px solid rgba(255,255,255,0.12);box-shadow:0 8px 18px rgba(0,0,0,0.14);max-width:100%;">`;
                     }
-                    html += `<div style="font-size:1.05em;font-weight:700;color:${char.nameColor} !important;">${escapeHtml(char.name)}</div>`;
+                    html += `<div style="font-size:1.05em;font-weight:700;color:${char.nameColor} !important;word-break:break-word;overflow-wrap:anywhere;">${escapeHtml(char.name)}</div>`;
                     if (char.bio) {
                         html += `<div style="font-size:0.9em;line-height:1.65;white-space:pre-wrap;color:${profileBioColor} !important;">${escapeHtml(char.bio)}</div>`;
                     }
                     html += `</td>`;
+                    if (index % 2 === 1 || index === extraCharsWithProfile.length - 1) html += `</tr>`;
                 });
-                html += `</tr></table>`;
+                html += `</table>`;
                 html += `</div>`;
             }
 
@@ -6242,7 +6270,7 @@ USER: "반가워요."
 
                         html += `<div style="margin:12px 0;text-align:${align};">`;
                         html += `<div style="font-size:0.85em;font-weight:600;color:${nameC} !important;margin-bottom:6px;">${escapeHtml(displayName)}</div>`;
-                        html += `<div style="max-width:85%;${align === 'right' ? 'margin-left:auto;' : ''}box-sizing:border-box;">`;
+                        html += `<div style="display:inline-block;text-align:${align};width:75%;max-width:100%;box-sizing:border-box;">`;
                         currentBubbles.forEach((bubble) => {
                             html += bubble;
                         });
@@ -6333,7 +6361,7 @@ USER: "반가워요."
                         const creatorContent = creatorMatch[1] || creatorMatch[2];
                         html += `<div style="text-align:center;margin:20px 0;">`;
                         html += `<span style="color:rgba(128,128,128,0.5) !important;">──────</span><br>`;
-                        html += `<div style="display:block;width:fit-content;margin:0 auto;padding:14px 28px;border-radius:50px;max-width:80%;text-align:center;font-style:italic;background-color:transparent !important;box-shadow:0 2px 8px rgba(0,0,0,0.1),inset 0 0 0 1000px ${creatorBgColor};color:${creatorTextColor} !important;">✨ ${processMarkdownArca(creatorContent.trim())}</div><br>`;
+                        html += `<div style="display:inline-block;padding:14px 28px;border-radius:50px;max-width:80%;text-align:center;font-style:italic;background-color:transparent !important;box-shadow:0 2px 8px rgba(0,0,0,0.1),inset 0 0 0 1000px ${creatorBgColor};color:${creatorTextColor} !important;">✨ ${processMarkdownArca(creatorContent.trim())}</div><br>`;
                         html += `<span style="color:rgba(128,128,128,0.5) !important;">──────</span>`;
                         html += `</div>`;
                         return;
@@ -6367,29 +6395,29 @@ USER: "반가워요."
                                 currentSpeakerType = charIndex;
                             }
 
-                            let bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;width:fit-content;max-width:100%;box-sizing:border-box;border:2px solid ${char.bgColor};`;
+                            let bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;max-width:100%;box-sizing:border-box;width:fit-content;border:2px solid ${char.bgColor};`;
                             let bubbleContent = content;
 
                             // 통신 메시지
                             if (content.startsWith('>')) {
                                 bubbleContent = '📡 ' + content.substring(1).trim();
                                 const charCommColor = char.commColor || commColor;
-                                bubbleStyle = `background-color:transparent !important;color:${charCommColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;width:fit-content;max-width:100%;box-sizing:border-box;border:2px solid ${charCommColor};`;
+                                bubbleStyle = `background-color:transparent !important;color:${charCommColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;max-width:100%;box-sizing:border-box;width:fit-content;border:2px solid ${charCommColor};`;
                             }
                             // 속삭임
                             else if (content.startsWith('((') && content.endsWith('))')) {
                                 bubbleContent = content.slice(2, -2).trim();
-                                bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;width:fit-content;max-width:100%;box-sizing:border-box;font-size:0.9em;border:2px solid ${char.bgColor};`;
+                                bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;max-width:100%;box-sizing:border-box;width:fit-content;font-size:0.9em;border:2px solid ${char.bgColor};`;
                             }
                             // 외침
                             else if (content.startsWith('!')) {
                                 bubbleContent = content.substring(1).trim();
-                                bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;width:fit-content;max-width:100%;box-sizing:border-box;font-weight:bold;font-size:1.1em;border:2px solid ${char.bgColor};`;
+                                bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${char.bgColor};color:${char.textColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;max-width:100%;box-sizing:border-box;width:fit-content;font-weight:bold;font-size:1.1em;border:2px solid ${char.bgColor};`;
                             }
                             // 생각
                             else if ((content.startsWith("'") && content.endsWith("'")) || (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
                                 bubbleContent = content.slice(1, -1);
-                                bubbleStyle = `background-color:transparent !important;color:${char.nameColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;width:fit-content;max-width:100%;box-sizing:border-box;font-style:italic;border:1px dashed ${char.nameColor};`;
+                                bubbleStyle = `background-color:transparent !important;color:${char.nameColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;max-width:100%;box-sizing:border-box;width:fit-content;font-style:italic;border:1px dashed ${char.nameColor};`;
                             }
                             // 대사
                             else if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith('\u201c') && content.endsWith('\u201d'))) {
@@ -6397,7 +6425,7 @@ USER: "반가워요."
                             }
                             // 그 외 (아무 표시 없으면 생각 스타일로)
                             else {
-                                bubbleStyle = `background-color:transparent !important;color:${char.nameColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;width:fit-content;max-width:100%;box-sizing:border-box;font-style:italic;border:1px dashed ${char.nameColor};`;
+                                bubbleStyle = `background-color:transparent !important;color:${char.nameColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;max-width:100%;box-sizing:border-box;width:fit-content;font-style:italic;border:1px dashed ${char.nameColor};`;
                             }
 
                             currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
@@ -6423,30 +6451,30 @@ USER: "반가워요."
                         }
 
                         const marginDir = currentSpeakerType === 'USER' ? 'margin-left:auto;' : '';
-                        let bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;width:fit-content;max-width:100%;box-sizing:border-box;border:2px solid ${bgC};text-align:left;${marginDir}`;
+                        let bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;max-width:100%;box-sizing:border-box;width:fit-content;border:2px solid ${bgC};text-align:left;${marginDir}`;
                         let bubbleContent = content;
 
                         // 통신 메시지
                         if (content.startsWith('>')) {
                             bubbleContent = '📡 ' + content.substring(1).trim();
                             const currentCommColor = isAI ? commAiColor : commUserColor;
-                            bubbleStyle = `background-color:transparent !important;color:${currentCommColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;width:fit-content;max-width:100%;box-sizing:border-box;border:2px solid ${currentCommColor};text-align:left;${marginDir}`;
+                            bubbleStyle = `background-color:transparent !important;color:${currentCommColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;max-width:100%;box-sizing:border-box;width:fit-content;border:2px solid ${currentCommColor};text-align:left;${marginDir}`;
                         }
                         // 속삭임
                         else if (content.startsWith('((') && content.endsWith('))')) {
                             bubbleContent = content.slice(2, -2).trim();
-                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;width:fit-content;max-width:100%;box-sizing:border-box;font-size:0.9em;border:2px solid ${bgC};text-align:left;${marginDir}`;
+                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;max-width:100%;box-sizing:border-box;width:fit-content;font-size:0.9em;border:2px solid ${bgC};text-align:left;${marginDir}`;
                         }
                         // 외침
                         else if (content.startsWith('!')) {
                             bubbleContent = content.substring(1).trim();
-                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;width:fit-content;max-width:100%;box-sizing:border-box;font-weight:bold;font-size:1.1em;border:2px solid ${bgC};text-align:left;${marginDir}`;
+                            bubbleStyle = `background-color:transparent !important;box-shadow:inset 0 0 0 1000px ${bgC};color:${txtC} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;max-width:100%;box-sizing:border-box;width:fit-content;font-weight:bold;font-size:1.1em;border:2px solid ${bgC};text-align:left;${marginDir}`;
                         }
                         // 생각
                         else if ((content.startsWith("'") && content.endsWith("'")) || (content.startsWith("\u2018") && content.endsWith("\u2019"))) {
                             bubbleContent = content.slice(1, -1);
                             const currentThoughtColor = isAI ? thoughtAiColor : thoughtUserColor;
-                            bubbleStyle = `background-color:transparent !important;color:${currentThoughtColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;width:fit-content;max-width:100%;box-sizing:border-box;font-style:italic;border:1px dashed ${currentThoughtColor};text-align:left;${marginDir}`;
+                            bubbleStyle = `background-color:transparent !important;color:${currentThoughtColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;max-width:100%;box-sizing:border-box;width:fit-content;font-style:italic;border:1px dashed ${currentThoughtColor};text-align:left;${marginDir}`;
                         }
                         // 대사
                         else if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith('\u201c') && content.endsWith('\u201d'))) {
@@ -6455,7 +6483,7 @@ USER: "반가워요."
                         // 그 외 (아무 표시 없으면 생각 스타일로)
                         else {
                             const currentThoughtColor = isAI ? thoughtAiColor : thoughtUserColor;
-                            bubbleStyle = `background-color:transparent !important;color:${currentThoughtColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;width:fit-content;max-width:100%;box-sizing:border-box;font-style:italic;border:1px dashed ${currentThoughtColor};text-align:left;${marginDir}`;
+                            bubbleStyle = `background-color:transparent !important;color:${currentThoughtColor} !important;padding:10px 14px;border-radius:12px;margin:8px 0;display:block;max-width:100%;box-sizing:border-box;width:fit-content;font-style:italic;border:1px dashed ${currentThoughtColor};text-align:left;${marginDir}`;
                         }
 
                         currentBubbles.push(`<div style="${bubbleStyle}">${processMarkdownArca(bubbleContent)}</div>`);
@@ -6507,6 +6535,7 @@ USER: "반가워요."
             text = text.replace(/~~(.+?)~~/g, '<del>$1</del>');
             return text;
         }
+
 
 // ===== ui.js =====
 
@@ -6764,20 +6793,18 @@ AI: ((조용히 속삭입니다...))
 USER: ! 깜짝 놀랐어!
 AI: 빙그레 웃는다`;
 
-        // 아바타 이미지 리사이즈 (localStorage 용량 절약)
+        // 아바타 이미지 정사각형 크롭 + 리사이즈 (Arca가 CSS를 바꿔도 동일 비율 유지)
         function resizeImageForCache(dataUrl, maxSize, callback) {
             const img = new Image();
             img.onload = function() {
-                if (img.width <= maxSize && img.height <= maxSize) {
-                    callback(dataUrl);
-                    return;
-                }
                 const canvas = document.createElement('canvas');
-                const ratio = Math.min(maxSize / img.width, maxSize / img.height);
-                canvas.width = Math.round(img.width * ratio);
-                canvas.height = Math.round(img.height * ratio);
+                canvas.width = maxSize;
+                canvas.height = maxSize;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const sourceSize = Math.min(img.width, img.height);
+                const sourceX = Math.floor((img.width - sourceSize) / 2);
+                const sourceY = Math.floor((img.height - sourceSize) / 2);
+                ctx.drawImage(img, sourceX, sourceY, sourceSize, sourceSize, 0, 0, maxSize, maxSize);
                 callback(canvas.toDataURL('image/jpeg', 0.85));
             };
             img.onerror = function() { callback(dataUrl); };
@@ -6845,15 +6872,15 @@ AI: 빙그레 웃는다`;
 
             const reader = new FileReader();
             reader.onload = function (event) {
-                botAvatarData = event.target.result;
-                resizeImageForCache(botAvatarData, 320, function(resized) {
+                resizeImageForCache(event.target.result, 320, function(resized) {
+                    botAvatarData = resized;
                     safeSetItem('cachedBotAvatar', resized);
+                    preview.src = botAvatarData;
+                    preview.style.display = 'block';
+                    preview.style.borderRadius = document.getElementById('bot-avatar-shape').value === 'circle' ? '999px' : '16px';
+                    document.getElementById('bot-avatar-remove').style.display = 'inline-block';
+                    generateLog();
                 });
-                preview.src = botAvatarData;
-                preview.style.display = 'block';
-                preview.style.borderRadius = document.getElementById('bot-avatar-shape').value === 'circle' ? '999px' : '16px';
-                document.getElementById('bot-avatar-remove').style.display = 'inline-block';
-                generateLog();
             };
             reader.readAsDataURL(file);
         });
@@ -6879,15 +6906,15 @@ AI: 빙그레 웃는다`;
 
             const reader = new FileReader();
             reader.onload = function (event) {
-                personaAvatarData = event.target.result;
-                resizeImageForCache(personaAvatarData, 320, function(resized) {
+                resizeImageForCache(event.target.result, 320, function(resized) {
+                    personaAvatarData = resized;
                     safeSetItem('cachedPersonaAvatar', resized);
+                    preview.src = personaAvatarData;
+                    preview.style.display = 'block';
+                    preview.style.borderRadius = document.getElementById('persona-avatar-shape').value === 'circle' ? '999px' : '16px';
+                    document.getElementById('persona-avatar-remove').style.display = 'inline-block';
+                    generateLog();
                 });
-                preview.src = personaAvatarData;
-                preview.style.display = 'block';
-                preview.style.borderRadius = document.getElementById('persona-avatar-shape').value === 'circle' ? '999px' : '16px';
-                document.getElementById('persona-avatar-remove').style.display = 'inline-block';
-                generateLog();
             };
             reader.readAsDataURL(file);
         });
@@ -6958,10 +6985,22 @@ AI: 빙그레 웃는다`;
                 const reader = new FileReader();
                 reader.onload = function (event) {
                     try {
-                        const preset = JSON.parse(event.target.result);
-                        applyPresetData(preset);
+                        const parsed = JSON.parse(event.target.result);
+                        const importedPresets = normalizeImportedPresets(parsed);
+                        if (importedPresets.length === 0) {
+                            alert('가져올 프리셋이 없습니다.');
+                            return;
+                        }
+
+                        const savedPresets = JSON.parse(localStorage.getItem('logPresets') || '[]');
+                        const firstImportedIndex = savedPresets.length;
+                        savedPresets.push(...importedPresets);
+                        safeSetItem('logPresets', JSON.stringify(savedPresets));
+                        safeSetItem('lastPresetIndex', firstImportedIndex);
+                        renderPresetListPanel();
+                        applyPresetData(importedPresets[0]);
                         closePresetPanel();
-                        alert('프리셋을 불러왔습니다!');
+                        alert(`${importedPresets.length}개 프리셋을 불러와 저장했습니다!`);
                     } catch (e) {
                         alert('프리셋 파일을 읽는 중 오류가 발생했습니다.');
                     }
@@ -7152,6 +7191,13 @@ AI: 빙그레 웃는다`;
                     botPreview.style.display = 'block';
                     botPreview.style.borderRadius = preset.input.botAvatarShape === 'circle' ? '999px' : '16px';
                     document.getElementById('bot-avatar-remove').style.display = 'inline-block';
+                    resizeImageForCache(botAvatarData, 320, function(resized) {
+                        if (resized !== botAvatarData) {
+                            botAvatarData = resized;
+                            botPreview.src = resized;
+                            generateLog();
+                        }
+                    });
                 } else {
                     botPreview.removeAttribute('src');
                     botPreview.style.display = 'none';
@@ -7163,6 +7209,13 @@ AI: 빙그레 웃는다`;
                     personaPreview.style.display = 'block';
                     personaPreview.style.borderRadius = preset.input.personaAvatarShape === 'circle' ? '999px' : '16px';
                     document.getElementById('persona-avatar-remove').style.display = 'inline-block';
+                    resizeImageForCache(personaAvatarData, 320, function(resized) {
+                        if (resized !== personaAvatarData) {
+                            personaAvatarData = resized;
+                            personaPreview.src = resized;
+                            generateLog();
+                        }
+                    });
                 } else {
                     personaPreview.removeAttribute('src');
                     personaPreview.style.display = 'none';
@@ -7194,6 +7247,16 @@ AI: 빙그레 웃는다`;
             // 추가 캐릭터 로드
             if (preset.extraCharacters && Array.isArray(preset.extraCharacters)) {
                 extraCharacters = JSON.parse(JSON.stringify(preset.extraCharacters));
+                extraCharacters.forEach((char, index) => {
+                    if (!char.avatarData) return;
+                    resizeImageForCache(char.avatarData, 320, function(resized) {
+                        if (extraCharacters[index] && resized !== extraCharacters[index].avatarData) {
+                            extraCharacters[index].avatarData = resized;
+                            renderExtraCharacters();
+                            generateLog();
+                        }
+                    });
+                });
             } else {
                 extraCharacters = [];
             }
