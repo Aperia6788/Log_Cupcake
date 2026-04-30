@@ -1253,6 +1253,9 @@
 
         /* ========== 제작자 메시지 스타일 ========== */
         .creator-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
             margin: 20px 0;
             clear: both;
@@ -1279,6 +1282,7 @@
         }
 
         .creator-line {
+            display: block;
             color: rgba(128, 128, 128, 0.55);
             letter-spacing: 2px;
             margin: 6px 0;
@@ -6361,7 +6365,7 @@ USER: "반가워요."
                         const creatorContent = creatorMatch[1] || creatorMatch[2];
                         html += `<div style="text-align:center;margin:20px 0;">`;
                         html += `<span style="color:rgba(128,128,128,0.5) !important;">──────</span><br>`;
-                        html += `<div style="display:inline-block;padding:14px 28px;border-radius:50px;max-width:80%;text-align:center;font-style:italic;background-color:transparent !important;box-shadow:0 2px 8px rgba(0,0,0,0.1),inset 0 0 0 1000px ${creatorBgColor};color:${creatorTextColor} !important;">✨ ${processMarkdownArca(creatorContent.trim())}</div><br>`;
+                        html += `<div style="display:block;padding:14px 28px;border-radius:50px;max-width:80%;margin:0 auto;text-align:center;font-style:italic;background-color:transparent !important;box-shadow:0 2px 8px rgba(0,0,0,0.1),inset 0 0 0 1000px ${creatorBgColor};color:${creatorTextColor} !important;">✨ ${processMarkdownArca(creatorContent.trim())}</div><br>`;
                         html += `<span style="color:rgba(128,128,128,0.5) !important;">──────</span>`;
                         html += `</div>`;
                         return;
