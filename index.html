@@ -6364,9 +6364,11 @@ USER: "반가워요."
                         lastWasNarrationArca = false;
                         const creatorContent = creatorMatch[1] || creatorMatch[2];
                         html += `<div style="text-align:center;margin:20px 0;">`;
-                        html += `<span style="color:rgba(128,128,128,0.5) !important;">──────</span><br>`;
-                        html += `<div style="display:block;padding:14px 28px;border-radius:50px;max-width:80%;margin:0 auto;text-align:center;font-style:italic;background-color:transparent !important;box-shadow:0 2px 8px rgba(0,0,0,0.1),inset 0 0 0 1000px ${creatorBgColor};color:${creatorTextColor} !important;">✨ ${processMarkdownArca(creatorContent.trim())}</div><br>`;
-                        html += `<span style="color:rgba(128,128,128,0.5) !important;">──────</span>`;
+                        html += `<div style="color:rgba(128,128,128,0.5) !important;line-height:1.2;margin:6px 0;">──────</div>`;
+                        html += `<div style="text-align:center;margin:6px 0;">`;
+                        html += `<span style="display:inline-block;padding:14px 28px;border-radius:50px;max-width:80%;box-sizing:border-box;text-align:center;font-style:italic;background-color:transparent !important;box-shadow:0 2px 8px rgba(0,0,0,0.1),inset 0 0 0 1000px ${creatorBgColor};color:${creatorTextColor} !important;">✨ ${processMarkdownArca(creatorContent.trim())}</span>`;
+                        html += `</div>`;
+                        html += `<div style="color:rgba(128,128,128,0.5) !important;line-height:1.2;margin:6px 0;">──────</div>`;
                         html += `</div>`;
                         return;
                     }
