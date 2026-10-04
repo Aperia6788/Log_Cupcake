@@ -1393,6 +1393,16 @@
             color: var(--text-secondary);
         }
 
+        .presentation-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .presentation-check input { width: 16px; height: 16px; flex: 0 0 auto; cursor: pointer; }
+
         .log-cover { margin: 0 0 24px; }
         .log-cover img {
             display: block;
@@ -1400,6 +1410,23 @@
             max-width: 100%;
             height: auto;
             border-radius: 8px;
+        }
+
+        /* Cover with names laid over its bottom edge (preview + saved PNG only; the Arca export puts
+           them under the cover — see cover-caption.js). One grid cell holds both: a cover shorter
+           than its caption grows to fit instead of the panel escaping above the log. */
+        .log-cover-overlay { display: grid; }
+        .log-cover-overlay > .log-cover-image,
+        .log-cover-overlay > .log-cover-caption { grid-area: 1 / 1; min-width: 0; }
+        .log-cover-overlay > .log-cover-image { align-self: start; line-height: 0; }
+        .log-cover-overlay > .log-cover-caption {
+            align-self: end;
+            margin: 0.8em;
+            padding: 0.7em 0.6em;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+            line-height: 1.5;
+            text-align: center;
         }
 
         #log-preview.display-simple .simple-line {
@@ -2004,6 +2031,9 @@
 
         .rule-item input {
             flex: 1;
+            /* Inputs refuse to shrink below their intrinsic width, and the sidebar clips rather than
+               scrolls: with the folder tools added, the × button would fall off a 360px screen. */
+            min-width: 0;
         }
 
         .rule-item .btn-remove {
@@ -2033,6 +2063,224 @@
             border-color: var(--accent);
             color: var(--accent);
         }
+
+        /* ========== 목록 폴더 · 페이지 (캐릭터 / 정규식 / 테마) ========== */
+        /* Rows that paginate set display:flex (some inline), which beats the UA rule for [hidden]. */
+        [data-organizer-index][hidden] { display: none !important; }
+
+        .list-organizer-toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 0 0 10px;
+        }
+        .list-organizer-toolbar[hidden] { display: none; }
+
+        .list-folder-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .list-folder-chip,
+        .list-folder-add {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 100%;
+            padding: 5px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-secondary);
+            font-size: 12px;
+            line-height: 1.2;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+
+        .list-folder-chip:hover { border-color: var(--accent); color: var(--text-primary); }
+
+        .list-folder-chip.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+
+        .list-folder-count {
+            flex: 0 0 auto;
+            min-width: 18px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: rgba(127, 127, 127, 0.2);
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .list-folder-chip.active .list-folder-count { background: rgba(255, 255, 255, 0.25); }
+
+        .list-folder-add {
+            background: transparent;
+            border-style: dashed;
+        }
+
+        .list-folder-add:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* While an item is being dragged, every folder chip shows it is a drop target. */
+        .list-drop-active .list-folder-chip:not([data-filter-all]) { border-style: dashed; border-color: var(--accent); }
+        .list-folder-chip.list-drop-target { background: var(--accent); color: #ffffff; }
+
+        .list-folder-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .list-folder-rename,
+        .list-folder-delete {
+            padding: 3px 8px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .list-folder-delete:hover { color: #e03131; }
+        .list-folder-rename:hover { color: var(--accent); }
+
+        .list-folder-note { margin-right: auto; font-size: 11px; opacity: 0.85; }
+
+        .list-page-size {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .list-page-size input,
+        .list-page-jump input {
+            width: 52px;
+            padding: 4px 6px;
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .list-organizer-pager {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .list-organizer-pager:empty { display: none; }
+
+        .list-page-prev,
+        .list-page-next {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .list-page-prev:disabled,
+        .list-page-next:disabled { opacity: 0.35; cursor: default; }
+        .list-page-prev:not(:disabled):hover,
+        .list-page-next:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
+
+        .list-page-jump { display: inline-flex; align-items: center; gap: 4px; }
+        .list-page-range { width: 100%; text-align: center; font-size: 11px; opacity: 0.8; }
+
+        .list-empty {
+            width: 100%;
+            padding: 12px;
+            border: 1px dashed var(--input-border);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .list-item-tools {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 2px;
+        }
+
+        [data-organizer-slot] { display: inline-flex; flex: 0 0 auto; }
+
+        .list-drag-handle,
+        .list-move-button {
+            width: 24px;
+            height: 28px;
+            padding: 0;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .list-drag-handle { cursor: grab; }
+        .list-drag-handle:hover,
+        .list-move-button:hover { background: rgba(127, 127, 127, 0.18); color: var(--text-primary); }
+        .list-item-dragging { opacity: 0.45; }
+
+        .list-move-menu {
+            position: absolute;
+            z-index: 10000;
+            min-width: 180px;
+            max-width: 260px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 6px;
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            background: var(--panel-bg);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+        }
+
+        .list-move-menu-title { padding: 4px 10px 6px; font-size: 11px; color: var(--text-secondary); }
+
+        .list-move-menu button {
+            display: block;
+            width: 100%;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            text-align: left;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .list-move-menu button:hover { background: rgba(127, 127, 127, 0.15); }
+        .list-move-menu button[aria-current="true"] { color: var(--accent); font-weight: 600; }
 
         /* ========== 로그 블록 관리 ========== */
         .log-block {
@@ -2278,7 +2526,8 @@
 
         .preset-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            /* 230px since v1.3.0: each card also carries the ⠿ 📁 folder tools. */
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
             gap: 8px;
         }
 
@@ -2294,6 +2543,7 @@
 
         .preset-item-name {
             flex: 1;
+            min-width: 0;
             font-size: 13px;
             color: var(--text-primary);
             cursor: pointer;
@@ -2609,10 +2859,260 @@
                 max-height: 70vh;
             }
 
+            /* One column: since v1.3.0 a card also carries the folder tools, and two of them no
+               longer fit a phone (the right card's buttons ended past the screen edge). */
             .preset-list {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
             }
         }
+
+        /* =====================================================================================
+           UI 디자인 스킨 (🖌️ 버튼, v1.3.0) — EDITOR ONLY. Nothing here may touch --log-*, bubble or
+           #log-preview colours: the log, its Arca export and the saved PNG must not change with a skin.
+           Kept LAST in the file so equal-specificity rules here win on source order as well.
+           ===================================================================================== */
+
+        /* --- design picker (all skins) --- */
+        .ui-skin-menu {
+            position: fixed;
+            z-index: 10001;
+            width: min(340px, calc(100vw - 16px));
+            padding: 8px;
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            background: var(--panel-bg);
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.32);
+            overflow-y: auto;
+        }
+        .ui-skin-menu-title { padding: 6px 8px 10px; font-size: 13px; font-weight: 700; color: var(--text-primary); }
+        .ui-skin-menu-title span { display: block; margin-top: 2px; font-size: 11px; font-weight: 400; color: var(--text-secondary); }
+        .ui-skin-menu button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 10px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text-primary);
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .ui-skin-menu button:hover { background: rgba(127, 127, 127, 0.12); }
+        .ui-skin-menu button[aria-checked="true"] { border-color: var(--accent); background: rgba(127, 127, 127, 0.08); }
+        .ui-skin-swatches { display: inline-flex; flex: 0 0 auto; border-radius: 8px; overflow: hidden; border: 1px solid rgba(127, 127, 127, 0.35); }
+        .ui-skin-swatches i { width: 16px; height: 34px; }
+        .ui-skin-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .ui-skin-text b { font-size: 14px; }
+        .ui-skin-text small { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+
+        /* --- palettes --- */
+        body.ui-skin-paper {
+            --app-bg: #f3f1ed; --panel-bg: #fbfaf7; --panel-border: #e3dfd6;
+            --input-bg: #f4f2ed; --input-border: #d8d3c8;
+            --text-primary: #242320; --text-secondary: #716d66;
+            --accent: #3d6b55; --accent-hover: #335b48;
+            --ui-section-bg: #ffffff; --ui-stage-bg: #ebe8e1; --ui-stage-check: #e2ded5; --ui-danger: #b4483d;
+        }
+        body.ui-skin-editorial {
+            --app-bg: #efebe3; --panel-bg: #f6f3ec; --panel-border: #d6cfc2;
+            --input-bg: #efebe3; --input-border: #bdb4a5;
+            --text-primary: #171313; --text-secondary: #6f6a62;
+            --accent: #b35a4f; --accent-hover: #9c4c42;
+            --ui-section-bg: transparent; --ui-stage-bg: #e4dfd5; --ui-stage-check: #dad3c6; --ui-danger: #b35a4f;
+        }
+        body.ui-skin-night {
+            --app-bg: #121317; --panel-bg: #18191e; --panel-border: #2a2c33;
+            --input-bg: #202228; --input-border: #353843;
+            --text-primary: #e8e6f0; --text-secondary: #9a98a6;
+            --accent: #8b7cf6; --accent-hover: #7a6aea;
+            --ui-section-bg: #1c1d23; --ui-stage-bg: #0e0f12; --ui-stage-check: #15161b; --ui-danger: #e5787a;
+        }
+
+        /* --- shared calm treatment for every redesigned skin --- */
+        body.ui-skin-custom {
+            font-family: 'Pretendard Variable', Pretendard, 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        body.ui-skin-custom .mode-toggle:not(#ui-skin-button) { display: none; } /* fixed palette per skin */
+        body.ui-skin-custom .app-header h1 {
+            background: none;
+            -webkit-text-fill-color: currentColor;
+            color: var(--text-primary);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+        /* One filled call to action (✨ 복사); every other header button is quiet. */
+        body.ui-skin-custom .app-header .btn,
+        body.ui-skin-custom .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--input-border);
+            box-shadow: none;
+        }
+        body.ui-skin-custom .app-header .btn:hover,
+        body.ui-skin-custom .btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
+        body.ui-skin-custom .app-header .header-right .btn-primary,
+        body.ui-skin-custom .sidebar .btn-primary,
+        body.ui-skin-custom .preset-panel .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+        body.ui-skin-custom .btn-success { background: transparent; color: var(--text-primary); border: 1px solid var(--input-border); }
+        body.ui-skin-custom .section {
+            background: var(--ui-section-bg);
+            border: 1px solid var(--panel-border);
+            box-shadow: none;
+        }
+        body.ui-skin-custom .section-title { color: var(--text-primary); font-weight: 700; }
+        body.ui-skin-custom .tabs { gap: 0; border-bottom: 1px solid var(--panel-border); }
+        body.ui-skin-custom .tab { border-radius: 0; font-weight: 600; }
+        body.ui-skin-custom .tab:hover { background: transparent; color: var(--text-primary); }
+        body.ui-skin-custom .tab.active {
+            background: transparent;
+            color: var(--text-primary);
+            box-shadow: inset 0 -2px 0 var(--accent);
+        }
+        /* The checkerboard is the editor's "this part is transparent" cue for a log whose
+           background is 없음, so redesigned skins keep it, just in their own tones. */
+        body.ui-skin-custom .preview-wrapper,
+        body.ui-skin-custom.light-mode .preview-wrapper {
+            background-color: var(--ui-stage-bg);
+            background-image:
+                linear-gradient(45deg, var(--ui-stage-check) 25%, transparent 25%),
+                linear-gradient(-45deg, var(--ui-stage-check) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, var(--ui-stage-check) 75%),
+                linear-gradient(-45deg, transparent 75%, var(--ui-stage-check) 75%);
+        }
+        body.ui-skin-custom .preview-wrapper.html-mode { background: var(--input-bg); background-image: none; }
+        /* The log must not see the skin. A few log elements (the === dot divider, the empty-state
+           hint) read editor variables, so inside the preview they are pinned to the values every
+           earlier build rendered with (classic). Measured: the divider shade followed the skin. */
+        body.ui-skin-custom #log-preview {
+            --app-bg: #1a1b1e; --panel-bg: #25262b; --panel-border: #373a40;
+            --input-bg: #2c2e33; --input-border: #495057;
+            --text-primary: #f1f3f5; --text-secondary: #adb5bd;
+            --accent: #339af0; --accent-hover: #228be6;
+        }
+        /* The many small coloured buttons (red ×, blue ✏️, yellow 📝, green block tools) become one
+           neutral family; only a hover says "delete". Inline-styled ones need !important. */
+        body.ui-skin-custom .log-block-actions button,
+        body.ui-skin-custom .rule-item .btn-remove,
+        body.ui-skin-custom .btn-delete-char,
+        body.ui-skin-custom .btn-color-edit,
+        body.ui-skin-custom .preset-item-btn,
+        body.ui-skin-custom .saved-theme-row > button:not(.btn),
+        body.ui-skin-custom #bot-avatar-remove,
+        body.ui-skin-custom #persona-avatar-remove,
+        body.ui-skin-custom #char-links-container + button {
+            background: transparent !important;
+            color: var(--text-secondary) !important;
+            border: 1px solid var(--input-border) !important;
+            box-shadow: none !important;
+        }
+        body.ui-skin-custom .log-block-actions .btn-delete:hover,
+        body.ui-skin-custom .rule-item .btn-remove:hover,
+        body.ui-skin-custom .btn-delete-char:hover,
+        body.ui-skin-custom .preset-item-btn.delete:hover,
+        body.ui-skin-custom .saved-theme-row > button:not(.btn):last-child:hover {
+            color: var(--ui-danger) !important;
+            border-color: var(--ui-danger) !important;
+        }
+        /* With a border these read as boxes, so give the tiny ones a tappable size. */
+        body.ui-skin-custom .btn-delete-char,
+        body.ui-skin-custom .btn-color-edit {
+            min-width: 26px;
+            min-height: 26px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+        body.ui-skin-custom .btn-add-block,
+        body.ui-skin-custom .btn-add-rule { border: 1px dashed var(--input-border); color: var(--text-secondary); background: transparent; }
+        body.ui-skin-custom .btn-add-block:hover,
+        body.ui-skin-custom .btn-add-rule:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* --- 에디토리얼: rules instead of cards, mono micro-labels, square corners --- */
+        body.ui-skin-editorial .app-header { border-bottom: 1px solid var(--text-primary); }
+        body.ui-skin-editorial .section {
+            border: none;
+            border-top: 1px solid var(--text-primary);
+            border-radius: 0;
+            padding: 14px 2px 18px;
+        }
+        /* Mono only where it reads as a label; Hangul gets no tracking (spaced syllables look broken). */
+        body.ui-skin-editorial .section-title {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, 'Pretendard Variable', Pretendard, monospace;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+        }
+        /* Memorial-style index numbers: 01, 02, 03 … per tab, in the accent. */
+        body.ui-skin-editorial .tab-content { counter-reset: lc-section; }
+        body.ui-skin-editorial .section-title::before {
+            counter-increment: lc-section;
+            content: counter(lc-section, decimal-leading-zero);
+            width: auto;
+            height: auto;
+            background: none;
+            border-radius: 0;
+            color: var(--accent);
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-right: 4px;
+        }
+        body.ui-skin-editorial .input-label { font-size: 11px; font-weight: 600; letter-spacing: 0; }
+        body.ui-skin-editorial .btn,
+        body.ui-skin-editorial input[type="text"],
+        body.ui-skin-editorial input[type="number"],
+        body.ui-skin-editorial textarea,
+        body.ui-skin-editorial select,
+        body.ui-skin-editorial .log-block,
+        body.ui-skin-editorial .preset-item,
+        body.ui-skin-editorial .list-folder-chip { border-radius: 2px !important; }
+        body.ui-skin-editorial .app-header .btn,
+        body.ui-skin-editorial .btn-secondary { border-color: var(--text-primary); }
+
+        body.ui-skin-editorial .app-header { border-bottom-width: 2px; }
+        body.ui-skin-editorial .app-header h1 { font-size: 24px; font-weight: 900; letter-spacing: -0.05em; text-transform: uppercase; }
+        body.ui-skin-editorial .tabs { border-bottom: 2px solid var(--text-primary); }
+        body.ui-skin-editorial .tab.active { color: #ffffff; background: var(--text-primary); box-shadow: none; }
+
+        /* --- 종이: Mosaic-style — logo left, actions right, soft white cards with rounded rows --- */
+        @media (min-width: 1025px) {
+            body.ui-skin-paper .app-header { justify-content: flex-start; padding: 12px 28px; }
+            body.ui-skin-paper .app-header .header-right { margin-left: auto; }
+        }
+        body.ui-skin-paper .section {
+            border-radius: 16px;
+            border-color: #ebe7de;
+            box-shadow: 0 1px 2px rgba(60, 50, 30, 0.06), 0 6px 18px rgba(60, 50, 30, 0.04);
+        }
+        body.ui-skin-paper .section-title { font-size: 15px; }
+        body.ui-skin-paper .section-title::before { width: 6px; height: 6px; border-radius: 50%; }
+        body.ui-skin-paper .app-header .btn { border-radius: 999px; }
+        body.ui-skin-paper .tab.active { box-shadow: inset 0 -3px 0 var(--accent); }
+
+        /* --- 차분한 밤: pill controls, glassy cards, a soft accent glow --- */
+        body.ui-skin-night .app-header { background: rgba(21, 22, 26, 0.92); }
+        body.ui-skin-night .section {
+            border-radius: 18px;
+            border-color: #2a2c35;
+            background: linear-gradient(180deg, #1e1f26 0%, #1a1b21 100%);
+        }
+        body.ui-skin-night .btn,
+        body.ui-skin-night .list-folder-chip,
+        body.ui-skin-night .btn-add-block,
+        body.ui-skin-night .btn-add-rule { border-radius: 999px; }
+        body.ui-skin-night .tabs { gap: 6px; border-bottom: none; padding: 4px; border-radius: 999px; background: #1e1f26; }
+        body.ui-skin-night .tab { border-radius: 999px; }
+        body.ui-skin-night .tab.active { background: var(--accent); color: #ffffff; box-shadow: 0 0 18px rgba(139, 124, 246, 0.45); }
+        body.ui-skin-night .app-header .header-right .btn-primary { box-shadow: 0 0 22px rgba(139, 124, 246, 0.5); }
+        body.ui-skin-night .section-title::before { box-shadow: 0 0 10px var(--accent); }
 
     </style>
 </head>
@@ -2652,6 +3152,7 @@
         <div class="header-left">
             <h1>🧁 Log Cupcake</h1>
             <button class="mode-toggle" onclick="toggleDarkMode()" title="라이트/다크 모드 전환">🌙</button>
+            <button class="mode-toggle" id="ui-skin-button" type="button" title="화면 디자인 고르기" aria-haspopup="true" aria-expanded="false">🖌️</button>
         </div>
         <div class="header-actions">
             <button class="btn btn-secondary" onclick="togglePresetPanel()" title="프리셋 관리">📁 프리셋</button>
@@ -2928,13 +3429,13 @@
                                     style="width:16px; height:16px; cursor:pointer;">
                                 <span>블록 접기</span>
                             </label>
-                            <!-- The "첫 블록 펼침" convenience is preview-only on purpose: Arca's server
-                                 save strips the `open` attribute, so a reader always lands on fully
-                                 collapsed blocks. Re-emitting `open` cannot beat a server-side strip,
-                                 so the honest fix is telling the author here. Settled by an
-                                 authenticated round trip — .report/arca-details-roundtrip-2026-09-17.md. -->
+                            <!-- Open/closed is preview-only on purpose: the preview keeps whatever the
+                                 author opened across re-renders, while the copy ships every block
+                                 collapsed (owner 2026-10-04) — which is also all a reader gets, since
+                                 Arca's server save strips `open` (authenticated round trip,
+                                 .report/arca-details-roundtrip-2026-09-17.md). Told here, beside the box. -->
                             <span style="font-size:11px; color:var(--text-secondary);"
-                                title="아카라이브는 글을 저장할 때 접기 태그의 open 속성을 제거해요. 접기 자체는 그대로 동작하니, 독자는 블록을 눌러서 펼치게 됩니다.">(미리보기·HTML 공통 · 첫 블록 펼침은 미리보기 전용 — 아카에선 전부 접혀 보여요)</span>
+                                title="미리보기에서 펼친 블록은 작업용이에요. 복사본은 블록이 전부 접힌 채로 나가고, 아카라이브도 저장할 때 접기 태그의 open 속성을 제거해요. 독자는 블록을 눌러서 펼치게 됩니다.">(미리보기·HTML 공통 · 펼침은 미리보기 전용 — 복사본·아카에선 전부 접혀 보여요)</span>
                             <span style="color:var(--panel-border); margin:0 4px;">|</span>
                             <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:13px;">
                                 <input type="checkbox" id="narration-italic"
@@ -2987,13 +3488,14 @@ USER: "반가워요."
                         <div class="section-title">단어 변환 (정규식)</div>
                         <div class="rule-list" id="rule-list">
                             <div class="rule-item">
+                                <span data-organizer-slot></span>
                                 <input type="text" placeholder="찾을 단어" class="rule-find">
                                 <span style="color: var(--text-secondary);">→</span>
                                 <input type="text" placeholder="바꿀 단어" class="rule-replace">
                                 <button class="btn-remove" onclick="removeRule(this)">×</button>
                             </div>
                         </div>
-                        <button class="btn-add-rule" onclick="addRule()">+ 규칙 추가</button>
+                        <button class="btn-add-rule" onclick="addNewRule()">+ 규칙 추가</button>
                     </div>
                 </div>
 
@@ -3020,6 +3522,7 @@ USER: "반가워요."
                                     <option value="pretendard">프리텐다드</option>
                                     <option value="nanumgothic">나눔고딕</option>
                                     <option value="gowundodum">고운돋움</option>
+                                    <option value="gothica1">Gothic A1</option>
                                 </optgroup>
                                 <optgroup label="명조 · 감성">
                                     <option value="nanummyeongjo">나눔명조</option>
@@ -3033,8 +3536,28 @@ USER: "반가워요."
                                     <option value="jua">주아</option>
                                     <option value="dohyeon">도현</option>
                                 </optgroup>
+                                <optgroup label="일본어 · 한글은 대체 글꼴로">
+                                    <option value="notoserifjp">Noto Serif JP</option>
+                                    <option value="mplusrounded">M PLUS Rounded 1c</option>
+                                    <option value="zenkurenaido">Zen Kurenaido</option>
+                                </optgroup>
                             </select>
                             <p class="presentation-hint">이미지 저장에는 선택한 글꼴이 그대로 담깁니다. HTML 붙여넣기는 게시글에서 지원하는 글꼴 또는 기기의 대체 글꼴로 표시됩니다. ‘바로 쓰는 글꼴’ 외에는 고른 순간에만 내려받으니 처음 한 번은 잠깐 기본 글꼴로 보일 수 있어요.</p>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label" for="style-title-font">제목·부제목 글꼴</label>
+                            <!-- The body optgroups are cloned in at startup (presentation.js), so a family
+                                 added to the body list is offered here without a second edit. -->
+                            <select id="style-title-font">
+                                <option value="inherit">본문 글꼴 따라가기</option>
+                                <optgroup label="영문 장식 · 제목용">
+                                    <option value="cinzel">Cinzel</option>
+                                    <option value="bodonimoda">Bodoni Moda</option>
+                                    <option value="prata">Prata</option>
+                                    <option value="italianno">Italianno</option>
+                                </optgroup>
+                            </select>
+                            <p class="presentation-hint">영문 장식 글꼴은 영어 제목용이에요. 한글 글자는 명조로 대신 보여요.</p>
                         </div>
                         <div id="simple-mode-options" hidden>
                             <div class="input-row">
@@ -3087,8 +3610,16 @@ USER: "반가워요."
                                 <input type="url" id="cover-image-url" placeholder="https://…">
                             </div>
                             <p id="cover-image-status" class="presentation-hint" role="status"></p>
+                            <label class="presentation-check">
+                                <input type="checkbox" id="cover-caption" checked>
+                                <span>표지 아래쪽에 봇·페르소나 이름과 소개 겹쳐 올리기</span>
+                            </label>
+                            <!-- Measured on a real Arca save (2026-10-02): Arca positions article images and
+                                 strips position/z-index/opacity, so an overlapped caption would sit hidden
+                                 behind the cover. The export therefore places it directly under the cover. -->
+                            <p class="presentation-hint" id="cover-caption-arca-note">미리보기·📷 이미지 저장에선 표지 위에 겹쳐 보여요. 아카라이브는 글 저장 때 겹치기를 지워 버려서, ✨ 복사·HTML로 붙여넣으면 표지 바로 아래 칸으로 들어가요.</p>
                             <button type="button" id="cover-image-remove" class="btn btn-secondary">표지 이미지 제거</button>
-                            <p class="presentation-hint">원본 비율로 표시합니다. 2분할로 돌아가면 기존 프로필 사진과 소개가 다시 나타납니다.</p>
+                            <p class="presentation-hint">원본 비율로 표시합니다. 이름·소개는 이름을 바꿨거나 사진·소개가 있는 쪽만 반투명 칸에 올라가고(기본 이름 AI·USER 그대로면 안 나와요), 프로필 사진은 표지가 대신합니다. 2분할로 돌아가면 기존 프로필 사진과 소개가 다시 나타납니다.</p>
                         </div>
                     </div>
                     <div class="section">
@@ -3442,6 +3973,50 @@ USER: "반가워요."
         };
     }
 
+    // The default names (the renderers fall back to the same literals when a name field is empty).
+    // A side still carrying its default name has said nothing about itself.
+    const DEFAULT_SPEAKER_NAMES = Object.freeze({ bot: 'AI', persona: 'USER' });
+
+    // The cover caption shows a side the split cards would show (it has an avatar or a bio) AND a side
+    // whose name the user changed (owner 2026-10-02): a cover stands in for the avatars, so a renamed
+    // character with no bio is exactly what the caption is for. An untouched "AI"/"USER" stays off, or
+    // every cover log would grow a caption nobody wrote.
+    // Names only, no avatars: the cover image IS the picture.
+    function createCoverCaptionModel({ enabled, profileCardModel, aiName, userName, botBio, personaBio }) {
+        if (!enabled) return { show: false, cells: [] };
+        const named = (name, role) => typeof name === 'string' && name.trim() !== '' && name.trim() !== DEFAULT_SPEAKER_NAMES[role];
+        const cells = [];
+        if (profileCardModel.bot.show || named(aiName, 'bot')) {
+            cells.push({ role: 'bot', name: aiName, bio: profileCardModel.bot.showBio ? botBio : '' });
+        }
+        if (profileCardModel.persona.show || named(userName, 'persona')) {
+            cells.push({ role: 'persona', name: userName, bio: profileCardModel.persona.showBio ? personaBio : '' });
+        }
+        return { show: cells.length > 0, cells };
+    }
+
+    // See-through enough to keep the cover visible behind the text, opaque enough that any image
+    // region still reads as the panel's colour.
+    const COVER_CAPTION_SURFACE_ALPHA = 0.78;
+    const SIX_DIGIT_HEX$1 = /^#[0-9a-f]{6}$/i;
+    const FALLBACK_SURFACE = '#ffffff';
+
+    function toRgba(hex, alpha) {
+        const source = SIX_DIGIT_HEX$1.test(hex) ? hex : FALLBACK_SURFACE;
+        const channel = offset => parseInt(source.slice(offset, offset + 2), 16);
+        return `rgba(${channel(1)}, ${channel(3)}, ${channel(5)}, ${alpha})`;
+    }
+
+    // The profile name/bio colours were picked to read on the LOG background, so the panel is made of
+    // that background. A transparent log has none to borrow; its text colour is the one stated intent,
+    // so the panel takes the contrasting side of it — the same reasoning as resolveLogHeadingColor.
+    function resolveCoverCaptionSurface({ backgroundType, solidColor, gradientStartColor, textColor }) {
+        let base;
+        if (backgroundType === 'none') base = SIX_DIGIT_HEX$1.test(textColor) ? getContrastColor(textColor) : FALLBACK_SURFACE;
+        else base = backgroundType === 'gradient' ? gradientStartColor : solidColor;
+        return toRgba(base, COVER_CAPTION_SURFACE_ALPHA);
+    }
+
     function createBlockLabelModel({
         title,
         blockIndex,
@@ -3463,10 +4038,20 @@ USER: "반가워요."
             // summary bar IS a heading, and a lone block is the ordinary case, so folding it would
             // stamp "블록 1" across nearly every log and hide the whole thing behind a pointless click.
             fold: Boolean(isFolded) && blockCount > 1,
-            // The first block opens so a reader sees content without clicking. It is a plain
-            // <details open>, so it still closes on click like every other block.
+            // PREVIEW-ONLY default for a block appearing on screen for the first time: the first one
+            // opens so the author sees content without clicking. A block already on screen keeps the
+            // state the author left it in (resolveFoldOpen). The Arca export never reads this — the
+            // copy ships every block collapsed, which is also all a reader ever gets because Arca's
+            // save strips `open` (round trip 2026-09-17; owner ruling 2026-10-04).
             startOpen: blockIndex === 0
         };
+    }
+
+    // The preview is rebuilt on every keystroke, and resetting each fold to its default there closed
+    // the very block the author had opened to check an edit. `previousOpen` is that block's state in
+    // the preview being replaced; undefined means it was not on screen, so the default applies.
+    function resolveFoldOpen(startOpen, previousOpen) {
+        return typeof previousOpen === 'boolean' ? previousOpen : startOpen;
     }
 
     function createCharacterLinkDisplayModel(charLinks, primaryCharacterName) {
@@ -4042,6 +4627,485 @@ USER: "반가워요."
         return processInlineMarkdown(text, 'export');
     }
 
+    // Decides what a long settings list shows: which folder an item belongs to, which items a folder
+    // filter keeps, and which of those land on the current page. DOM-free, like every core module;
+    // the app layer only toggles visibility on the nodes these decisions name.
+    //
+    // Two invariants every caller leans on:
+    // - A folder is METADATA. Filtering and paging never reorder anything. Extra-character IDs are
+    //   derived from array position (CHAR-01 is index 0) and regex rules apply in stored order, so a
+    //   reorder would silently re-point every `CHAR-03:` line in a log or change what a rule replaces.
+    // - Views report ORIGINAL indexes. Every existing handler (`removeExtraCharacter(i)`,
+    //   `loadCustomTheme(i)`) is keyed by position in the full list, never by position on a page.
+
+    // Lists that carry folders and a page size. A stored key outside this list is dropped on read.
+    const LIST_KEYS = Object.freeze(['characters', 'regex', 'themes', 'presets']);
+
+    const DEFAULT_PAGE_SIZE = 10;
+    const MIN_PAGE_SIZE = 1;
+    const MAX_PAGE_SIZE = 100;
+    const FOLDER_NAME_MAX_LENGTH = 40;
+
+    // `null` is "every item". The empty string is a real filter — the unfiled items — so it cannot
+    // double as the "no filter" value.
+    const FOLDER_FILTER_ALL = null;
+
+    function normalizeFolderName(value) {
+        return typeof value === 'string' ? value.trim().slice(0, FOLDER_NAME_MAX_LENGTH).trim() : '';
+    }
+
+    // Returns a copy of `record` filed under `folder`. Unfiled records carry no `folder` key at all,
+    // so data from anyone who never uses folders stays byte-identical to what older builds stored.
+    function withFolder(record, folder) {
+        const { folder: _previous, ...rest } = record;
+        const name = normalizeFolderName(folder);
+        return name ? { ...rest, folder: name } : rest;
+    }
+
+    function normalizePageSize(value) {
+        const number = typeof value === 'string' && value.trim() !== '' ? Number(value) : value;
+        if (typeof number !== 'number' || !Number.isFinite(number)) return DEFAULT_PAGE_SIZE;
+        return Math.min(MAX_PAGE_SIZE, Math.max(MIN_PAGE_SIZE, Math.trunc(number)));
+    }
+
+    function uniqueFolderNames(values) {
+        const names = [];
+        for (const value of values) {
+            const name = normalizeFolderName(value);
+            if (name && !names.includes(name)) names.push(name);
+        }
+        return names;
+    }
+
+    function normalizeListPrefs(value) {
+        const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+        const prefs = {};
+        for (const key of LIST_KEYS) {
+            const entry = source[key] && typeof source[key] === 'object' ? source[key] : {};
+            prefs[key] = {
+                folders: uniqueFolderNames(Array.isArray(entry.folders) ? entry.folders : []),
+                pageSize: normalizePageSize(entry.pageSize)
+            };
+        }
+        return prefs;
+    }
+
+    // Registered folders first, in the user's order, then any folder that exists only on an item —
+    // an imported preset or theme file brings its folders with it rather than hiding its items.
+    function listFolderNames(registered, itemFolders) {
+        return uniqueFolderNames([...registered, ...itemFolders]);
+    }
+
+    function summarizeFolders(registered, itemFolders) {
+        const names = listFolderNames(registered, itemFolders);
+        const counts = new Map(names.map(name => [name, 0]));
+        let unfiled = 0;
+        for (const value of itemFolders) {
+            const name = normalizeFolderName(value);
+            if (name) counts.set(name, counts.get(name) + 1);
+            else unfiled++;
+        }
+        return {
+            total: itemFolders.length,
+            unfiled,
+            folders: names.map(name => ({ name, count: counts.get(name) }))
+        };
+    }
+
+    function matchingIndexes(folders, filter) {
+        const indexes = [];
+        folders.forEach((value, index) => {
+            if (filter === FOLDER_FILTER_ALL || normalizeFolderName(value) === filter) indexes.push(index);
+        });
+        return indexes;
+    }
+
+    function computeListView({ folders, filter, pageSize, page }) {
+        const matched = matchingIndexes(folders, filter);
+        const size = normalizePageSize(pageSize);
+        const pageCount = Math.max(1, Math.ceil(matched.length / size));
+        const requested = Number.isFinite(Number(page)) ? Math.trunc(Number(page)) : 1;
+        const current = Math.min(pageCount, Math.max(1, requested));
+        return {
+            indexes: matched.slice((current - 1) * size, current * size),
+            matched: matched.length,
+            page: current,
+            pageCount
+        };
+    }
+
+    function pageForIndex({ folders, filter, pageSize, index }) {
+        const position = matchingIndexes(folders, filter).indexOf(index);
+        return position === -1 ? null : Math.floor(position / normalizePageSize(pageSize)) + 1;
+    }
+
+    // This module owns the folder bar and pager above the long settings lists (extra characters, regex
+
+    // New key; nothing that existed before reads or writes it. Stored as a one-element array like
+    // `logPresentation`, so it goes through the same checked reader.
+    const LIST_ORGANIZER_STORAGE_KEY = 'logListOrganizer';
+    // The list key is part of the type, so a chip can refuse another list's drag already at dragover
+    // (dataTransfer data is unreadable until drop; its types are not).
+    const dragMime = key => `application/x-log-cupcake-${key}`;
+    // Characters and rules live in the current log, which only a preset saves; themes are saved on the
+    // spot. Said beside the folder bar so a reload does not look like lost folders.
+    const PRESET_SAVED_LISTS = Object.freeze(['characters', 'regex']);
+
+    const organizers = new Map();
+
+    function readPrefs() {
+        return normalizeListPrefs(readJsonArray(LIST_ORGANIZER_STORAGE_KEY)[0]);
+    }
+
+    function writePrefs(prefs) {
+        safeSetItem(LIST_ORGANIZER_STORAGE_KEY, JSON.stringify([prefs]), { evictCaches: false });
+    }
+
+    function closeMoveMenu() {
+        document.querySelector('.list-move-menu')?.remove();
+    }
+
+    // Item writers return false when their storage write failed; the registry is only changed after
+    // the items it describes were, so a failed write cannot leave a folder pointing at nothing.
+    function createOrganizer({ key, label, listElement, getItemElements, getItemFolders, setItemFolder, renameItemFolders }) {
+        let filter = FOLDER_FILTER_ALL;
+        let page = 1;
+
+        const toolbar = document.createElement('div');
+        toolbar.className = 'list-organizer-toolbar';
+        toolbar.dataset.list = key;
+        const pager = document.createElement('div');
+        pager.className = 'list-organizer-pager';
+        pager.dataset.list = key;
+        listElement.parentNode.insertBefore(toolbar, listElement);
+        listElement.parentNode.insertBefore(pager, listElement.nextSibling);
+
+        function registeredFolders() {
+            return readPrefs()[key].folders;
+        }
+
+        function updatePrefs(change) {
+            const prefs = readPrefs();
+            change(prefs[key]);
+            writePrefs(normalizeListPrefs(prefs));
+        }
+
+        function moveItem(index, folder) {
+            const name = normalizeFolderName(folder);
+            // A folder that only exists because an item names it would vanish when that item leaves;
+            // registering on first use keeps a folder the user created by moving into it.
+            if (setItemFolder(index, name) === false) return refresh();
+            if (name && !registeredFolders().includes(name)) updatePrefs(entry => entry.folders.push(name));
+            refresh();
+        }
+
+        function askFolderName(message, current = '') {
+            const answer = prompt(message, current);
+            return answer === null ? null : normalizeFolderName(answer);
+        }
+
+        function addFolder() {
+            const name = askFolderName(`${label} 폴더 이름을 입력하세요:`);
+            if (!name) return;
+            if (!registeredFolders().includes(name)) updatePrefs(entry => entry.folders.push(name));
+            filter = name;
+            page = 1;
+            refresh();
+        }
+
+        function renameFolder(oldName) {
+            const name = askFolderName('새 폴더 이름을 입력하세요:', oldName);
+            if (!name || name === oldName) return;
+            if (renameItemFolders(oldName, name) === false) return refresh();
+            updatePrefs(entry => {
+                entry.folders = entry.folders.map(folder => folder === oldName ? name : folder);
+                entry.folders = entry.folders.filter((folder, index) => entry.folders.indexOf(folder) === index);
+                if (!entry.folders.includes(name)) entry.folders.push(name);
+            });
+            filter = name;
+            refresh();
+        }
+
+        function deleteFolder(name) {
+            if (!confirm(`"${name}" 폴더를 삭제할까요? 안에 있던 항목은 지워지지 않고 '미분류'로 돌아갑니다.`)) return;
+            if (renameItemFolders(name, '') === false) return refresh();
+            updatePrefs(entry => { entry.folders = entry.folders.filter(folder => folder !== name); });
+            filter = FOLDER_FILTER_ALL;
+            page = 1;
+            refresh();
+        }
+
+        function openMoveMenu(anchor, index) {
+            closeMoveMenu();
+            document.querySelector('.ui-skin-menu')?.remove();
+            const current = normalizeFolderName(getItemFolders()[index]);
+            const summary = summarizeFolders(registeredFolders(), getItemFolders());
+            const menu = document.createElement('div');
+            menu.className = 'list-move-menu';
+            menu.setAttribute('role', 'menu');
+            const option = (value, text) => `<button type="button" role="menuitem" data-folder="${escapeHtmlAttribute(value)}"${value === current ? ' aria-current="true"' : ''}>${text}</button>`;
+            menu.innerHTML = '<div class="list-move-menu-title">폴더로 이동</div>'
+                + option('', '미분류')
+                + summary.folders.map(folder => option(folder.name, `📁 ${escapeHtml(folder.name)}`)).join('')
+                + '<button type="button" role="menuitem" data-new-folder="true">➕ 새 폴더 만들어 이동</button>';
+            menu.addEventListener('click', event => {
+                const button = event.target.closest('button');
+                if (!button) return;
+                event.stopPropagation();
+                closeMoveMenu();
+                if (button.dataset.newFolder) {
+                    const name = askFolderName(`${label} 폴더 이름을 입력하세요:`);
+                    if (name) moveItem(index, name);
+                    return;
+                }
+                moveItem(index, button.dataset.folder);
+            });
+            document.body.appendChild(menu);
+            // Below the button when it fits, otherwise above it, and never past either screen edge:
+            // on a phone the last rows sit at the bottom and the touch path must stay reachable.
+            const rect = anchor.getBoundingClientRect();
+            const left = Math.min(rect.left, window.innerWidth - menu.offsetWidth - 8);
+            const below = rect.bottom + 4;
+            const above = rect.top - 4 - menu.offsetHeight;
+            const top = below + menu.offsetHeight <= window.innerHeight - 8 || above < 8
+                ? Math.min(below, window.innerHeight - menu.offsetHeight - 8) : above;
+            menu.style.left = `${Math.max(8, left) + window.scrollX}px`;
+            menu.style.top = `${Math.max(8, top) + window.scrollY}px`;
+        }
+
+        // Every item gets a drag handle and a 📁 button. Drag-and-drop is dead on touch screens, so the
+        // button is the path that always works; the handle is the desktop shortcut the owner asked for.
+        function decorate(element, index, folders) {
+            let tools = element.querySelector('.list-item-tools');
+            if (!tools) {
+                const slot = element.querySelector('[data-organizer-slot]') || element;
+                tools = document.createElement('span');
+                tools.className = 'list-item-tools';
+                tools.innerHTML = '<button type="button" class="list-drag-handle" draggable="true" title="끌어서 폴더로 이동" aria-label="끌어서 폴더로 이동">⠿</button>'
+                    + '<button type="button" class="list-move-button" title="폴더로 이동" aria-label="폴더로 이동">📁</button>';
+                slot.insertBefore(tools, slot.firstChild);
+                tools.addEventListener('click', event => event.stopPropagation());
+                tools.querySelector('.list-move-button').addEventListener('click', event => {
+                    openMoveMenu(event.currentTarget, Number(element.dataset.organizerIndex));
+                });
+                const handle = tools.querySelector('.list-drag-handle');
+                handle.addEventListener('dragstart', event => {
+                    event.dataTransfer.setData(dragMime(key), element.dataset.organizerIndex);
+                    event.dataTransfer.effectAllowed = 'move';
+                    element.classList.add('list-item-dragging');
+                    toolbar.classList.add('list-drop-active');
+                });
+                handle.addEventListener('dragend', () => {
+                    element.classList.remove('list-item-dragging');
+                    toolbar.classList.remove('list-drop-active');
+                });
+            }
+            element.dataset.organizerIndex = String(index);
+            const folder = normalizeFolderName(folders[index]);
+            tools.querySelector('.list-move-button').title = folder ? `폴더: ${folder} · 눌러서 이동` : '폴더로 이동';
+        }
+
+        function chip(value, text, count, active) {
+            const attr = value === FOLDER_FILTER_ALL ? 'data-filter-all="true"' : `data-folder="${escapeHtmlAttribute(value)}"`;
+            return `<button type="button" class="list-folder-chip${active ? ' active' : ''}" ${attr}>${text}<span class="list-folder-count">${count}</span></button>`;
+        }
+
+        function renderToolbar(summary, pageSize) {
+            const folderActive = filter !== FOLDER_FILTER_ALL && filter !== '';
+            toolbar.innerHTML = '<div class="list-folder-chips">'
+                + chip(FOLDER_FILTER_ALL, '전체', summary.total, filter === FOLDER_FILTER_ALL)
+                + (summary.folders.length ? chip('', '미분류', summary.unfiled, filter === '') : '')
+                + summary.folders.map(folder => chip(folder.name, `📁 ${escapeHtml(folder.name)}`, folder.count, filter === folder.name)).join('')
+                + '<button type="button" class="list-folder-add" title="폴더 추가">＋ 폴더</button>'
+                + '</div>'
+                + '<div class="list-folder-meta">'
+                + (folderActive ? '<button type="button" class="list-folder-rename">이름 변경</button><button type="button" class="list-folder-delete">폴더 삭제</button>' : '')
+                + (PRESET_SAVED_LISTS.includes(key) ? '<span class="list-folder-note" title="캐릭터와 정규식은 지금 로그의 일부라, 프리셋을 저장해야 폴더도 함께 남아요.">폴더는 프리셋에 함께 저장돼요</span>' : '')
+                + `<label class="list-page-size">한 페이지 <input type="number" min="${MIN_PAGE_SIZE}" max="${MAX_PAGE_SIZE}" value="${pageSize}" aria-label="${escapeHtmlAttribute(label)} 한 페이지 개수">개</label>`
+                + '</div>';
+        }
+
+        function renderPager(view, visibleCount) {
+            if (view.matched === 0) {
+                pager.innerHTML = filter === FOLDER_FILTER_ALL ? '' : '<div class="list-empty">이 폴더는 비어 있어요. 항목의 📁 버튼이나 ⠿ 손잡이로 옮겨 오세요.</div>';
+                return;
+            }
+            if (view.pageCount === 1) {
+                pager.innerHTML = '';
+                return;
+            }
+            pager.innerHTML = `<button type="button" class="list-page-prev" ${view.page <= 1 ? 'disabled' : ''} aria-label="이전 페이지">◀</button>`
+                + `<span class="list-page-jump"><input type="number" min="1" max="${view.pageCount}" value="${view.page}" aria-label="페이지 번호"> / ${view.pageCount}</span>`
+                + `<button type="button" class="list-page-next" ${view.page >= view.pageCount ? 'disabled' : ''} aria-label="다음 페이지">▶</button>`
+                + `<span class="list-page-range">${visibleCount}개 표시 · 총 ${view.matched}개</span>`;
+        }
+
+        function refresh() {
+            const elements = Array.from(getItemElements());
+            const folders = getItemFolders();
+            const prefs = readPrefs()[key];
+            const summary = summarizeFolders(prefs.folders, folders);
+            if (filter !== FOLDER_FILTER_ALL && filter !== '' && !summary.folders.some(folder => folder.name === filter)) {
+                filter = FOLDER_FILTER_ALL;
+            }
+            const view = computeListView({ folders, filter, pageSize: prefs.pageSize, page });
+            page = view.page;
+            const visible = new Set(view.indexes);
+            // One folder read per refresh: for presets it parses the whole saved array, avatars included.
+            elements.forEach((element, index) => {
+                decorate(element, index, folders);
+                element.hidden = !visible.has(index);
+            });
+            // The bar earns its space only once there is something to organise.
+            toolbar.hidden = summary.total === 0 && summary.folders.length === 0;
+            renderToolbar(summary, prefs.pageSize);
+            renderPager(view, view.indexes.length);
+        }
+
+        toolbar.addEventListener('click', event => {
+            const target = event.target.closest('button');
+            if (!target) return;
+            if (target.classList.contains('list-folder-add')) return addFolder();
+            if (target.classList.contains('list-folder-rename')) return renameFolder(filter);
+            if (target.classList.contains('list-folder-delete')) return deleteFolder(filter);
+            if (target.classList.contains('list-folder-chip')) {
+                filter = target.dataset.filterAll ? FOLDER_FILTER_ALL : target.dataset.folder;
+                page = 1;
+                refresh();
+            }
+        });
+        toolbar.addEventListener('change', event => {
+            if (!event.target.closest('.list-page-size')) return;
+            const size = normalizePageSize(event.target.value);
+            updatePrefs(entry => { entry.pageSize = size; });
+            page = 1;
+            refresh();
+        });
+        toolbar.addEventListener('dragover', event => {
+            const chipElement = event.target.closest('.list-folder-chip');
+            if (!chipElement || chipElement.dataset.filterAll || !event.dataTransfer.types.includes(dragMime(key))) return;
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            toolbar.querySelectorAll('.list-drop-target').forEach(element => element.classList.remove('list-drop-target'));
+            chipElement.classList.add('list-drop-target');
+        });
+        toolbar.addEventListener('dragleave', event => {
+            event.target.closest?.('.list-folder-chip')?.classList.remove('list-drop-target');
+        });
+        toolbar.addEventListener('drop', event => {
+            const chipElement = event.target.closest('.list-folder-chip');
+            // A drag from another list carries no data under this list's type: its index means nothing here.
+            const payload = event.dataTransfer.getData(dragMime(key));
+            toolbar.classList.remove('list-drop-active');
+            if (!chipElement || chipElement.dataset.filterAll || payload === '') return;
+            event.preventDefault();
+            moveItem(Number(payload), chipElement.dataset.folder);
+        });
+        pager.addEventListener('click', event => {
+            const target = event.target.closest('button');
+            if (!target) return;
+            page += target.classList.contains('list-page-next') ? 1 : target.classList.contains('list-page-prev') ? -1 : 0;
+            refresh();
+        });
+        pager.addEventListener('change', event => {
+            if (!event.target.closest('.list-page-jump')) return;
+            page = Number(event.target.value);
+            refresh();
+        });
+
+        return {
+            refresh,
+            // The named folder being viewed, or '' — lets a save write the folder in the SAME storage
+            // write as the new item, so a failure can never leave a "saved" item hidden from the view.
+            activeFolder: () => (filter !== FOLDER_FILTER_ALL && filter !== '' ? filter : ''),
+            // An appended item lands on the last page, out of sight. Show it, and file it into the
+            // folder being viewed — adding while looking at a folder means adding to that folder.
+            revealNew(index) {
+                // A save that already wrote the folder (see activeFolder) needs no second write.
+                if (filter !== FOLDER_FILTER_ALL && filter !== ''
+                    && normalizeFolderName(getItemFolders()[index]) !== filter) setItemFolder(index, filter);
+                const { pageSize } = readPrefs()[key];
+                page = pageForIndex({ folders: getItemFolders(), filter, pageSize, index }) ?? page;
+                refresh();
+            }
+        };
+    }
+
+    function registerListOrganizer(options) {
+        if (organizers.has(options.key) || !options.listElement?.parentNode) return organizers.get(options.key) || null;
+        const organizer = createOrganizer(options);
+        organizers.set(options.key, organizer);
+        organizer.refresh();
+        return organizer;
+    }
+
+    function refreshListOrganizer(key) {
+        organizers.get(key)?.refresh();
+    }
+
+    function getActiveListFolder(key) {
+        return organizers.get(key)?.activeFolder() || '';
+    }
+
+    function revealNewListItem(key, index) {
+        organizers.get(key)?.revealNew(index);
+    }
+
+    // Outside clicks and Escape close the move menu; one listener for every list.
+    function initializeListOrganizerDismissal() {
+        document.addEventListener('click', event => {
+            if (!event.target.closest?.('.list-move-menu, .list-move-button')) closeMoveMenu();
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeMoveMenu();
+        });
+        // The sidebar scrolls on its own; a menu placed in page coordinates would drift off its row.
+        document.addEventListener('scroll', event => {
+            if (!event.target?.closest?.('.list-move-menu')) closeMoveMenu();
+        }, true);
+    }
+
+    const RULE_ITEM_SELECTOR = '.rule-item';
+    const RULE_FIND_SELECTOR = '.rule-find';
+    const RULE_REPLACE_SELECTOR = '.rule-replace';
+
+    // A row's folder lives on the row itself (`data-folder`), so a rule and its folder can never be
+    // separated by a re-render. Rules still apply in DOM order; a folder never moves a row.
+    function collectRegexRules() {
+        return Array.from(document.querySelectorAll(RULE_ITEM_SELECTOR)).map(item => withFolder({
+            find: item.querySelector(RULE_FIND_SELECTOR).value,
+            replace: item.querySelector(RULE_REPLACE_SELECTOR).value
+        }, item.dataset?.folder));
+    }
+
+    function getRuleElements() {
+        return Array.from(document.querySelectorAll(RULE_ITEM_SELECTOR));
+    }
+
+    function getRuleFolders() {
+        return getRuleElements().map(item => normalizeFolderName(item.dataset.folder));
+    }
+
+    function setRuleElementFolder(item, folder) {
+        const name = normalizeFolderName(folder);
+        if (name) item.dataset.folder = name;
+        else delete item.dataset.folder;
+    }
+
+    function setRuleFolder(index, folder) {
+        const item = getRuleElements()[index];
+        if (!item) return false;
+        setRuleElementFolder(item, folder);
+        return true;
+    }
+
+    function renameRuleFolders(oldName, newName) {
+        getRuleElements().forEach(item => {
+            if (normalizeFolderName(item.dataset.folder) === oldName) setRuleElementFolder(item, newName);
+        });
+        return true;
+    }
+
     // ========== Tab System ==========
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', () => {
@@ -4237,21 +5301,33 @@ USER: "반가워요."
             });
 
             // ========== Regular expression rule management ==========
-            function addRule(findValue = '', replaceValue = '') {
+            function addRule(findValue = '', replaceValue = '', folder = '') {
                 const list = document.getElementById('rule-list');
                 const item = document.createElement('div');
                 item.className = 'rule-item';
+                setRuleElementFolder(item, folder);
                 item.innerHTML = `
+                <span data-organizer-slot></span>
                 <input type="text" placeholder="찾을 단어" class="rule-find" value="${escapeHtmlAttribute(findValue)}">
                 <span style="color: var(--text-secondary);">→</span>
                 <input type="text" placeholder="바꿀 단어" class="rule-replace" value="${escapeHtmlAttribute(replaceValue)}">
                 <button class="btn-remove" onclick="removeRule(this)">×</button>
             `;
                 list.appendChild(item);
+                refreshListOrganizer('regex');
+            }
+
+            // The "+ 규칙 추가" button. A preset restoring its rules goes through addRule alone, so
+            // only a rule the user just asked for jumps the page and joins the folder being viewed.
+            function addNewRule() {
+                addRule();
+                revealNewListItem('regex', getRuleElements().length - 1);
+                getRuleElements().at(-1)?.querySelector('.rule-find')?.focus();
             }
 
             function removeRule(btn) {
-                btn.parentElement.remove();
+                btn.closest('.rule-item').remove();
+                refreshListOrganizer('regex');
             }
 
             // ========== Color input synchronization ==========
@@ -4576,9 +5652,11 @@ USER: "반가워요."
                 };
 
                 let savedThemes = readJsonArray('customThemes');
-                savedThemes.push(theme);
-                safeSetItem('customThemes', JSON.stringify(savedThemes));
+                // Filed into the folder being viewed in the same write as the theme itself.
+                savedThemes.push(withFolder(theme, getActiveListFolder('themes')));
+                if (!safeSetItem('customThemes', JSON.stringify(savedThemes))) return;
                 renderSavedThemes();
+                revealNewListItem('themes', savedThemes.length - 1);
             }
 
             function exportCustomThemes() {
@@ -4613,18 +5691,45 @@ USER: "반가워요."
 
                 if (savedThemes.length === 0) {
                     container.innerHTML = '';
+                    // Deleting the last theme still has to zero the folder bar's counts.
+                    refreshListOrganizer('themes');
                     return;
                 }
 
                 container.innerHTML = '<div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">저장된 테마:</div>' +
                     savedThemes.map((t, i) => `
-                    <div style="display:flex; gap:6px; margin-bottom:6px;">
-                        <button class="btn btn-secondary" style="flex:1; padding:8px;" onclick="loadCustomTheme(${i})">${escapeHtml(t.name)}</button>
+                    <div class="saved-theme-row" style="display:flex; gap:6px; margin-bottom:6px;">
+                        <span data-organizer-slot></span>
+                        <button class="btn btn-secondary" style="flex:1; min-width:0; padding:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" onclick="loadCustomTheme(${i})">${escapeHtml(t.name)}</button>
                         <button style="padding:8px 10px; background:#fab005; color:white; border:none; border-radius:8px; cursor:pointer;" onclick="renameCustomTheme(${i})" title="이름 수정">📝</button>
                         <button style="padding:8px 10px; background:#228be6; color:white; border:none; border-radius:8px; cursor:pointer;" onclick="updateCustomTheme(${i})" title="현재 설정으로 수정">✏️</button>
                         <button style="padding:8px 10px; background:#e03131; color:white; border:none; border-radius:8px; cursor:pointer;" onclick="deleteCustomTheme(${i})" title="삭제">×</button>
                     </div>
                 `).join('');
+                refreshListOrganizer('themes');
+            }
+
+            // A theme's folder is stored on the theme itself, so export/import carries it along.
+            function getThemeFolders() {
+                return readJsonArray('customThemes').map(theme => normalizeFolderName(theme?.folder));
+            }
+
+            function setThemeFolder(index, folder) {
+                const savedThemes = readJsonArray('customThemes');
+                if (!savedThemes[index]) return false;
+                savedThemes[index] = withFolder(savedThemes[index], folder);
+                if (!safeSetItem('customThemes', JSON.stringify(savedThemes))) return false;
+                renderSavedThemes();
+                return true;
+            }
+
+            function renameThemeFolders(oldName, newName) {
+                const savedThemes = readJsonArray('customThemes');
+                const renamed = savedThemes.map(theme =>
+                    normalizeFolderName(theme?.folder) === oldName ? withFolder(theme, newName) : theme);
+                if (!safeSetItem('customThemes', JSON.stringify(renamed))) return false;
+                renderSavedThemes();
+                return true;
             }
 
             function loadCustomTheme(index) {
@@ -4702,7 +5807,8 @@ USER: "반가워요."
 
                 if (!confirm(`"${theme.name}" 테마를 지금 셋팅으로 수정하시겠습니까?`)) return;
 
-                savedThemes[index] = {
+                // Rebuilt from the current controls; the folder is the one field the controls do not own.
+                savedThemes[index] = withFolder({
                     name: theme.name,
                     colors: {
                         text: document.getElementById('color-text').value,
@@ -4735,7 +5841,7 @@ USER: "반가워요."
                         gradientEnd: document.getElementById('gradient-end').value,
                         gradientAngle: document.getElementById('gradient-angle').value
                     }
-                };
+                }, theme.folder);
 
                 if (!safeSetItem('customThemes', JSON.stringify(savedThemes))) return;
                 renderSavedThemes();
@@ -4834,7 +5940,8 @@ USER: "반가워요."
 
         return value
             .filter(character => Boolean(character) && typeof character === 'object' && !Array.isArray(character))
-            .map((character, index) => ({
+            // `withFolder` keeps the optional settings-panel folder and adds no key when unfiled.
+            .map((character, index) => withFolder({
                 // Derived from position, never from the stored value. Deleting a character
                 // already renumbers the rest, so position is the only id that stays true.
                 id: formatCharacterId(index),
@@ -4849,7 +5956,7 @@ USER: "반가워요."
                     : DEFAULT_AVATAR_SHAPE,
                 bio: normalizeText(character.bio),
                 _open: character._open === true
-            }));
+            }, character.folder));
     }
 
     // This app-layer module owns canvas-based avatar cropping and cache-size reduction.
@@ -5180,6 +6287,7 @@ USER: "반가워요."
                 });
 
                 renderExtraCharacters();
+                revealNewListItem('characters', extraCharacters.length - 1);
                 // Scroll only as far as needed to keep the newly added collapsed card visible, even in long lists.
                 document.getElementById('extra-characters-container').lastElementChild?.scrollIntoView({ block: 'nearest' });
                 updateAddCharButton();
@@ -5195,6 +6303,25 @@ USER: "반가워요."
                 renderExtraCharacters();
                 updateAddCharButton();
                 requestLogRender();
+            }
+
+            // Folders are settings-panel metadata only: the array order (and so every CHAR-nn id) never
+            // changes, and an unfiled character carries no `folder` key at all.
+            function getExtraCharacterFolders() {
+                return extraCharacters.map(char => normalizeFolderName(char.folder));
+            }
+
+            function setExtraCharacterFolder(index, folder) {
+                if (!extraCharacters[index]) return false;
+                extraCharacters[index] = withFolder(extraCharacters[index], folder);
+                return true;
+            }
+
+            function renameExtraCharacterFolders(oldName, newName) {
+                extraCharacters = extraCharacters.map(char =>
+                    normalizeFolderName(char.folder) === oldName ? withFolder(char, newName) : char);
+                refreshListOrganizer('characters');
+                return true;
             }
 
             function updateAddCharButton() {
@@ -5215,6 +6342,7 @@ USER: "반가워요."
                             ${char.avatarData ? '<span style="font-size:10px;">📷</span>' : ''}
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
+                            <span data-organizer-slot></span>
                             <button class="btn-color-edit" onclick="event.stopPropagation();openCharColorPopup(${index})" title="색상 설정">🎨</button>
                             <button class="btn-delete-char" onclick="event.stopPropagation();removeExtraCharacter(${index})" title="삭제">×</button>
                             <span style="font-size:11px;color:var(--text-secondary);transition:transform .2s;display:inline-block;${isOpen ? '' : 'transform:rotate(-90deg);'}">▼</span>
@@ -5249,6 +6377,7 @@ USER: "반가워요."
                     </div>
                 </div>`;
                 }).join('');
+                refreshListOrganizer('characters');
             }
 
             function toggleExtraChar(index) {
@@ -6145,17 +7274,6 @@ USER: "반가워요."
         return images.filter(image => image.blockNumber === blockNumber && image.position === slot);
     }
 
-    const RULE_ITEM_SELECTOR = '.rule-item';
-    const RULE_FIND_SELECTOR = '.rule-find';
-    const RULE_REPLACE_SELECTOR = '.rule-replace';
-
-    function collectRegexRules() {
-        return Array.from(document.querySelectorAll(RULE_ITEM_SELECTOR)).map(item => ({
-            find: item.querySelector(RULE_FIND_SELECTOR).value,
-            replace: item.querySelector(RULE_REPLACE_SELECTOR).value
-        }));
-    }
-
     // Stable IDs are persisted, never arbitrary CSS. Both renderers resolve the same catalogue.
     // Never rename or drop an ID: a saved preset stores the ID, not the family string.
     const FONT_FAMILIES = Object.freeze({
@@ -6172,8 +7290,28 @@ USER: "반가워요."
         gaegu: "'Gaegu','Noto Sans KR',cursive",
         jua: "'Jua','Noto Sans KR',sans-serif",
         dohyeon: "'Do Hyeon','Noto Sans KR',sans-serif",
-        songmyung: "'Song Myung','Noto Serif KR',serif"
+        songmyung: "'Song Myung','Noto Serif KR',serif",
+        // Added 2026-10-02 from the faces Memorial Log offers (mosaic-log's three were already here).
+        gothica1: "'Gothic A1','Noto Sans KR',sans-serif",
+        // Japanese faces carry no Hangul: kana and kanji take the face, Korean text the named fallback.
+        notoserifjp: "'Noto Serif JP','Noto Serif KR',serif",
+        mplusrounded: "'M PLUS Rounded 1c','Noto Sans KR',sans-serif",
+        zenkurenaido: "'Zen Kurenaido','Noto Sans KR',sans-serif",
+        // Latin-only display faces. Titles only — see TITLE_ONLY_FONT_IDS.
+        cinzel: "'Cinzel','Noto Serif KR',serif",
+        bodonimoda: "'Bodoni Moda','Noto Serif KR',serif",
+        prata: "'Prata','Noto Serif KR',serif",
+        italianno: "'Italianno','Noto Serif KR',cursive"
     });
+
+    // A Latin display face as the BODY font would hand every Hangul glyph to the fallback, so the log
+    // would look unchanged while the setting claimed otherwise. They are offered for titles, where
+    // Memorial Log uses them on English headings.
+    const TITLE_ONLY_FONT_IDS = Object.freeze(['cinzel', 'bodonimoda', 'prata', 'italianno']);
+    const BODY_FONT_IDS = Object.freeze(Object.keys(FONT_FAMILIES).filter(id => !TITLE_ONLY_FONT_IDS.includes(id)));
+
+    // The title follows the body font unless one is chosen, so every existing log keeps its title.
+    const TITLE_FONT_INHERIT = 'inherit';
 
     // Only `default`/`sans`/`serif` are paid for on every page load: `sans` is the device font and the
     // two Noto families ship in the page head. Putting the other eleven there too measured +193 KB of
@@ -6191,7 +7329,15 @@ USER: "반가워요."
         gaegu: 'https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&display=swap',
         jua: 'https://fonts.googleapis.com/css2?family=Jua&display=swap',
         dohyeon: 'https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap',
-        songmyung: 'https://fonts.googleapis.com/css2?family=Song+Myung&display=swap'
+        songmyung: 'https://fonts.googleapis.com/css2?family=Song+Myung&display=swap',
+        gothica1: 'https://fonts.googleapis.com/css2?family=Gothic+A1:wght@300;400;500;600;700&display=swap',
+        notoserifjp: 'https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap',
+        mplusrounded: 'https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap',
+        zenkurenaido: 'https://fonts.googleapis.com/css2?family=Zen+Kurenaido&display=swap',
+        cinzel: 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap',
+        bodonimoda: 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..900&display=swap',
+        prata: 'https://fonts.googleapis.com/css2?family=Prata&display=swap',
+        italianno: 'https://fonts.googleapis.com/css2?family=Italianno&display=swap'
     });
 
     // '' means "already available" — an unknown ID and a head-loaded family answer the same way,
@@ -6209,7 +7355,10 @@ USER: "반가워요."
         coverImageData: '', coverImageUrl: '', aiColor: '#274b75', userColor: '#993851',
         // 'none' keeps every existing log byte-identical; a stored presentation predating this
         // setting normalizes to it, so nobody's saved preset changes appearance on upgrade.
-        simpleBackground: 'none', aiBgColor: '#e8eef7', userBgColor: '#f7e9ee'
+        simpleBackground: 'none', aiBgColor: '#e8eef7', userBgColor: '#f7e9ee',
+        // A cover used to drop the bot/persona names and bios entirely; they now ride on the image.
+        // On by default because a stored cover log has no way to have asked for the old omission.
+        coverCaption: true, titleFont: TITLE_FONT_INHERIT
     });
 
     function colorOr(value, fallback) {
@@ -6220,7 +7369,7 @@ USER: "반가워요."
         const source = value && typeof value === 'object' ? value : {};
         return {
             mode: source.mode === 'simple' ? 'simple' : 'default',
-            fontFamily: Object.hasOwn(FONT_FAMILIES, source.fontFamily) ? source.fontFamily : 'default',
+            fontFamily: BODY_FONT_IDS.includes(source.fontFamily) ? source.fontFamily : 'default',
             profileLayout: source.profileLayout === 'cover' ? 'cover' : 'split',
             coverImageData: typeof source.coverImageData === 'string' && source.coverImageData.startsWith('data:image/') ? source.coverImageData : '',
             coverImageUrl: typeof source.coverImageUrl === 'string' ? source.coverImageUrl.trim() : '',
@@ -6229,8 +7378,15 @@ USER: "반가워요."
             simpleBackground: SIMPLE_BACKGROUNDS.includes(source.simpleBackground)
                 ? source.simpleBackground : DEFAULT_PRESENTATION.simpleBackground,
             aiBgColor: colorOr(source.aiBgColor, DEFAULT_PRESENTATION.aiBgColor),
-            userBgColor: colorOr(source.userBgColor, DEFAULT_PRESENTATION.userBgColor)
+            userBgColor: colorOr(source.userBgColor, DEFAULT_PRESENTATION.userBgColor),
+            coverCaption: source.coverCaption !== false,
+            titleFont: Object.hasOwn(FONT_FAMILIES, source.titleFont) ? source.titleFont : TITLE_FONT_INHERIT
         };
+    }
+
+    // '' means "declare nothing": the title inherits the log's font exactly as it always has.
+    function resolveTitleFontFamily(presentation) {
+        return Object.hasOwn(FONT_FAMILIES, presentation.titleFont) ? FONT_FAMILIES[presentation.titleFont] : '';
     }
 
     function getCoverSource(presentation) {
@@ -6281,8 +7437,11 @@ USER: "반가워요."
     const CONTROL_IDS = Object.freeze({
         mode: 'display-mode', fontFamily: 'style-font-family', profileLayout: 'profile-layout',
         coverImageUrl: 'cover-image-url', aiColor: 'simple-color-ai', userColor: 'simple-color-user',
-        simpleBackground: 'simple-bg-mode', aiBgColor: 'simple-bg-ai', userBgColor: 'simple-bg-user'
+        simpleBackground: 'simple-bg-mode', aiBgColor: 'simple-bg-ai', userBgColor: 'simple-bg-user',
+        titleFont: 'style-title-font'
     });
+    // A checkbox, so it is read through `checked` rather than the `value` loop above.
+    const COVER_CAPTION_CONTROL_ID = 'cover-caption';
     let coverImageData = '';
     let coverReadGeneration = 0;
     const loadedFontStylesheets = new Set();
@@ -6322,6 +7481,7 @@ USER: "반가워요."
     function collectPresentation() {
         const values = { coverImageData };
         for (const [key, id] of Object.entries(CONTROL_IDS)) values[key] = document.getElementById(id)?.value;
+        values.coverCaption = document.getElementById(COVER_CAPTION_CONTROL_ID)?.checked;
         return normalizePresentation(values);
     }
 
@@ -6335,6 +7495,7 @@ USER: "반가워요."
         const preview = document.getElementById('log-preview');
         preview.classList.toggle('display-simple', settings.mode === 'simple');
         ensureFontStylesheet(settings.fontFamily);
+        ensureFontStylesheet(settings.titleFont);
         preview.style.fontFamily = FONT_FAMILIES[settings.fontFamily];
         const simpleOptions = document.getElementById('simple-mode-options');
         if (simpleOptions) simpleOptions.hidden = settings.mode !== 'simple';
@@ -6352,10 +7513,15 @@ USER: "반가워요."
         coverReadGeneration++;
         const settings = normalizePresentation(value);
         coverImageData = settings.coverImageData;
+        // Startup applies the remembered preset BEFORE initializePresentation runs; a stored body-family
+        // title font (e.g. gothica1) must already be an option, or the <select> silently drops it.
+        offerBodyFontsAsTitleFonts();
         for (const [key, id] of Object.entries(CONTROL_IDS)) {
             const element = document.getElementById(id);
             if (element) element.value = settings[key];
         }
+        const captionToggle = document.getElementById(COVER_CAPTION_CONTROL_ID);
+        if (captionToggle) captionToggle.checked = settings.coverCaption;
         const fileInput = document.getElementById('cover-image-upload');
         if (fileInput) fileInput.value = '';
         updatePresentationView();
@@ -6390,7 +7556,18 @@ USER: "반가워요."
         reader.readAsDataURL(file);
     }
 
+    // The title list offers every body family too. Cloned from the body <select> rather than written
+    // twice in the template, so a family added to the body list cannot be missing here.
+    function offerBodyFontsAsTitleFonts() {
+        const body = document.getElementById(CONTROL_IDS.fontFamily);
+        const title = document.getElementById(CONTROL_IDS.titleFont);
+        if (!body?.querySelectorAll || !title?.appendChild || title.dataset.bodyFontsOffered) return;
+        body.querySelectorAll('optgroup').forEach(group => title.appendChild(group.cloneNode(true)));
+        title.dataset.bodyFontsOffered = 'true';
+    }
+
     function initializePresentation() {
+        offerBodyFontsAsTitleFonts();
         const saved = readJsonArray(PRESENTATION_STORAGE_KEY)[0];
         if (saved) applyPresentation(saved, { persist: false });
         else updatePresentationView();
@@ -6404,6 +7581,7 @@ USER: "반가워요."
                 changed();
             });
         }
+        document.getElementById(COVER_CAPTION_CONTROL_ID)?.addEventListener('change', changed);
         document.getElementById('cover-image-upload')?.addEventListener('change', uploadCover);
         document.getElementById('cover-image-remove')?.addEventListener('click', () => {
             applyPresentation({ ...collectPresentation(), coverImageData: '', coverImageUrl: '' });
@@ -6426,6 +7604,42 @@ USER: "반가워요."
             characters: getExtraCharacters(), textColor: value('color-text') || '#1d2129',
             backgroundMode: settings.simpleBackground
         });
+    }
+
+    // This module owns the markup of the bot/persona caption that goes with a single cover image.
+
+    function renderCell(cell, color, cellWidth) {
+        let html = `<td style="width:${cellWidth};text-align:center;vertical-align:top;padding:0 6px;border:none;">`;
+        html += `<div style="font-size:1.05em;font-weight:700;line-height:1.45;overflow-wrap:anywhere;color:${color.name} !important;">${escapeHtml(cell.name)}</div>`;
+        if (cell.bio) {
+            html += `<div style="font-size:0.88em;line-height:1.55;margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere;color:${color.bio} !important;">${escapeHtml(cell.bio)}</div>`;
+        }
+        return `${html}</td>`;
+    }
+
+    // `colors` maps a cell role to its { name, bio } colours — the same pickers the split cards use.
+    function renderCaptionTable(model, colors) {
+        const cellWidth = model.cells.length > 1 ? '50%' : '100%';
+        const cells = model.cells.map(cell => renderCell(cell, colors[cell.role], cellWidth)).join('');
+        return '<table style="width:100%;border-collapse:collapse;border:none;border-spacing:0;" border="0" cellspacing="0" cellpadding="0">'
+            + `<tr>${cells}</tr></table>`;
+    }
+
+    // Preview: the whole cover block. Layout lives in styles.css (.log-cover-overlay); only the
+    // computed glass colour is inline. Returns '' when there is nothing to caption.
+    function renderPreviewCoverOverlay(imageHtml, model, { surface, colors }) {
+        if (!model.show) return '';
+        return `<div class="log-cover log-cover-overlay"><div class="log-cover-image">${imageHtml}</div>`
+            + `<div class="log-cover-caption" style="background:${surface};">${renderCaptionTable(model, colors)}</div></div>`;
+    }
+
+    // Arca: the caption row that follows the cover. Inline styles only and no class attributes
+    // (smoke-display pins that for the whole export). The faint neutral plate matches the split
+    // profile cards, which read on any log background.
+    function renderArcaCoverCaption(model, { colors }) {
+        if (!model.show) return '';
+        return '<div style="margin:10px 0 0;padding:12px 8px;border-radius:14px;background:rgba(128,128,128,0.08);text-align:center;line-height:1.5;">'
+            + `${renderCaptionTable(model, colors)}</div>`;
     }
 
     // ========== Added vintage theme speech bubble wave background ==========
@@ -6590,6 +7804,9 @@ USER: "반가워요."
                     return titleInput ? titleInput.value : '';
                 });
                 const blockColors = Array.from(document.querySelectorAll('.log-block')).map(block => block.dataset.blockColor || '');
+                // Fold state follows the block's id, not its position, so moving or deleting a block
+                // never hands its open/closed state to a neighbour.
+                const blockKeys = Array.from(document.querySelectorAll('.log-block')).map((block, index) => block.dataset.blockId || `index-${index}`);
                 const blockFoldingPreview = document.getElementById('block-folding').checked;
                 const regexRules = collectRegexRules();
 
@@ -6604,10 +7821,14 @@ USER: "반가워요."
                 });
 
                 const preview = document.getElementById('log-preview');
+                // Read before the rebuild below replaces these nodes: what the author opened or closed
+                // to check an edit must survive the re-render that edit triggers.
+                const previousFoldOpen = new Map(Array.from(
+                    preview.querySelectorAll('details.log-fold[data-block-key]'),
+                    fold => [fold.dataset.blockKey, fold.open]
+                ));
                 const unconfiguredCharacterNumbers = new Set();
                 let html = '';
-                const coverSource = getCoverSource(presentation);
-                if (coverSource) html += `<div class="log-cover"><img src="${escapeHtmlAttribute(coverSource)}" alt="표지 이미지"></div>`;
 
                 // Get the character name (define it first as it will be used in the title)
                 const aiName = document.getElementById('name-ai').value || 'AI';
@@ -6645,10 +7866,33 @@ USER: "반가워요."
                 const pvProfileNamePersonaColor = document.getElementById('color-profile-name-persona').value;
                 const pvProfileBioPersonaColor = document.getElementById('color-profile-bio-persona').value;
 
+                const coverSource = getCoverSource(presentation);
+                if (coverSource) {
+                    const coverImage = `<img src="${escapeHtmlAttribute(coverSource)}" alt="표지 이미지">`;
+                    const overlay = renderPreviewCoverOverlay(coverImage, createCoverCaptionModel({
+                        enabled: presentation.coverCaption, profileCardModel, aiName, userName, botBio, personaBio
+                    }), {
+                        surface: resolveCoverCaptionSurface({
+                            backgroundType: document.getElementById('bg-type').value,
+                            solidColor: document.getElementById('bg-solid-color').value,
+                            gradientStartColor: document.getElementById('gradient-start').value,
+                            textColor: document.getElementById('color-text').value
+                        }),
+                        colors: {
+                            bot: { name: pvProfileNameColor, bio: pvProfileBioColor },
+                            persona: { name: pvProfileNamePersonaColor, bio: pvProfileBioPersonaColor }
+                        }
+                    });
+                    // Without a caption the markup stays exactly what every earlier build emitted.
+                    html += overlay || `<div class="log-cover">${coverImage}</div>`;
+                }
+                const titleFont = resolveTitleFontFamily(presentation);
+                const titleFontStyle = titleFont ? `;font-family:${titleFont}` : '';
+
                 if (title || subtitle || aiModel || promptName || translation || characterLinkModel.hasLinks) {
                     html += `<div class="log-title" style="border-bottom-color:${pvTitleColor}">`;
-                    if (title) html += `<h2 style="color:${pvTitleColor}">${escapeHtml(title)}</h2>`;
-                    if (subtitle) html += `<p style="color:${pvSubtitleColor};opacity:0.7">${escapeHtml(subtitle)}</p>`;
+                    if (title) html += `<h2 style="color:${pvTitleColor}${titleFontStyle}">${escapeHtml(title)}</h2>`;
+                    if (subtitle) html += `<p style="color:${pvSubtitleColor};opacity:0.7${titleFontStyle}">${escapeHtml(subtitle)}</p>`;
 
                     // meta information
                     const metaItems = [];
@@ -6764,7 +8008,9 @@ USER: "반가워요."
                     }
 
                     if (blockLabel.fold) {
-                        html += `<details class="log-fold"${blockLabel.startOpen ? ' open' : ''}><summary class="log-fold-summary" style="color:${blockLabel.color};">${escapeHtml(blockLabel.title)}</summary><div class="log-fold-body">`;
+                        const blockKey = blockKeys[blockIndex];
+                        const foldOpen = resolveFoldOpen(blockLabel.startOpen, previousFoldOpen.get(blockKey));
+                        html += `<details class="log-fold" data-block-key="${escapeHtmlAttribute(blockKey)}"${foldOpen ? ' open' : ''}><summary class="log-fold-summary" style="color:${blockLabel.color};">${escapeHtml(blockLabel.title)}</summary><div class="log-fold-body">`;
                     }
 
                     const lines = blockText.split('\n');
@@ -7095,6 +8341,16 @@ USER: "반가워요."
                             fold.setAttribute('open', '');
                         });
 
+                        // html2canvas painted the overlaid caption's glass AFTER its text (an atomic
+                        // inline/grid-item paint-order gap), so the names came out washed out while
+                        // browsers render them correctly. A stacking context in the clone only restores
+                        // background-then-content; the live preview stays untouched.
+                        // smoke-display reads the saved PNG's pixels to keep this honest.
+                        clonedDoc.querySelectorAll('#log-preview .log-cover-caption').forEach(panel => {
+                            panel.style.position = 'relative';
+                            panel.style.zIndex = '1';
+                        });
+
                         // Copy SVG filter elements from cloned document
                         const originalSvg = document.querySelector('svg[style*="position:absolute"]');
                         if (originalSvg) {
@@ -7144,13 +8400,6 @@ USER: "반가워요."
             }
 
     // Decides what applying a preset should do to the rule list and to block colours.
-    //
-    // The distinction this module exists for: a preset field that is ABSENT means "this
-    // preset predates the field, keep what you have", while a field that is PRESENT --
-    // even as an empty list -- is an instruction to end up holding exactly that content.
-    // The application code used to conflate the two, so applying a preset with no rules
-    // left the previous preset's rules on screen, and applying a cleared block colour
-    // left the previous colour on the block.
 
     // A preset field is an instruction only when the preset actually carries it.
     function isPresent(value) {
@@ -7175,10 +8424,10 @@ USER: "반가워요."
 
         return {
             replace: true,
-            rules: source.filter(isUsableRule).map(rule => ({
+            rules: source.filter(isUsableRule).map(rule => withFolder({
                 find: rule.find,
                 replace: typeof rule.replace === 'string' ? rule.replace : ''
-            }))
+            }, rule.folder))
         };
     }
 
@@ -7232,15 +8481,8 @@ USER: "반가워요."
 
             // ========== Save/load preset ==========
             function collectPresetData() {
-                // Regular expression rule collection
-                const regexRules = [];
-                document.querySelectorAll('.rule-item').forEach(item => {
-                    const find = item.querySelector('.rule-find').value;
-                    const replace = item.querySelector('.rule-replace').value;
-                    if (find || replace) {
-                        regexRules.push({ find, replace });
-                    }
-                });
+                // One collector for rules (renderers use it too), so a rule's folder is saved with it.
+                const regexRules = collectRegexRules().filter(rule => rule.find || rule.replace);
 
                 return {
                     presentation: collectPresentation(),
@@ -7308,11 +8550,13 @@ USER: "반가워요."
 
                 if (savedPresets.length === 0) {
                     container.innerHTML = '<div class="preset-empty">저장된 프리셋이 없습니다.<br>상단의 "저장" 버튼으로 현재 설정을 저장하세요.</div>';
+                    refreshListOrganizer('presets');
                     return;
                 }
 
                 container.innerHTML = savedPresets.map((p, i) => `
                 <div class="preset-item">
+                    <span data-organizer-slot></span>
                     <span class="preset-item-name" onclick="loadPresetFromPanel(${i})" title="${escapeHtmlAttribute(p.name)}">${escapeHtml(p.name)}</span>
                     <div class="preset-item-actions">
                         <button class="preset-item-btn rename" onclick="renamePresetFromPanel(${i})" title="이름 수정">📝</button>
@@ -7321,6 +8565,31 @@ USER: "반가워요."
                     </div>
                 </div>
             `).join('');
+                refreshListOrganizer('presets');
+            }
+
+            // A preset's own folder is a top-level `folder` key, separate from the folders of the
+            // characters and rules stored INSIDE it. Saved on the spot, like theme folders.
+            function getPresetFolders() {
+                return readJsonArray('logPresets').map(preset => normalizeFolderName(preset?.folder));
+            }
+
+            function setPresetFolder(index, folder) {
+                const savedPresets = readJsonArray('logPresets');
+                if (!savedPresets[index]) return false;
+                savedPresets[index] = withFolder(savedPresets[index], folder);
+                if (!safeSetItem('logPresets', JSON.stringify(savedPresets))) return false;
+                renderPresetListPanel();
+                return true;
+            }
+
+            function renamePresetFolders(oldName, newName) {
+                const savedPresets = readJsonArray('logPresets');
+                const renamed = savedPresets.map(preset =>
+                    normalizeFolderName(preset?.folder) === oldName ? withFolder(preset, newName) : preset);
+                if (!safeSetItem('logPresets', JSON.stringify(renamed))) return false;
+                renderPresetListPanel();
+                return true;
             }
 
             function applyPresetData(preset, { persistPresentation = true } = {}) {
@@ -7460,8 +8729,10 @@ USER: "반가워요."
                 if (ruleTransition.replace) {
                     document.getElementById('rule-list').innerHTML = '';
                     ruleTransition.rules.forEach(rule => {
-                        addRule(rule.find, rule.replace);
+                        addRule(rule.find, rule.replace, rule.folder);
                     });
+                    // An empty rule list adds no row, so nothing above would refresh the folder counts.
+                    refreshListOrganizer('regex');
                 }
 
                 // Load block folding options
@@ -7517,7 +8788,8 @@ USER: "반가워요."
 
                 if (!confirm(`"${oldPreset.name}" 프리셋을 현재 설정으로 수정하시겠습니까?`)) return;
 
-                const newPreset = collectPresetData();
+                // Rebuilt from the current controls; name and folder are the two fields they do not own.
+                const newPreset = withFolder(collectPresetData(), oldPreset.folder);
                 newPreset.name = oldPreset.name;
 
                 // Resize and compress avatars to save storage space
@@ -7682,6 +8954,7 @@ USER: "반가워요."
 
                 // Initialize regular expression rules
                 document.getElementById('rule-list').innerHTML = '';
+                refreshListOrganizer('regex');
 
                 // These outlive the screen. The avatar caches and the current-selection index
                 // used to survive a reset and come back on the next reload, which made the
@@ -7910,13 +9183,28 @@ USER: "반가워요."
                 // Start outer container (80% width, center aligned)
                 html += `<div style="${bgStyle}${frameCSS}padding:24px;border-radius:${borderRadius}px;font-family:${FONT_FAMILIES[presentation.fontFamily]};font-size:${fontSize}px;line-height:${document.getElementById('style-line-height').value || '1.7'};color:${textColor} !important;width:${arcaWidth}%;max-width:100%;margin:0 auto;text-align:left;word-break:break-word;overflow-wrap:break-word;box-sizing:border-box;">`;
                 const coverSource = getCoverSource(presentation);
-                if (coverSource) html += `<div style="margin:0 0 24px;text-align:center;"><img src="${escapeHtmlAttribute(coverSource)}" alt="표지 이미지" style="display:block;width:100%;max-width:100%;height:auto;border-radius:8px;margin:0 auto;"></div>`;
+                if (coverSource) {
+                    const coverImage = `<img src="${escapeHtmlAttribute(coverSource)}" alt="표지 이미지" style="display:block;width:100%;max-width:100%;height:auto;border-radius:8px;margin:0 auto;">`;
+                    // Under the cover, not over it: Arca paints its article images positioned and strips
+                    // every property that could lift a panel above one (see cover-caption.js).
+                    const caption = renderArcaCoverCaption(createCoverCaptionModel({
+                        enabled: presentation.coverCaption, profileCardModel, aiName, userName, botBio, personaBio
+                    }), {
+                        colors: {
+                            bot: { name: profileNameColor, bio: profileBioColor },
+                            persona: { name: profileNamePersonaColor, bio: profileBioPersonaColor }
+                        }
+                    });
+                    html += `<div style="margin:0 0 24px;text-align:center;">${coverImage}${caption}</div>`;
+                }
+                const titleFont = resolveTitleFontFamily(presentation);
+                const titleFontStyle = titleFont ? `font-family:${titleFont};` : '';
 
                 // title
                 if (title || subtitle || aiModel || promptName || translation || characterLinkModel.hasLinks) {
                     html += `<div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(128,128,128,0.3);">`;
-                    if (title) html += `<div style="font-size:1.8em;font-weight:700;margin-bottom:6px;color:${titleColor} !important;">${escapeHtml(title)}</div>`;
-                    if (subtitle) html += `<div style="font-size:1.1em;color:${subtitleColor} !important;">${escapeHtml(subtitle)}</div>`; const metaItems = [];
+                    if (title) html += `<div style="font-size:1.8em;font-weight:700;margin-bottom:6px;${titleFontStyle}color:${titleColor} !important;">${escapeHtml(title)}</div>`;
+                    if (subtitle) html += `<div style="font-size:1.1em;${titleFontStyle}color:${subtitleColor} !important;">${escapeHtml(subtitle)}</div>`; const metaItems = [];
                     if (aiModel) metaItems.push(`🍧 ${escapeHtml(aiModel)}`);
                     if (promptName) metaItems.push(`💝 ${escapeHtml(promptName)}`);
                     if (translation) metaItems.push(`💌 ${escapeHtml(translation)}`);
@@ -8025,8 +9313,11 @@ USER: "반가워요."
                         html += `<div style="margin:16px 0 12px;padding:10px 20px;border-radius:10px;font-size:1.1em;font-weight:700;background:rgba(128,128,128,0.08);text-align:center;border:1px solid rgba(128,128,128,0.15);"><span style="color:${blockLabel.color}">${escapeHtml(blockLabel.title)}</span></div>`;
                     }
 
+                    // Every copied block ships collapsed: the paste should look like what a reader gets
+                    // (Arca's save strips `open` anyway), and the preview's open blocks are the
+                    // author's working state, not part of the log. Owner ruling 2026-10-04.
                     if (blockLabel.fold) {
-                        html += `<details${blockLabel.startOpen ? ' open' : ''} style="margin:10px 0;"><summary style="cursor:pointer;padding:8px 12px;background:rgba(128,128,128,0.1);border-radius:6px;font-weight:600;color:${blockLabel.color}"><span style="color:${blockLabel.color}">${escapeHtml(blockLabel.title)}</span></summary><div style="padding:10px 0;">`;
+                        html += `<details style="margin:10px 0;"><summary style="cursor:pointer;padding:8px 12px;background:rgba(128,128,128,0.1);border-radius:6px;font-weight:600;color:${blockLabel.color}"><span style="color:${blockLabel.color}">${escapeHtml(blockLabel.title)}</span></summary><div style="padding:10px 0;">`;
                     }
 
                     const lines = blockText.split('\n');
@@ -8310,6 +9601,124 @@ USER: "반가워요."
                 return html;
             }
 
+    // The catalogue of app-UI designs the owner can preview and choose (2026-10-02). A skin restyles
+    // the EDITOR only — header, sidebar, buttons, the stage behind the preview. The log itself (its
+    // themes, the Arca export, the saved PNG) never reads a skin, so switching cannot change output.
+    //
+    // Stable IDs are persisted; never rename one. `classic` is the design every earlier build shipped,
+    // and the only one that follows the 🌙 light/dark toggle (each other skin is one fixed palette).
+    const UI_SKINS = Object.freeze([
+        Object.freeze({ id: 'classic', name: '클래식', note: '지금까지의 디자인 · 🌙 다크/라이트 전환',
+            swatches: Object.freeze(['#25262b', '#339af0', '#40c057']) }),
+        Object.freeze({ id: 'paper', name: '종이', note: '따뜻한 미색 바탕 + 초록 포인트 하나 · 조각로그 느낌',
+            swatches: Object.freeze(['#f3f1ed', '#ffffff', '#3d6b55']) }),
+        Object.freeze({ id: 'editorial', name: '에디토리얼', note: '먹색 글자 + 테라코타 · 모노 소제목 · 메모리얼 느낌',
+            swatches: Object.freeze(['#efebe3', '#171313', '#b35a4f']) }),
+        Object.freeze({ id: 'night', name: '차분한 밤', note: '어두운 바탕 + 라벤더 포인트 하나 · 버튼 색 정리',
+            swatches: Object.freeze(['#16171b', '#22232a', '#8b7cf6']) })
+    ]);
+
+    const DEFAULT_UI_SKIN = 'classic';
+
+    function normalizeUiSkin(value) {
+        return UI_SKINS.some(skin => skin.id === value) ? value : DEFAULT_UI_SKIN;
+    }
+
+    // Only `classic` keeps the old per-colour buttons and the light/dark toggle.
+    function isCustomUiSkin(id) {
+        return normalizeUiSkin(id) !== DEFAULT_UI_SKIN;
+    }
+
+    // This module owns the 🖌️ design picker: which app-UI skin is on the <body>, the menu that lets the
+
+    // A plain string, not JSON: one value, nothing to normalise beyond the catalogue check.
+    const UI_SKIN_STORAGE_KEY = 'logUiSkin';
+    const MENU_CLASS = 'ui-skin-menu';
+
+    function readStoredSkin() {
+        try { return normalizeUiSkin(localStorage.getItem(UI_SKIN_STORAGE_KEY)); }
+        catch (e) { return normalizeUiSkin(null); }
+    }
+
+    // The redesigned skins set their UI in Pretendard. It is lazily fetched like the optional log
+    // fonts, so `classic` users never pay for it.
+    function ensureUiFont() {
+        const href = getFontStylesheet('pretendard');
+        if (!href || document.querySelector(`link[data-ui-skin-font]`)) return;
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.dataset.uiSkinFont = 'true';
+        document.head.appendChild(link);
+    }
+
+    function applyUiSkin(value, { persist = true } = {}) {
+        const id = normalizeUiSkin(value);
+        const body = document.body;
+        for (const skin of UI_SKINS) body.classList.remove(`ui-skin-${skin.id}`);
+        body.classList.remove('ui-skin-custom');
+        if (isCustomUiSkin(id)) {
+            body.classList.add(`ui-skin-${id}`, 'ui-skin-custom');
+            ensureUiFont();
+        }
+        body.dataset.uiSkin = id;
+        if (persist) safeSetItem(UI_SKIN_STORAGE_KEY, id, { evictCaches: false });
+        return id;
+    }
+
+    function closeMenu() {
+        document.querySelector(`.${MENU_CLASS}`)?.remove();
+        document.getElementById('ui-skin-button')?.setAttribute('aria-expanded', 'false');
+    }
+
+    function openMenu(button) {
+        closeMenu();
+        closeMoveMenu();
+        const current = document.body.dataset.uiSkin;
+        const menu = document.createElement('div');
+        menu.className = MENU_CLASS;
+        menu.setAttribute('role', 'menu');
+        menu.innerHTML = '<div class="ui-skin-menu-title">화면 디자인 고르기 <span>로그 결과물은 바뀌지 않아요</span></div>'
+            + UI_SKINS.map(skin => `<button type="button" role="menuitemradio" aria-checked="${skin.id === current}" data-skin="${escapeHtmlAttribute(skin.id)}">`
+                + `<span class="ui-skin-swatches">${skin.swatches.map(color => `<i style="background:${color}"></i>`).join('')}</span>`
+                + `<span class="ui-skin-text"><b>${escapeHtml(skin.name)}</b><small>${escapeHtml(skin.note)}</small></span></button>`).join('');
+        menu.addEventListener('click', event => {
+            const option = event.target.closest('button[data-skin]');
+            if (!option) return;
+            event.stopPropagation();
+            applyUiSkin(option.dataset.skin);
+            // Stay open so the owner can flip between designs and compare.
+            menu.querySelectorAll('button[data-skin]').forEach(item => item.setAttribute('aria-checked', String(item === option)));
+        });
+        document.body.appendChild(menu);
+        // Never past the bottom of a short (landscape phone) screen: the rest scrolls inside the menu.
+        const rect = button.getBoundingClientRect();
+        const top = Math.min(rect.bottom + 8, Math.max(8, window.innerHeight - 160));
+        menu.style.top = `${top}px`;
+        menu.style.maxHeight = `${window.innerHeight - top - 8}px`;
+        menu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - menu.offsetWidth - 8))}px`;
+        button.setAttribute('aria-expanded', 'true');
+    }
+
+    function initializeUiSkins() {
+        if (!document.body.dataset.uiSkin) applyUiSkin(readStoredSkin(), { persist: false });
+        const button = document.getElementById('ui-skin-button');
+        button?.addEventListener('click', event => {
+            event.stopPropagation();
+            if (document.querySelector(`.${MENU_CLASS}`)) closeMenu();
+            else openMenu(button);
+        });
+        document.addEventListener('click', event => {
+            if (!event.target.closest?.(`.${MENU_CLASS}`)) closeMenu();
+        });
+        document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
+        window.addEventListener('resize', closeMenu);
+    }
+
+    // Applied the moment this module evaluates — the bundle runs at the end of <body>, before first
+    // paint — instead of on window load, which showed the dark classic editor first on every visit.
+    if (typeof document !== 'undefined' && document.body?.classList) applyUiSkin(readStoredSkin(), { persist: false });
+
     // ========== Live Preview + Focus Tracking ==========
             // Add event listener to textarea in first block
             document.querySelectorAll('.log-block-input').forEach(textarea => {
@@ -8462,6 +9871,45 @@ AI: 빙그레 웃는다`;
                     });
                 }
 
+                // The editor's design first, so everything below renders inside the chosen skin.
+                initializeUiSkins();
+
+                // Folder bar + pager for the lists that grow without bound. Registered before the
+                // first render below so that render already lands on page 1 of the stored page size.
+                registerListOrganizer({
+                    key: 'characters', label: '캐릭터',
+                    listElement: document.getElementById('extra-characters-container'),
+                    getItemElements: () => document.querySelectorAll('#extra-characters-container > .extra-char-card'),
+                    getItemFolders: getExtraCharacterFolders,
+                    setItemFolder: setExtraCharacterFolder,
+                    renameItemFolders: renameExtraCharacterFolders
+                });
+                registerListOrganizer({
+                    key: 'regex', label: '정규식',
+                    listElement: document.getElementById('rule-list'),
+                    getItemElements: getRuleElements,
+                    getItemFolders: getRuleFolders,
+                    setItemFolder: setRuleFolder,
+                    renameItemFolders: renameRuleFolders
+                });
+                registerListOrganizer({
+                    key: 'themes', label: '테마',
+                    listElement: document.getElementById('saved-themes'),
+                    getItemElements: () => document.querySelectorAll('#saved-themes .saved-theme-row'),
+                    getItemFolders: getThemeFolders,
+                    setItemFolder: setThemeFolder,
+                    renameItemFolders: renameThemeFolders
+                });
+                registerListOrganizer({
+                    key: 'presets', label: '프리셋',
+                    listElement: document.getElementById('preset-list-panel'),
+                    getItemElements: () => document.querySelectorAll('#preset-list-panel .preset-item'),
+                    getItemFolders: getPresetFolders,
+                    setItemFolder: setPresetFolder,
+                    renameItemFolders: renamePresetFolders
+                });
+                initializeListOrganizerDismissal();
+
                 applyStyles(); // Apply style first
                 requestLogRender();
                 renderSavedThemes();
@@ -8554,7 +10002,8 @@ AI: 빙그레 웃는다`;
                 const name = prompt('프리셋 이름을 입력하세요:');
                 if (!name) return;
 
-                const preset = collectPresetData();
+                // Filed into the folder being viewed in the same write, never by a second one that could fail.
+                const preset = withFolder(collectPresetData(), getActiveListFolder('presets'));
                 preset.name = name;
 
                 // Resize and compress avatars to save storage space
@@ -8572,6 +10021,8 @@ AI: 빙그레 웃는다`;
                 // preset the user can see but that is not actually stored.
                 if (!safeSetItem('logPresets', JSON.stringify(savedPresets))) return;
                 renderPresetListPanel();
+                // Saved while a folder is open → filed there, and its page is shown.
+                revealNewListItem('presets', savedPresets.length - 1);
                 alert('프리셋이 저장되었습니다!');
             }
 
@@ -8643,6 +10094,7 @@ AI: 빙그레 웃는다`;
         addCharLinkRow: addCharLinkRow,
         addExtraCharacter: addExtraCharacter,
         addLogBlock: addLogBlock,
+        addNewRule: addNewRule,
         addRule: addRule,
         applyBlockColor: applyBlockColor,
         applyStyles: applyStyles,
