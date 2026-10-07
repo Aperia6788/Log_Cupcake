@@ -1412,23 +1412,6 @@
             border-radius: 8px;
         }
 
-        /* Cover with names laid over its bottom edge (preview + saved PNG only; the Arca export puts
-           them under the cover — see cover-caption.js). One grid cell holds both: a cover shorter
-           than its caption grows to fit instead of the panel escaping above the log. */
-        .log-cover-overlay { display: grid; }
-        .log-cover-overlay > .log-cover-image,
-        .log-cover-overlay > .log-cover-caption { grid-area: 1 / 1; min-width: 0; }
-        .log-cover-overlay > .log-cover-image { align-self: start; line-height: 0; }
-        .log-cover-overlay > .log-cover-caption {
-            align-self: end;
-            margin: 0.8em;
-            padding: 0.7em 0.6em;
-            border-radius: 12px;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
-            line-height: 1.5;
-            text-align: center;
-        }
-
         #log-preview.display-simple .simple-line {
             margin: 12px 0;
             padding: 0;
@@ -3619,14 +3602,10 @@ USER: "반가워요."
                             <p id="cover-image-status" class="presentation-hint" role="status"></p>
                             <label class="presentation-check">
                                 <input type="checkbox" id="cover-caption" checked>
-                                <span>표지 아래쪽에 봇·페르소나 이름과 소개 겹쳐 올리기</span>
+                                <span>표지 바로 아래에 봇·페르소나 이름과 소개 넣기</span>
                             </label>
-                            <!-- Measured on a real Arca save (2026-10-02): Arca positions article images and
-                                 strips position/z-index/opacity, so an overlapped caption would sit hidden
-                                 behind the cover. The export therefore places it directly under the cover. -->
-                            <p class="presentation-hint" id="cover-caption-arca-note">미리보기·📷 이미지 저장에선 표지 위에 겹쳐 보여요. 아카라이브는 글 저장 때 겹치기를 지워 버려서, ✨ 복사·HTML로 붙여넣으면 표지 바로 아래 칸으로 들어가요.</p>
                             <button type="button" id="cover-image-remove" class="btn btn-secondary">표지 이미지 제거</button>
-                            <p class="presentation-hint">원본 비율로 표시합니다. 이름·소개는 이름을 바꿨거나 사진·소개가 있는 쪽만 반투명 칸에 올라가고(기본 이름 AI·USER 그대로면 안 나와요), 프로필 사진은 표지가 대신합니다. 2분할로 돌아가면 기존 프로필 사진과 소개가 다시 나타납니다.</p>
+                            <p class="presentation-hint">원본 비율로 표시합니다. 이름·소개는 이름을 바꿨거나 사진·소개가 있는 쪽만 표지 아래 칸에 들어가요(기본 이름 AI·USER 그대로면 안 나와요). 미리보기·이미지 저장·아카라이브 모두 같은 모양이에요. 프로필 사진은 표지가 대신합니다. 2분할로 돌아가면 기존 프로필 사진과 소개가 다시 나타납니다.</p>
                         </div>
                     </div>
                     <div class="section">
@@ -4000,28 +3979,6 @@ USER: "반가워요."
             cells.push({ role: 'persona', name: userName, bio: profileCardModel.persona.showBio ? personaBio : '' });
         }
         return { show: cells.length > 0, cells };
-    }
-
-    // See-through enough to keep the cover visible behind the text, opaque enough that any image
-    // region still reads as the panel's colour.
-    const COVER_CAPTION_SURFACE_ALPHA = 0.78;
-    const SIX_DIGIT_HEX$1 = /^#[0-9a-f]{6}$/i;
-    const FALLBACK_SURFACE = '#ffffff';
-
-    function toRgba(hex, alpha) {
-        const source = SIX_DIGIT_HEX$1.test(hex) ? hex : FALLBACK_SURFACE;
-        const channel = offset => parseInt(source.slice(offset, offset + 2), 16);
-        return `rgba(${channel(1)}, ${channel(3)}, ${channel(5)}, ${alpha})`;
-    }
-
-    // The profile name/bio colours were picked to read on the LOG background, so the panel is made of
-    // that background. A transparent log has none to borrow; its text colour is the one stated intent,
-    // so the panel takes the contrasting side of it — the same reasoning as resolveLogHeadingColor.
-    function resolveCoverCaptionSurface({ backgroundType, solidColor, gradientStartColor, textColor }) {
-        let base;
-        if (backgroundType === 'none') base = SIX_DIGIT_HEX$1.test(textColor) ? getContrastColor(textColor) : FALLBACK_SURFACE;
-        else base = backgroundType === 'gradient' ? gradientStartColor : solidColor;
-        return toRgba(base, COVER_CAPTION_SURFACE_ALPHA);
     }
 
     function createBlockLabelModel({
@@ -7810,18 +7767,10 @@ USER: "반가워요."
             + `<tr>${cells}</tr></table>`;
     }
 
-    // Preview: the whole cover block. Layout lives in styles.css (.log-cover-overlay); only the
-    // computed glass colour is inline. Returns '' when there is nothing to caption.
-    function renderPreviewCoverOverlay(imageHtml, model, { surface, colors }) {
-        if (!model.show) return '';
-        return `<div class="log-cover log-cover-overlay"><div class="log-cover-image">${imageHtml}</div>`
-            + `<div class="log-cover-caption" style="background:${surface};">${renderCaptionTable(model, colors)}</div></div>`;
-    }
-
-    // Arca: the caption row that follows the cover. Inline styles only and no class attributes
-    // (smoke-display pins that for the whole export). The faint neutral plate matches the split
-    // profile cards, which read on any log background.
-    function renderArcaCoverCaption(model, { colors }) {
+    // The caption row that follows the cover. Inline styles only and no class attributes (the Arca
+    // export carries none; smoke-display pins it). The faint neutral plate matches the split profile
+    // cards, which read on any log background. Returns '' when there is nothing to caption.
+    function renderCoverCaption(model, { colors }) {
         if (!model.show) return '';
         return '<div style="margin:10px 0 0;padding:12px 8px;border-radius:14px;background:rgba(128,128,128,0.08);text-align:center;line-height:1.5;">'
             + `${renderCaptionTable(model, colors)}</div>`;
@@ -8054,22 +8003,16 @@ USER: "반가워요."
                 const coverSource = getCoverSource(presentation);
                 if (coverSource) {
                     const coverImage = `<img src="${escapeHtmlAttribute(coverSource)}" alt="표지 이미지">`;
-                    const overlay = renderPreviewCoverOverlay(coverImage, createCoverCaptionModel({
+                    // Under the cover, never over it: the same row the Arca export carries.
+                    const caption = renderCoverCaption(createCoverCaptionModel({
                         enabled: presentation.coverCaption, profileCardModel, aiName, userName, botBio, personaBio
                     }), {
-                        surface: resolveCoverCaptionSurface({
-                            backgroundType: document.getElementById('bg-type').value,
-                            solidColor: document.getElementById('bg-solid-color').value,
-                            gradientStartColor: document.getElementById('gradient-start').value,
-                            textColor: document.getElementById('color-text').value
-                        }),
                         colors: {
                             bot: { name: pvProfileNameColor, bio: pvProfileBioColor },
                             persona: { name: pvProfileNamePersonaColor, bio: pvProfileBioPersonaColor }
                         }
                     });
-                    // Without a caption the markup stays exactly what every earlier build emitted.
-                    html += overlay || `<div class="log-cover">${coverImage}</div>`;
+                    html += `<div class="log-cover">${coverImage}${caption}</div>`;
                 }
                 const titleFont = resolveTitleFontFamily(presentation);
                 const titleFontStyle = titleFont ? `;font-family:${titleFont}` : '';
@@ -8524,16 +8467,6 @@ USER: "반가워요."
                         clonedDoc.querySelectorAll('#log-preview details').forEach(fold => {
                             fold.open = true;
                             fold.setAttribute('open', '');
-                        });
-
-                        // html2canvas painted the overlaid caption's glass AFTER its text (an atomic
-                        // inline/grid-item paint-order gap), so the names came out washed out while
-                        // browsers render them correctly. A stacking context in the clone only restores
-                        // background-then-content; the live preview stays untouched.
-                        // smoke-display reads the saved PNG's pixels to keep this honest.
-                        clonedDoc.querySelectorAll('#log-preview .log-cover-caption').forEach(panel => {
-                            panel.style.position = 'relative';
-                            panel.style.zIndex = '1';
                         });
 
                         // Copy SVG filter elements from cloned document
@@ -9410,7 +9343,7 @@ USER: "반가워요."
                     const coverImage = `<img src="${escapeHtmlAttribute(coverSource)}" alt="표지 이미지" style="display:block;width:100%;max-width:100%;height:auto;border-radius:8px;margin:0 auto;">`;
                     // Under the cover, not over it: Arca paints its article images positioned and strips
                     // every property that could lift a panel above one (see cover-caption.js).
-                    const caption = renderArcaCoverCaption(createCoverCaptionModel({
+                    const caption = renderCoverCaption(createCoverCaptionModel({
                         enabled: presentation.coverCaption, profileCardModel, aiName, userName, botBio, personaBio
                     }), {
                         colors: {
